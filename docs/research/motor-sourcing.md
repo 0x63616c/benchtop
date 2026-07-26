@@ -39,6 +39,31 @@ assume a 12V motor rail** (2S3P native-ish or 1S+boost).
    B0GXFCDQYC "12V176", flexman family B0CRDR*) carry the same OEM motor;
    re-verify rpm variant before ordering.
 
+## Dimensions (ASLONG JGB37-520B factory datasheet — encoder version)
+
+Source: [aslong-jgb37-520.pdf](datasheets/aslong-jgb37-520.pdf) (aslongdcmotor.com).
+Amazon listings are this OEM class; verify against delivered unit with calipers
+before enclosure print.
+
+- Gearbox: **Ø37**, length **L=24mm** for 1:90 ratio. Front face: **6×M3 on
+  Ø31 BCD**, uniform distribution.
+- **Output shaft eccentric: 7mm off center axis.** Ø6 D-shaft (flat → 5.4mm
+  across), **15.5mm** long, on a **6mm**-tall front boss.
+- Motor (520): Ø33 × 22.7mm + 3.5mm terminal end; encoder cap adds ~12mm rear.
+- Overall body (encoder rear → gearbox face) ≈ **62mm**; + boss 6 + shaft 15.5
+  ⇒ **~84mm tip-to-tail**.
+- Datasheet perf @12V 1:90: 110rpm no-load (120mA), **85rpm @ 10 kg·cm
+  (0.98Nm) rated, 1A**; stall 15 kg·cm. Comfortably over the 0.6Nm spec —
+  better margin than the listing-class estimate above.
+- Encoder wiring: M+, M−, hall GND, hall Vcc (3.3–5V), A out, B out — 11
+  pulses/motor-rev ⇒ ×4×90 = 3960 counts/output-rev.
+
+**⚠ Fit flag for enclosure ticket:** 84mm motor axis vs 30–35mm off-wall
+target — axis can't point into the room. Motor must lie parallel to wall
+(unit width ≤100mm holds: 84mm fits; depth then Ø37+walls ≈ 42mm, still over
+35mm target) with chain twisting ~90° over the drop, or a 90° drive revisits
+#17's direct-drive call. Resolve in enclosure design.
+
 ## Rejected
 
 - flexman family (Prime, next-day, $15–23): no ~100rpm variant (12/20/37/60/
