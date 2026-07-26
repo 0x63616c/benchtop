@@ -151,6 +151,10 @@ module BlindsDriverBoard:
 
     signal stat_a     # LED anode side of the status resistor
 
+    signal p3v3_tab   # the hall tab's own rails — see the tab section
+    signal gnd_tab
+    signal hall_do_tab
+
     # === USB-C input + PD sink ===========================================
     j_usb = new USB_C_16P_package
     pd = new HUSB238A_package
@@ -555,15 +559,18 @@ module BlindsDriverBoard:
     gnd ~ j_hall.2
     hall_do ~ j_hall.3
 
+    # The tab's rails are their OWN nets. Once it is snapped off the two halves
+    # only meet through the cable, so pretending they are one net would let the
+    # router lay copper across the neck and leave torn traces after the snap.
     j_hall_tab = new XH_3AW_package     # tab: cable back to the main board
-    p3v3 ~ j_hall_tab.1
-    gnd ~ j_hall_tab.2
-    hall_do ~ j_hall_tab.3
+    p3v3_tab ~ j_hall_tab.1
+    gnd_tab ~ j_hall_tab.2
+    hall_do_tab ~ j_hall_tab.3
 
     hall = new DRV5032FBDBZR_package
-    p3v3 ~ hall.VCC
-    gnd ~ hall.GND
-    hall_do ~ hall.OUT
+    p3v3_tab ~ hall.VCC
+    gnd_tab ~ hall.GND
+    hall_do_tab ~ hall.OUT
     c_hall = new C0603_100NF_package
-    p3v3 ~ c_hall.1
-    gnd ~ c_hall.2
+    p3v3_tab ~ c_hall.1
+    gnd_tab ~ c_hall.2

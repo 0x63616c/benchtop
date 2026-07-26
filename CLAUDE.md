@@ -49,6 +49,8 @@ Auto-commit each coherent step, silently. Good trace > big commits.
 
 ## PCB
 
+- `PCB_BOARD` picks the project the pcb commands drive (default `driver-board`;
+  the blinds board is `PCB_BOARD=blinds-board just pcb ...`).
 - `just pcb` = ctl's pcb menu. Direct: `just pcb view|drc|build|place`.
   `view` = live 3D board in the CURRENT pane (tab 1 logs, tab 2 GLB viewer;
   Ctrl-C = full teardown) — same shape as `just cad view`, own port (3950+),
@@ -76,3 +78,9 @@ Auto-commit each coherent step, silently. Good trace > big commits.
   from symbols). Verify LCSC stock via jlcpcb.com search API first.
 - Bench-proven pinout is law: IN1-4 = D0-D3, hall DO = D8 (internal pull-up).
   Don't reassign without updating firmware + bench-setup memory.
+- `pcb/blinds-board/` = the blinds driver (#22): 38x66mm + snap-off hall tab,
+  6 layers, 87 footprints. Too big to hand-route from a waypoint table, so
+  `tools/router.py` is an A* grid router and `tools/place_and_render.py` holds
+  the anchors + passive BANKS it routes between. GND is never routed (In1/In4
+  are poured planes + stitching vias). Read both docstrings before moving a
+  part — the fine-pitch fanout and the clearance model are load-bearing.
