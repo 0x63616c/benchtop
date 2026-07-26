@@ -25,11 +25,23 @@ SPROCKET_IN_UNIT = Pos(P.spr_x, P.axis_y, P.axis_z) * Rot(0, 90, 0) * Rot(0, 0, 
 # Chain ghost is built unit-aligned (axis +X at origin) — translate only.
 CHAIN_IN_UNIT = Pos(P.spr_x, P.axis_y, P.axis_z)
 
-# Cell stack: cell 0 axis through (bay_x, bay_y, bay_z0), axes along +X.
-CELLS_IN_UNIT = Pos(P.bay_x, P.bay_y, P.bay_z0)
+# Battery bay (cells + holders + carrier share one frame): cell 0 axis
+# through (bay_x, cell_axis_y, bay_z0), cells along +X, carrier at -y.
+BAY_IN_UNIT = Pos(P.bay_x, P.cell_axis_y, P.bay_z0)
 
 # PCB envelope: plain box built centred; place its centre.
 PCB_IN_UNIT = Pos(P.pcb_x, P.enc_d / 2, P.pcb_z0 + P.pcb_h / 2)
+
+# USB-C receptacle: centred box onto the board's motor-side face, mouth
+# flush with the floor's inner face.
+USBC_IN_UNIT = Pos(
+    P.pcb_x + P.pcb_t / 2 + P.usb_body_h / 2, P.axis_y, P.pcb_z0 + P.usb_body_l / 2
+)
+
+
+def btn_in_unit(z: float):
+    """Tactile body centre on the board's wall-side face at height z."""
+    return Pos(P.pcb_x - P.pcb_t / 2 - P.btn_body_t / 2, P.axis_y, z)
 
 # Wall plate: its own frame is x centred, y=0 at the FRONT face (wall
 # side is -y), z=0 at the plate bottom. Hangs behind the unit.

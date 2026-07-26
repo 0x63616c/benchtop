@@ -36,6 +36,8 @@ def shell():
     body += _bulkhead()
     body += _wrap_guide()
     body += _cleat_hook()
+    body += _pcb_rails()
+    body += _carrier_bosses()
 
     # chain slots through the top face, over the two strands
     for y in P.strand_y:
@@ -48,12 +50,45 @@ def shell():
         body -= Pos(t / 2, P.axis_y, z) * (
             Rot(0, 90, 0) * Cylinder(P.btn_d / 2, t + 2)
         )
-    # USB-C, bottom face
+    # USB-C, bottom face — clearance for the plug shell into the
+    # board-mounted receptacle sitting flush on the inner floor
     body -= _box(
         P.usb_x - P.usb_w / 2, P.axis_y - P.usb_t / 2, -1,
         P.usb_x + P.usb_w / 2, P.axis_y + P.usb_t / 2, t + 1,
     )
     return body
+
+
+def _pcb_rails():
+    """Card-edge towers off floor + left wall: the main PCB slides down
+    into 2.0 grooves; closed tops react USB plug push-up."""
+    g0, g1 = P.pcb_x - 1.0, P.pcb_x + 1.0  # groove x span (board ±0.2)
+    rails = _box(2, 2, 2, 9.3, 5.9, P.rail_top)  # back-edge tower (y≈4 edge)
+    rails += _box(2, 36.1, 2, 9.3, 40, P.rail_top)  # front-edge tower (y≈38)
+    rails -= _box(g0, 3.8, 2, g1, 6.0, P.rail_top - 1)
+    rails -= _box(g0, 36.0, 2, g1, 38.2, P.rail_top - 1)
+    return rails
+
+
+def _carrier_bosses():
+    """4× M3 heat-set standoffs off the back wall for the battery
+    carrier PCB (holders solder to it; it busses the 2S3P pack)."""
+    import math  # noqa: F401  (parallel with _bulkhead's local import style)
+
+    w = P.holder_l + 0.4
+    h = (P.cell_n - 1) * P.cell_pitch + P.holder_w + 2.0
+    zc = P.bay_z0 + (P.cell_n - 1) * P.cell_pitch / 2
+    bosses = None
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            x = P.bay_x + sx * (w / 2 - 4)
+            z = zc + sz * (h / 2 - 4)
+            b = Pos(x, (P.enc_wall + P.carrier_y0) / 2, z) * (
+                Rot(90, 0, 0) * Cylinder(4.0, P.carrier_y0 - P.enc_wall)
+            )
+            b -= Pos(x, P.carrier_y0 - 3, z) * (Rot(90, 0, 0) * Cylinder(2.3, 6.2))
+            bosses = b if bosses is None else bosses + b
+    return bosses
 
 
 def _bulkhead():

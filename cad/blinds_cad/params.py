@@ -39,12 +39,21 @@ class Params:
     jgb_screw_d: float = 3.0
     jgb_screw_depth: float = 5.0
 
-    # --- 21700 cell (Samsung 50E) + contact envelope (BOM #19 pins holder) ---
+    # --- 21700 cell (Samsung 50E) in Bistook 1-slot PCB holder
+    # (BOM #19, Amazon B0BSC61X69 — listing-verified 3.27×0.94×0.86in;
+    # caliper on arrival). Holders solder to a battery CARRIER PCB that
+    # does the 2S3P busing + balance tap; XT30PW power + JST-XH balance
+    # to the main board (#22 adds the connector lines).
     cell_d: float = 21.7
     cell_len: float = 70.6
-    cell_contact: float = 4.0      # spring/tab room per end
-    cell_pitch: float = 23.5       # stack pitch (cell + bay wall)
     cell_n: int = 6                # 2S3P
+    holder_l: float = 83.1         # along the cell
+    holder_w: float = 23.9         # stack direction
+    holder_h: float = 21.8         # off the carrier face
+    cell_pitch: float = 24.5       # holder_w + 0.6 gap
+    carrier_t: float = 1.6
+    carrier_y0: float = 8.5        # carrier back face — clears the cleat hook bar (y<=8)
+    carrier_standoff_d: float = 7.0  # M3 heat-set bosses off the back wall
 
     # --- bead chain (measured: 5mm ball, 6mm pitch) + sprocket (#16) ---
     chain_ball_d: float = 5.0
@@ -66,7 +75,7 @@ class Params:
     # --- enclosure ---
     enc_w: float = 98.0            # <=100 rule
     enc_d: float = 42.0            # accepted off-wall depth
-    enc_h: float = 190.0
+    enc_h: float = 196.0           # 6× real holders at 24.5 pitch need the room
     enc_wall: float = 2.0          # Ø37 in 42 leaves 0.5/side — thin walls are the point
     enc_fillet: float = 4.0        # vertical outer edges
     bulkhead_t: float = 3.0        # motor-mount rib (6×M3 into it)
@@ -77,25 +86,44 @@ class Params:
     guide_or: float = 17.0         # wrap-guide block outer radius
     chain_slot: float = 7.0        # top-face slot square (ball 5 + joiner room)
 
-    # --- battery bay ---
-    bay_z0: float = 57.0           # first cell axis height (bottom 46.15 clears
-                                   # gearbox top 45.5 and bulkhead top 44)
-    bay_y: float = 19.5            # cell axis depth — back of cells clears the
-                                   # cleat hook bar (y<=8) by 0.65
-    bay_x: float = 43.0            # stack centre — right end 4.2 clear of chain corridor
+    # --- battery bay (holder stack on the carrier) ---
+    bay_z0: float = 58.0           # first cell axis — holder bottom 46.05 clears
+                                   # gearbox top 45.5 and bulkhead top 44
+    bay_x: float = 44.0            # stack centre — holder right end 85.6, 0.9
+                                   # clear of the chain corridor at 86.5
 
-    # --- PCB envelope (vertical, left of motor tail; BOM #19 pins reality) ---
+    # --- PCB (vertical, left of motor tail; #19 parts, #22 pins layout) ---
     pcb_t: float = 1.6
-    pcb_w: float = 34.0            # spans depth-ish
-    pcb_h: float = 36.0            # fits under the battery bay
-    pcb_x: float = 6.0             # board plane centre; comps toward motor (+x)
-    pcb_z0: float = 6.0
-    btn_d: float = 8.0             # two side buttons, left wall
-    btn_z1: float = 30.0           # near PCB top — board-mount plungers
-    btn_z2: float = 44.0
-    usb_w: float = 9.2             # USB-C slot, bottom face
+    pcb_w: float = 34.0            # spans y 4..38
+    pcb_h: float = 38.0            # z 2..40, under the battery bay
+    pcb_x: float = 7.3             # board plane centre — puts button plungers
+                                   # 0.5 proud of the wall, USB clear of motor tail
+    pcb_z0: float = 2.0            # bottom edge ON the floor's inner face so the
+                                   # USB-C mouth is flush with the slot
+
+    # buttons: KH-6X6X7H class 6×6 tactile, board-mounted on the wall-side
+    # face, plunger through the wall. NOTE for #22: BOM line C2837543 is the
+    # RIGHT-ANGLE variant — swap to the straight (top-push) sibling.
+    btn_body: float = 6.0
+    btn_body_t: float = 3.6
+    btn_plunger_d: float = 3.5
+    btn_plunger_len: float = 3.4   # body face -> tip (6×6×7 overall)
+    btn_d: float = 5.0             # wall hole Ø
+    btn_z1: float = 26.0
+    btn_z2: float = 36.0
+
+    # USB-C: TYPE-C-31-M-12 right-angle SMD on the motor-side face, mouth
+    # down through the bottom slot
+    usb_body_w: float = 8.94       # across the board (y)
+    usb_body_l: float = 7.35       # along the board (z)
+    usb_body_h: float = 3.26       # off the board face (x)
+    usb_w: float = 9.2             # bottom-slot cut
     usb_t: float = 3.4
-    usb_x: float = 8.0
+
+    # card-edge rails: printed towers off floor+left wall gripping the
+    # board's y-edges; closed tops react USB insertion push-up
+    rail_groove: float = 2.0       # groove width (board 1.6 + 0.2/side)
+    rail_top: float = 41.0
 
     # --- wall plate + cleat ---
     plate_w: float = 90.0
@@ -123,8 +151,14 @@ class Params:
         return self.jgb_gear_len + self.jgb_can_len + self.jgb_term_len + self.jgb_enc_len
 
     @property
-    def cell_span(self) -> float:
-        return self.cell_len + 2 * self.cell_contact
+    def cell_axis_y(self) -> float:
+        """Cell axis depth: carrier face + holder cradle height."""
+        return self.carrier_y0 + self.carrier_t + self.holder_h - self.cell_d / 2
+
+    @property
+    def usb_x(self) -> float:
+        """Bottom-slot centre = receptacle axis on the board's motor side."""
+        return self.pcb_x + self.pcb_t / 2 + self.usb_body_h / 2
 
     @property
     def spr_x(self) -> float:
