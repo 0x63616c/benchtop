@@ -1,0 +1,16 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component C0603_10NF_package:
+    """
+    10nF 10% 50V X7R 0603.
+    """
+    trait is_atomic_part<manufacturer="FH (Guangdong Fenghua)", partnumber="0603B103K500NT", footprint="C0603.kicad_mod", symbol="0603B103K500NT.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C57112", manufacturer="FH (Guangdong Fenghua)", partno="0603B103K500NT">
+    trait has_designator_prefix<prefix="C">
+
+    # pins
+    pin 1
+    pin 2

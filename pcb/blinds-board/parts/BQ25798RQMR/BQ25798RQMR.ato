@@ -1,0 +1,52 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component BQ25798RQMR_package:
+    """
+    BQ25798 — 1-4 cell buck-boost battery charger with a USB-PD-class input,
+    QFN-29 4x4mm. Charges the 2S3P 21700 pack from the PD 12V input and runs
+    SYS from whichever of input/battery is available.
+    Cell count, charge current and input current limit are I2C registers —
+    the PROG and ILIM_HIZ resistors set power-up defaults only, so firmware
+    must configure 2S before charging is enabled.
+    SW1/SW2 straddle the single buck-boost inductor; BTST1/BTST2 are the two
+    bootstrap caps, each referenced to its own switch node.
+    RQM is a HotRod package: 29 real pads, no exposed thermal pad, so heat
+    leaves through the GND and SYS/BAT pads and their vias.
+    """
+    trait is_atomic_part<manufacturer="Texas Instruments", partnumber="BQ25798RQMR", footprint="QFN-29_L4.0-W4.0-P0.40-TL-BQ25792RQMR.kicad_mod", symbol="BQ25798RQMR.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C2876593", manufacturer="Texas Instruments", partno="BQ25798RQMR">
+    trait has_designator_prefix<prefix="U">
+
+    # pins
+    signal STAT ~ pin 1  # open-drain charge status LED
+    signal VBUS ~ pin 2
+    VBUS ~ pin 3
+    signal BTST1 ~ pin 4
+    signal REGN ~ pin 5  # internal 5V LDO
+    signal DP ~ pin 6
+    signal DM ~ pin 7
+    signal VAC2 ~ pin 8
+    signal VAC1 ~ pin 9
+    signal ACDRV2 ~ pin 10  # external OVP FET gate — unused
+    signal ACDRV1 ~ pin 11  # external OVP FET gate — unused
+    signal QON ~ pin 12  # active-low ship-mode exit / reset
+    signal CE ~ pin 13  # active-low charge enable
+    signal SCL ~ pin 14
+    signal SDA ~ pin 15
+    signal TS ~ pin 16  # pack thermistor sense
+    signal ILIM_HIZ ~ pin 17
+    signal BATP ~ pin 18  # battery voltage sense
+    signal BTST2 ~ pin 19
+    signal PROG ~ pin 20
+    signal INT ~ pin 21  # open-drain interrupt
+    signal BAT ~ pin 22
+    BAT ~ pin 23
+    signal SDRV ~ pin 24  # ship-FET gate — unused
+    signal SYS ~ pin 25
+    signal SW2 ~ pin 26
+    signal GND ~ pin 27
+    signal SW1 ~ pin 28
+    signal PMID ~ pin 29

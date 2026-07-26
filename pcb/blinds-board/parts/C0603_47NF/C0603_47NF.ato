@@ -1,0 +1,16 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component C0603_47NF_package:
+    """
+    47nF 10% 50V X7R 0603.
+    """
+    trait is_atomic_part<manufacturer="Samsung Electro-Mechanics", partnumber="CL10B473KB8NNNC", footprint="C0603.kicad_mod", symbol="CL10B473KB8NNNC.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C1622", manufacturer="Samsung Electro-Mechanics", partno="CL10B473KB8NNNC">
+    trait has_designator_prefix<prefix="C">
+
+    # pins
+    pin 1
+    pin 2

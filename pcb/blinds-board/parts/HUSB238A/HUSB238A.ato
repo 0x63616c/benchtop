@@ -1,0 +1,36 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component HUSB238A_package:
+    """
+    HUSB238A-BB001 — USB Type-C PD 3.0 sink controller, QFN-16 3x3mm.
+    The BB001 order option is the strap-configured variant: the voltage and
+    current it requests are set by resistors on SNK_VSET and SNK_ISET, so no
+    I2C host is needed and negotiation completes before the MCU has booted.
+    GATE drives an external load switch, so VBUS only reaches the charger
+    once a contract is agreed.
+    """
+    trait is_atomic_part<manufacturer="Hynetek", partnumber="HUSB238A-BB001-QN16R", footprint="QFN-16_L3.0-W3.0-P0.50-BL-EP1.7.kicad_mod", symbol="HUSB238A-BB001-QN16R.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C24833806", manufacturer="Hynetek", partno="HUSB238A-BB001-QN16R">
+    trait has_designator_prefix<prefix="U">
+
+    # pins
+    signal DP ~ pin 1
+    signal DM ~ pin 2
+    signal CC1 ~ pin 3
+    signal CC2 ~ pin 4
+    signal VDD ~ pin 5
+    signal DBG_N ~ pin 6
+    signal OUT1 ~ pin 7  # EN_HVDCP in strap mode
+    signal ADDR ~ pin 8  # ORIENT in strap mode
+    signal SNK_VSET ~ pin 9  # strap: requested voltage
+    signal SNK_ISET ~ pin 10  # strap: requested current
+    signal INT_N ~ pin 11
+    signal EN_N ~ pin 12
+    signal OUT2 ~ pin 13  # FAULT in strap mode
+    signal FLGIN ~ pin 14
+    signal GATE ~ pin 15  # external load-switch gate
+    signal VBUS ~ pin 16
+    signal GND ~ pin 17  # thermal pad

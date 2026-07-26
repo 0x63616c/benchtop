@@ -1,0 +1,17 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component XH_2AW_package:
+    """
+    XH 2.5mm 2-pin right-angle shrouded header (JST XH compatible).
+    Rated 3A per contact — above the DRV8871's 2.1A trip point.
+    """
+    trait is_atomic_part<manufacturer="BOOMELE(Boom Precision Elec)", partnumber="XH-2AW", footprint="CONN-TH_2P-P2.50_XH-2AW.kicad_mod", symbol="XH-2AW.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C33132", manufacturer="BOOMELE(Boom Precision Elec)", partno="XH-2AW">
+    trait has_designator_prefix<prefix="J">
+
+    # pins
+    pin 1
+    pin 2

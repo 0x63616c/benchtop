@@ -1,0 +1,149 @@
+(footprint "IND_2R2_7A5:IND-SMD_L5.4-W5.2_FXL0530"
+	(version 20241229)
+	(generator "faebryk_convert")
+	(generator_version "v5")
+	(layer "F.Cu")
+	(tedit "5DC5F6A4")
+	(uuid "7d9847c8-4d6c-4481-b3ea-265e37608eaa")
+	(property "Reference" "REF**"
+		(at 0 -4 0)
+		(layer "F.SilkS")
+		(uuid "a7c34a48-a021-481e-9c9a-69659cd0a052")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "IND-SMD_L5.4-W5.2_FXL0530"
+		(at 0 4 0)
+		(layer "F.Fab")
+		(uuid "f384752e-991c-47eb-b3fc-8420bde52f7c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_circle
+		(center -2.7 2.6)
+		(end -2.67 2.6)
+		(stroke
+			(width 0.06)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(locked no)
+		(uuid "fe032e9d-8fea-4987-b1b1-21dac7e87e35")
+	)
+	(fp_line
+		(start 2.7 2.6)
+		(end -2.7 2.6)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "58fe2c98-4d9b-4fed-9f75-a17a02d25413")
+	)
+	(fp_line
+		(start -2.7 -2.6)
+		(end 2.7 -2.6)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "33adebe6-bade-45f9-9864-344605199c8b")
+	)
+	(fp_line
+		(start -2.7 -2.6)
+		(end -2.7 -1.48)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "c99c7fe2-472f-42b3-83f6-b16c65d4a0aa")
+	)
+	(fp_line
+		(start -2.7 1.48)
+		(end -2.7 2.6)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "4490e777-6e40-4255-87db-4477e16fd668")
+	)
+	(fp_line
+		(start 2.7 2.6)
+		(end 2.7 1.48)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "a5e05b7b-5179-4aea-ba44-b6325a006fd4")
+	)
+	(fp_line
+		(start 2.7 -1.48)
+		(end 2.7 -2.6)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "f3d300b4-9870-4ba6-bd14-c5d3f0a5fd3f")
+	)
+	(fp_text user "%R"
+		(at 0 0)
+		(layer "F.Fab")
+		(uuid "6671a4dc-fb9a-4b63-9ab6-66ac08b8eaf3")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" smd rect
+		(at -2.05 0 0)
+		(size 1.9 2.5)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "264268f2-3d08-421e-b5cb-e8cdd0e0617e")
+	)
+	(pad "2" smd rect
+		(at 2.05 0 0)
+		(size 1.9 2.5)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "4321f412-ac53-4415-8c05-ee171255c0a8")
+	)
+	(model "/Users/calum/code/github.com/0x63616c/benchtop/pcb/blinds-board/parts_raw/C177247/C177247.3dshapes/IND-SMD_L5.4-W5.2-H2.8_FXL0530.wrl"
+		(offset
+			(xyz 0 -0 -0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+	(embedded_fonts no)
+)

@@ -1,0 +1,17 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component IND_2R2_4A9_package:
+    """
+    2.2uH 20% shielded power inductor, 4x4x3mm — the 3.3V buck's
+    output inductor, the value the TLV62569 datasheet is tested at.
+    """
+    trait is_atomic_part<manufacturer="Sunlord", partnumber="SWPA4030S2R2MT", footprint="IND-SMD_L4.0-W4.0_LQH44PN2R2MP0L.kicad_mod", symbol="SWPA4030S2R2MT.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C36409", manufacturer="Sunlord", partno="SWPA4030S2R2MT">
+    trait has_designator_prefix<prefix="L">
+
+    # pins
+    pin 1
+    pin 2

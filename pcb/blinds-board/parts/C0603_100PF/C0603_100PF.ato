@@ -1,0 +1,16 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component C0603_100PF_package:
+    """
+    100pF 5% 50V C0G 0603.
+    """
+    trait is_atomic_part<manufacturer="FH (Guangdong Fenghua)", partnumber="0603CG101J500NT", footprint="C0603.kicad_mod", symbol="0603CG101J500NT.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C1635", manufacturer="FH (Guangdong Fenghua)", partno="0603CG101J500NT">
+    trait has_designator_prefix<prefix="C">
+
+    # pins
+    pin 1
+    pin 2

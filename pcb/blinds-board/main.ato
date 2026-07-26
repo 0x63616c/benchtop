@@ -1,0 +1,569 @@
+from "parts/USB_C_16P/USB_C_16P.ato" import USB_C_16P_package
+from "parts/HUSB238A/HUSB238A.ato" import HUSB238A_package
+from "parts/BQ25798RQMR/BQ25798RQMR.ato" import BQ25798RQMR_package
+from "parts/BQ29209DRBR/BQ29209DRBR.ato" import BQ29209DRBR_package
+from "parts/TPS61088RHLR/TPS61088RHLR.ato" import TPS61088RHLR_package
+from "parts/TLV62569DBVR/TLV62569DBVR.ato" import TLV62569DBVR_package
+from "parts/DRV8871DDAR/DRV8871DDAR.ato" import DRV8871DDAR_package
+from "parts/DRV5032FBDBZR/DRV5032FBDBZR.ato" import DRV5032FBDBZR_package
+from "parts/ESP32_C3_MINI_1/ESP32_C3_MINI_1.ato" import ESP32_C3_MINI_1_package
+from "parts/SW_KH_6X6X7H_TJ/SW_KH_6X6X7H_TJ.ato" import SW_KH_6X6X7H_TJ_package
+from "parts/XH_2AW/XH_2AW.ato" import XH_2AW_package
+from "parts/XH_3AW/XH_3AW.ato" import XH_3AW_package
+from "parts/LED_0603_GREEN/LED_0603_GREEN.ato" import LED_0603_GREEN_package
+
+from "parts/IND_2R2_7A5/IND_2R2_7A5.ato" import IND_2R2_7A5_package
+from "parts/IND_2R2_4A9/IND_2R2_4A9.ato" import IND_2R2_4A9_package
+
+from "parts/R0603_100R/R0603_100R.ato" import R0603_100R_package
+from "parts/R0603_160R/R0603_160R.ato" import R0603_160R_package
+from "parts/R0603_261R/R0603_261R.ato" import R0603_261R_package
+from "parts/R0603_1K/R0603_1K.ato" import R0603_1K_package
+from "parts/R0603_4K7/R0603_4K7.ato" import R0603_4K7_package
+from "parts/R0603_6K04/R0603_6K04.ato" import R0603_6K04_package
+from "parts/R0603_8K2/R0603_8K2.ato" import R0603_8K2_package
+from "parts/R0603_10K/R0603_10K.ato" import R0603_10K_package
+from "parts/R0603_21K/R0603_21K.ato" import R0603_21K_package
+from "parts/R0603_22K/R0603_22K.ato" import R0603_22K_package
+from "parts/R0603_30K/R0603_30K.ato" import R0603_30K_package
+from "parts/R0603_100K/R0603_100K.ato" import R0603_100K_package
+from "parts/R0603_200K/R0603_200K.ato" import R0603_200K_package
+from "parts/R0603_1M/R0603_1M.ato" import R0603_1M_package
+
+from "parts/C0603_22PF/C0603_22PF.ato" import C0603_22PF_package
+from "parts/C0603_1NF/C0603_1NF.ato" import C0603_1NF_package
+from "parts/C0603_10NF/C0603_10NF.ato" import C0603_10NF_package
+from "parts/C0603_47NF/C0603_47NF.ato" import C0603_47NF_package
+from "parts/C0603_100NF/C0603_100NF.ato" import C0603_100NF_package
+from "parts/C0603_330NF/C0603_330NF.ato" import C0603_330NF_package
+from "parts/C0603_1UF/C0603_1UF.ato" import C0603_1UF_package
+from "parts/C0805_10UF_25V/C0805_10UF_25V.ato" import C0805_10UF_25V_package
+from "parts/C0805_22UF_25V/C0805_22UF_25V.ato" import C0805_22UF_25V_package
+
+
+module BlindsDriverBoard:
+    """
+    Automated roller-blind driver, rev B (wayfinder #12, layout #22).
+
+    One board per blind: it charges a 2S3P 21700 pack off USB-C PD, boosts the
+    pack to a 12V motor rail only while the blind is moving, and runs an
+    ESP32-C3 on 3.3V the rest of the time.
+
+    Power chain
+      USB-C VBUS -> HUSB238A (PD sink, strapped to 12V/3A) -> BQ25798 2S
+      buck-boost charger -> pack (BAT) and SYS. SYS -> TPS61088 boost -> 12V ->
+      DRV8871 -> motor. SYS -> TLV62569 buck -> 3V3 -> MCU + hall.
+      SYS is alive from either source, so the MCU keeps running on the wall with
+      a flat pack, or on the pack with the wall unplugged.
+
+    Deliberate omissions, each one a real decision:
+      * No load switch on VBUS. The HUSB238A's GATE pin is designed to drive
+        one, but the only thing downstream of VBUS is the charger, which is
+        rated to 30V — the switch would protect nothing. GATE is left open.
+      * The charger's D+/D- (BC1.2) are left open and EN_HVDCP is strapped low,
+        so the USB data pair belongs solely to the MCU's native USB. That is
+        what makes this board flashable over the same connector that charges
+        it, with no UART bridge and no boot button.
+      * The gearmotor's quadrature encoder is NOT wired in rev B. Position
+        comes from the chain index magnet plus run timing; the C3 has no pins
+        left after USB, I2C, the H-bridge, the boost enable and two buttons.
+      * No pack thermistor: TS is held mid-window by a fixed 10k/10k divider
+        off REGN. A real NTC belongs on the pack, on a fourth connector pin.
+
+    Pin assignment (nothing here is bench-proven — rev B is the first board)
+      IO4/IO5 = DRV8871 IN1/IN2      IO6  = TPS61088 EN (100k pulldown, so the
+      IO3     = hall OUT                    motor rail is dead while the MCU is
+      IO0/IO1 = up/down buttons             in reset)
+      IO7/IO8 = charger I2C SCL/SDA  IO10 = charger /INT
+      IO18/19 = USB D-/D+            IO2  = strap pull-up only
+      IO9 is left to its internal pull-up: the C3's ROM USB-Serial-JTAG enters
+      download mode over USB, so no BOOT button is fitted.
+
+    Connectors
+      J_BAT  (XH-3): 1 = PACK+, 2 = cell midpoint, 3 = PACK-
+      J_MOT  (XH-2): 1 = OUT1, 2 = OUT2 (swap direction in firmware, not in
+                     the loom)
+      J_HALL (XH-3): 1 = 3V3, 2 = GND, 3 = hall OUT
+    The hall sensor has to sit ~80mm away at the sprocket, so it lives on a
+    snap-off tab of this same PCB — its own XH-3 cables back to J_HALL — rather
+    than on the board proper, where it could never see the chain magnet.
+    """
+
+    # --- nets ------------------------------------------------------------
+    signal gnd
+    signal vbus       # USB-C VBUS, 5V until PD lands, then 12V
+    signal sys        # charger system rail, ~8V from wall or pack
+    signal bat        # 2S pack +
+    signal batmid     # cell midpoint (balance/sense tap)
+    signal v12        # boosted motor rail
+    signal p3v3
+    signal regn       # charger's internal 5V LDO — bias only
+
+    signal usb_dp
+    signal usb_dn
+    signal sda
+    signal scl
+    signal chg_int
+    signal chg_ce     # active-low charge enable, also the OV kill path
+    signal chg_stat
+    signal chg_qon
+
+    signal sw_chg1
+    signal sw_chg2
+    signal btst1
+    signal btst2
+    signal pmid
+    signal ts
+    signal prog
+    signal sdrv
+
+    signal sw_bst
+    signal boot_bst
+    signal fb_bst
+    signal comp_bst
+    signal comp_mid
+    signal ss_bst
+    signal ilim_bst
+    signal fsw_bst
+    signal vcc_bst
+    signal en_bst
+
+    signal sw_buck
+    signal fb_buck
+    signal en_buck
+
+    signal mot_a
+    signal mot_b
+    signal ilim_mot
+
+    signal hall_do
+    signal btn_up
+    signal btn_dn
+    signal mcu_en
+    signal io2
+
+    signal ov_out     # BQ29209 OUT — high when a cell is over-voltage
+    signal prot_vdd
+    signal prot_vc2
+    signal prot_vc1
+    signal prot_cb
+    signal prot_cd
+
+    signal stat_a     # LED anode side of the status resistor
+
+    # === USB-C input + PD sink ===========================================
+    j_usb = new USB_C_16P_package
+    pd = new HUSB238A_package
+
+    vbus ~ j_usb.VBUS
+    gnd ~ j_usb.GND
+    gnd ~ j_usb.SHIELD          # single-point: the shield joins GND at the jack
+    usb_dp ~ j_usb.DP1
+    usb_dp ~ j_usb.DP2          # the receptacle shorts each side's pair
+    usb_dn ~ j_usb.DN1
+    usb_dn ~ j_usb.DN2
+
+    vbus ~ pd.VBUS
+    gnd ~ pd.GND
+    pd.CC1 ~ j_usb.CC1
+    pd.CC2 ~ j_usb.CC2
+    gnd ~ pd.EN_N               # internally pulled up; low = chip enabled
+
+    c_pdvdd = new C0603_1UF_package     # VDD bias; the chip self-powers off VBUS
+    pd.VDD ~ c_pdvdd.1
+    gnd ~ c_pdvdd.2
+
+    r_vset = new R0603_6K04_package     # 6.04k = "request 12V"
+    pd.SNK_VSET ~ r_vset.1
+    gnd ~ r_vset.2
+    r_iset = new R0603_21K_package      # 21k = "request 3A"
+    pd.SNK_ISET ~ r_iset.1
+    gnd ~ r_iset.2
+
+    # Dual-function pins strapped low through ~1M, per the datasheet's standby
+    # note. EN_HVDCP low = BC1.2 only, no HVDCP; FLGIN low = no external fault.
+    r_hvdcp = new R0603_1M_package
+    pd.OUT1 ~ r_hvdcp.1
+    gnd ~ r_hvdcp.2
+    r_flgin = new R0603_1M_package
+    pd.FLGIN ~ r_flgin.1
+    gnd ~ r_flgin.2
+    # ADDR floating = GPIO (strap) mode. DBG_N, INT_N, OUT2, GATE, D+/D- open.
+
+    c_vbus1 = new C0805_10UF_25V_package
+    vbus ~ c_vbus1.1
+    gnd ~ c_vbus1.2
+    c_vbus2 = new C0805_10UF_25V_package
+    vbus ~ c_vbus2.1
+    gnd ~ c_vbus2.2
+    c_vbus_hf = new C0603_100NF_package
+    vbus ~ c_vbus_hf.1
+    gnd ~ c_vbus_hf.2
+
+    # === BQ25798 buck-boost charger ======================================
+    chg = new BQ25798RQMR_package
+
+    vbus ~ chg.VBUS
+    vbus ~ chg.VAC1             # no external OVP FETs: the VAC pins see VBUS
+    vbus ~ chg.VAC2
+    gnd ~ chg.GND
+    pmid ~ chg.PMID
+    sys ~ chg.SYS
+    bat ~ chg.BAT
+    bat ~ chg.BATP
+    regn ~ chg.REGN
+    sw_chg1 ~ chg.SW1
+    sw_chg2 ~ chg.SW2
+    btst1 ~ chg.BTST1
+    btst2 ~ chg.BTST2
+    ts ~ chg.TS
+    prog ~ chg.PROG
+    sdrv ~ chg.SDRV
+    regn ~ chg.ILIM_HIZ         # datasheet: tie to REGN for the max input limit
+    chg_ce ~ chg.CE
+    chg_int ~ chg.INT
+    chg_stat ~ chg.STAT
+    chg_qon ~ chg.QON
+    sda ~ chg.SDA
+    scl ~ chg.SCL
+    # ACDRV1/ACDRV2 open (no OVP FETs); D+/D- open (BC1.2 unused, see docstring)
+
+    l_chg = new IND_2R2_7A5_package     # 2.2uH pairs with the 750kHz POR setting
+    sw_chg1 ~ l_chg.1
+    sw_chg2 ~ l_chg.2
+
+    c_btst1 = new C0603_47NF_package
+    btst1 ~ c_btst1.1
+    sw_chg1 ~ c_btst1.2
+    c_btst2 = new C0603_47NF_package
+    btst2 ~ c_btst2.1
+    sw_chg2 ~ c_btst2.2
+
+    c_pmid = new C0805_10UF_25V_package
+    pmid ~ c_pmid.1
+    gnd ~ c_pmid.2
+    c_pmid_hf = new C0603_100NF_package
+    pmid ~ c_pmid_hf.1
+    gnd ~ c_pmid_hf.2
+
+    c_regn = new C0805_10UF_25V_package  # datasheet asks 4.7uF; 10uF derates to it
+    regn ~ c_regn.1
+    gnd ~ c_regn.2
+
+    c_sys1 = new C0805_10UF_25V_package
+    sys ~ c_sys1.1
+    gnd ~ c_sys1.2
+    c_sys2 = new C0805_10UF_25V_package
+    sys ~ c_sys2.1
+    gnd ~ c_sys2.2
+
+    c_bat1 = new C0805_10UF_25V_package
+    bat ~ c_bat1.1
+    gnd ~ c_bat1.2
+    c_bat2 = new C0805_10UF_25V_package
+    bat ~ c_bat2.1
+    gnd ~ c_bat2.2
+
+    c_sdrv = new C0603_1NF_package      # required when no ship FET is fitted
+    sdrv ~ c_sdrv.1
+    gnd ~ c_sdrv.2
+
+    # TS held at half of REGN — inside the JEITA window at every temperature,
+    # i.e. "always room temperature". See the docstring: no pack NTC in rev B.
+    r_ts_hi = new R0603_10K_package
+    regn ~ r_ts_hi.1
+    ts ~ r_ts_hi.2
+    r_ts_lo = new R0603_10K_package
+    ts ~ r_ts_lo.1
+    gnd ~ r_ts_lo.2
+
+    r_prog = new R0603_8K2_package      # 8.2k = 2 cells, 750kHz at POR
+    prog ~ r_prog.1
+    gnd ~ r_prog.2
+
+    r_qon = new R0603_100K_package      # QON idles high; a low pulse resets SYS
+    regn ~ r_qon.1
+    chg_qon ~ r_qon.2
+
+    r_int = new R0603_10K_package
+    p3v3 ~ r_int.1
+    chg_int ~ r_int.2
+
+    d_stat = new LED_0603_GREEN_package  # STAT sinks; lit = charging
+    r_stat = new R0603_1K_package
+    p3v3 ~ r_stat.1
+    stat_a ~ r_stat.2
+    stat_a ~ d_stat.A
+    chg_stat ~ d_stat.K
+
+    r_sda = new R0603_4K7_package
+    p3v3 ~ r_sda.1
+    sda ~ r_sda.2
+    r_scl = new R0603_4K7_package
+    p3v3 ~ r_scl.1
+    scl ~ r_scl.2
+
+    # /CE sits at GND through 200k, so charging is enabled by default and the
+    # EN_CHG register bit is the normal control. An overvoltage cell drives the
+    # protector's OUT high and the two 200k legs divide the pack down to ~4.2V
+    # on /CE — a logic high, well inside its 6V limit, and only ~20uA of load,
+    # which is about all the protector's OUT can source.
+    r_ce_pd = new R0603_200K_package
+    chg_ce ~ r_ce_pd.1
+    gnd ~ r_ce_pd.2
+    r_ce_ov = new R0603_200K_package
+    ov_out ~ r_ce_ov.1
+    chg_ce ~ r_ce_ov.2
+
+    # === 2S pack, protector, balance =====================================
+    j_bat = new XH_3AW_package
+    bat ~ j_bat.1
+    batmid ~ j_bat.2
+    gnd ~ j_bat.3
+
+    prot = new BQ29209DRBR_package
+    gnd ~ prot.GND
+    gnd ~ prot.CB_EN            # low = cell balancing enabled
+    ov_out ~ prot.OUT
+    prot_vdd ~ prot.VDD
+    prot_vc2 ~ prot.VC2
+    prot_vc1 ~ prot.VC1
+    prot_cb ~ prot.VC1_CB
+    prot_cd ~ prot.CD
+
+    r_vd = new R0603_100R_package       # RVD: supply feed
+    bat ~ r_vd.1
+    prot_vdd ~ r_vd.2
+    r_cb2 = new R0603_160R_package      # RCB2: top-cell balance path
+    bat ~ r_cb2.1
+    prot_vc2 ~ r_cb2.2
+    r_cb = new R0603_100R_package       # RCB: midpoint sense
+    batmid ~ r_cb.1
+    prot_vc1 ~ r_cb.2
+    r_cb1 = new R0603_261R_package      # RCB1: bottom-cell balance path
+    batmid ~ r_cb1.1
+    prot_cb ~ r_cb1.2
+
+    c_prot_vdd = new C0603_100NF_package
+    prot_vdd ~ c_prot_vdd.1
+    gnd ~ c_prot_vdd.2
+    c_cell2 = new C0603_100NF_package   # across the top cell's sense pair
+    prot_vc2 ~ c_cell2.1
+    prot_vc1 ~ c_cell2.2
+    c_cell1 = new C0603_100NF_package   # across the bottom cell
+    prot_vc1 ~ c_cell1.1
+    gnd ~ c_cell1.2
+    c_cd = new C0603_330NF_package      # 0.33uF = the datasheet's 3s OV delay
+    prot_cd ~ c_cd.1
+    gnd ~ c_cd.2
+
+    # === TPS61088 boost -> 12V motor rail ================================
+    boost = new TPS61088RHLR_package
+
+    sys ~ boost.VIN
+    gnd ~ boost.PGND
+    gnd ~ boost.AGND
+    sw_bst ~ boost.SW
+    v12 ~ boost.VOUT
+    boot_bst ~ boost.BOOT
+    fb_bst ~ boost.FB
+    comp_bst ~ boost.COMP
+    ss_bst ~ boost.SS
+    ilim_bst ~ boost.ILIM
+    fsw_bst ~ boost.FSW
+    vcc_bst ~ boost.VCC
+    en_bst ~ boost.EN
+    # MODE left floating = PFM at light load, which is also the ILIM equation
+    # this design is sized against.
+
+    l_bst = new IND_2R2_7A5_package
+    sys ~ l_bst.1
+    sw_bst ~ l_bst.2
+
+    c_boot = new C0603_100NF_package
+    boot_bst ~ c_boot.1
+    sw_bst ~ c_boot.2
+    c_vcc_bst = new C0603_1UF_package
+    vcc_bst ~ c_vcc_bst.1
+    gnd ~ c_vcc_bst.2
+    c_ss = new C0603_47NF_package       # 1.204V * 47nF / 5uA = ~11ms ramp
+    ss_bst ~ c_ss.1
+    gnd ~ c_ss.2
+
+    # RFREQ goes FSW->SW (not to ground): 200k with the datasheet's 23pF and
+    # 89ns delay lands at ~770kHz for 8V in / 12V out.
+    r_fsw = new R0603_200K_package
+    fsw_bst ~ r_fsw.1
+    sw_bst ~ r_fsw.2
+    # ILIM = 1190000 / R in PFM mode -> 200k = 5.95A typical, 4.65A worst case.
+    # Peak inductor current at 12V/1.5A out from a 6.5V pack is ~3.8A.
+    r_ilim_bst = new R0603_200K_package
+    ilim_bst ~ r_ilim_bst.1
+    gnd ~ r_ilim_bst.2
+    # FB is 1.204V: 200k/22k -> 12.15V.
+    r_fb_bst_hi = new R0603_200K_package
+    v12 ~ r_fb_bst_hi.1
+    fb_bst ~ r_fb_bst_hi.2
+    r_fb_bst_lo = new R0603_22K_package
+    fb_bst ~ r_fb_bst_lo.1
+    gnd ~ r_fb_bst_lo.2
+    # Loop compensation: a zero at ~1.6kHz, deliberately slow. Nothing on this
+    # rail cares about transient response, and phase margin is worth more than
+    # settling time when the load is a brushed motor.
+    c_comp = new C0603_10NF_package
+    r_comp = new R0603_10K_package
+    comp_bst ~ r_comp.1
+    comp_mid ~ r_comp.2
+    comp_mid ~ c_comp.1
+    gnd ~ c_comp.2
+    # EN is MCU-driven; the pulldown guarantees the motor rail is off through
+    # reset, brown-out and reflash.
+    r_en_bst = new R0603_100K_package
+    en_bst ~ r_en_bst.1
+    gnd ~ r_en_bst.2
+
+    c_bst_in = new C0805_10UF_25V_package
+    sys ~ c_bst_in.1
+    gnd ~ c_bst_in.2
+    c_bst_o1 = new C0805_22UF_25V_package
+    v12 ~ c_bst_o1.1
+    gnd ~ c_bst_o1.2
+    c_bst_o2 = new C0805_22UF_25V_package
+    v12 ~ c_bst_o2.1
+    gnd ~ c_bst_o2.2
+    c_bst_o3 = new C0805_22UF_25V_package
+    v12 ~ c_bst_o3.1
+    gnd ~ c_bst_o3.2
+    c_bst_hf = new C0603_100NF_package
+    v12 ~ c_bst_hf.1
+    gnd ~ c_bst_hf.2
+
+    # === DRV8871 H-bridge ================================================
+    drv = new DRV8871DDAR_package
+    v12 ~ drv.VM
+    gnd ~ drv.GND
+    gnd ~ drv.PGND
+    mot_a ~ drv.OUT1
+    mot_b ~ drv.OUT2
+    ilim_mot ~ drv.ILIM
+
+    r_ilim_mot = new R0603_30K_package  # 30k = 2.1A trip, the datasheet's own
+    ilim_mot ~ r_ilim_mot.1             # worked example
+    gnd ~ r_ilim_mot.2
+
+    c_vm = new C0805_22UF_25V_package
+    v12 ~ c_vm.1
+    gnd ~ c_vm.2
+    c_vm_hf = new C0603_100NF_package
+    v12 ~ c_vm_hf.1
+    gnd ~ c_vm_hf.2
+
+    j_mot = new XH_2AW_package
+    mot_a ~ j_mot.1
+    mot_b ~ j_mot.2
+
+    # === TLV62569 buck -> 3.3V ===========================================
+    buck = new TLV62569DBVR_package
+    sys ~ buck.VIN
+    gnd ~ buck.GND
+    sw_buck ~ buck.SW
+    fb_buck ~ buck.FB
+    en_buck ~ buck.EN
+
+    r_en_buck = new R0603_100K_package  # 3V3 is always wanted: EN pulled to VIN
+    sys ~ r_en_buck.1
+    en_buck ~ r_en_buck.2
+
+    l_buck = new IND_2R2_4A9_package
+    sw_buck ~ l_buck.1
+    p3v3 ~ l_buck.2
+
+    # FB is 0.6V: 100k/22k -> 3.33V. The 22pF across the top leg is the
+    # datasheet's feed-forward for phase margin with a ceramic output.
+    r_fb_buck_hi = new R0603_100K_package
+    p3v3 ~ r_fb_buck_hi.1
+    fb_buck ~ r_fb_buck_hi.2
+    r_fb_buck_lo = new R0603_22K_package
+    fb_buck ~ r_fb_buck_lo.1
+    gnd ~ r_fb_buck_lo.2
+    c_ff = new C0603_22PF_package
+    p3v3 ~ c_ff.1
+    fb_buck ~ c_ff.2
+
+    c_buck_in = new C0805_10UF_25V_package
+    sys ~ c_buck_in.1
+    gnd ~ c_buck_in.2
+    c_buck_hf = new C0603_100NF_package
+    sys ~ c_buck_hf.1
+    gnd ~ c_buck_hf.2
+    c_buck_o = new C0805_22UF_25V_package
+    p3v3 ~ c_buck_o.1
+    gnd ~ c_buck_o.2
+
+    # === ESP32-C3 ========================================================
+    mcu = new ESP32_C3_MINI_1_package
+    p3v3 ~ mcu.P3V3
+    gnd ~ mcu.GND
+    mcu_en ~ mcu.EN
+    usb_dn ~ mcu.IO18
+    usb_dp ~ mcu.IO19
+    mcu.IO4 ~ drv.IN1
+    mcu.IO5 ~ drv.IN2
+    en_bst ~ mcu.IO6
+    hall_do ~ mcu.IO3
+    btn_up ~ mcu.IO0
+    btn_dn ~ mcu.IO1
+    scl ~ mcu.IO7
+    sda ~ mcu.IO8
+    chg_int ~ mcu.IO10
+    io2 ~ mcu.IO2
+
+    r_en_mcu = new R0603_10K_package
+    p3v3 ~ r_en_mcu.1
+    mcu_en ~ r_en_mcu.2
+    c_en_mcu = new C0603_100NF_package  # ~1ms rise: EN comes up after 3V3
+    mcu_en ~ c_en_mcu.1
+    gnd ~ c_en_mcu.2
+
+    r_io2 = new R0603_10K_package       # strapping pin, must be high at reset
+    p3v3 ~ r_io2.1
+    io2 ~ r_io2.2
+
+    c_mcu_bulk = new C0805_10UF_25V_package
+    p3v3 ~ c_mcu_bulk.1
+    gnd ~ c_mcu_bulk.2
+    c_mcu_mid = new C0603_1UF_package
+    p3v3 ~ c_mcu_mid.1
+    gnd ~ c_mcu_mid.2
+    c_mcu_hf = new C0603_100NF_package
+    p3v3 ~ c_mcu_hf.1
+    gnd ~ c_mcu_hf.2
+
+    # === buttons =========================================================
+    # No external pull-ups: the C3's internal ones are enabled in firmware, and
+    # a 6x6 tactile shorting to ground is not a signal-integrity problem.
+    sw_up = new SW_KH_6X6X7H_TJ_package
+    btn_up ~ sw_up.A
+    gnd ~ sw_up.B
+    sw_dn = new SW_KH_6X6X7H_TJ_package
+    btn_dn ~ sw_dn.A
+    gnd ~ sw_dn.B
+
+    # === hall sensor, on the snap-off tab ================================
+    j_hall = new XH_3AW_package         # main board: cable out to the tab
+    p3v3 ~ j_hall.1
+    gnd ~ j_hall.2
+    hall_do ~ j_hall.3
+
+    j_hall_tab = new XH_3AW_package     # tab: cable back to the main board
+    p3v3 ~ j_hall_tab.1
+    gnd ~ j_hall_tab.2
+    hall_do ~ j_hall_tab.3
+
+    hall = new DRV5032FBDBZR_package
+    p3v3 ~ hall.VCC
+    gnd ~ hall.GND
+    hall_do ~ hall.OUT
+    c_hall = new C0603_100NF_package
+    p3v3 ~ c_hall.1
+    gnd ~ c_hall.2

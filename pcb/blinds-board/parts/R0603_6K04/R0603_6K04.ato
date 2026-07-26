@@ -1,0 +1,17 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component R0603_6K04_package:
+    """
+    6.04k 1% 0603 — the HUSB238A strap value for a 12V request
+    (datasheet window 5.7-6.3k, so 1% tolerance is required here).
+    """
+    trait is_atomic_part<manufacturer="UNI-ROYAL(Uniroyal Elec)", partnumber="0603WAF6041T5E", footprint="R0603.kicad_mod", symbol="0603WAF6041T5E.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C25977", manufacturer="UNI-ROYAL(Uniroyal Elec)", partno="0603WAF6041T5E">
+    trait has_designator_prefix<prefix="R">
+
+    # pins
+    pin 1
+    pin 2

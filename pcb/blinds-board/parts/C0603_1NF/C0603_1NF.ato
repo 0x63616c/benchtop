@@ -1,0 +1,17 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component C0603_1NF_package:
+    """
+    1nF 10% 50V X7R 0603 — the BQ25798 wants exactly this on SDRV
+    when no external ship FET is fitted.
+    """
+    trait is_atomic_part<manufacturer="YAGEO", partnumber="CC0603KRX7R9BB102", footprint="C0603.kicad_mod", symbol="CC0603KRX7R9BB102.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C100040", manufacturer="YAGEO", partno="CC0603KRX7R9BB102">
+    trait has_designator_prefix<prefix="C">
+
+    # pins
+    pin 1
+    pin 2

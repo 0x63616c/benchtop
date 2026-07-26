@@ -1,0 +1,19 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component DRV5032FBDBZR_package:
+    """
+    DRV5032FB — omnipolar digital hall switch, SOT-23-3, 1.65-5.5V, ~1.3uA.
+    Push-pull output (the FB option), so it needs no pull-up and must not be
+    wired-OR with a second sensor on the same net.
+    """
+    trait is_atomic_part<manufacturer="Texas Instruments", partnumber="DRV5032FBDBZR", footprint="SOT-23_L2.9-W1.3-P1.90-LS2.4-BR.kicad_mod", symbol="DRV5032FBDBZR.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C2655033", manufacturer="Texas Instruments", partno="DRV5032FBDBZR">
+    trait has_designator_prefix<prefix="U">
+
+    # pins
+    signal VCC ~ pin 1
+    signal OUT ~ pin 2
+    signal GND ~ pin 3

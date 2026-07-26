@@ -1,0 +1,17 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component C0603_330NF_package:
+    """
+    330nF 10% 50V X7R 0603 — the BQ29209 overvoltage delay cap;
+    0.33uF is the datasheet's 3-second delay.
+    """
+    trait is_atomic_part<manufacturer="CCTC", partnumber="TCC0603X7R334K500CT", footprint="C0603.kicad_mod", symbol="TCC0603X7R334K500CT.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C282682", manufacturer="CCTC", partno="TCC0603X7R334K500CT">
+    trait has_designator_prefix<prefix="C">
+
+    # pins
+    pin 1
+    pin 2

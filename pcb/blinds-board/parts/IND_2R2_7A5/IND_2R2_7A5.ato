@@ -1,0 +1,18 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component IND_2R2_7A5_package:
+    """
+    2.2uH 20% shielded power inductor, 5.4x5.2x3.0mm, 7.5A saturation.
+    One part covers both big switchers — the charger's buck-boost
+    inductor and the boost inductor, each peaking near 4A.
+    """
+    trait is_atomic_part<manufacturer="cjiang (Changjiang Microelectronics Tech)", partnumber="FXL0530-2R2-M", footprint="IND-SMD_L5.4-W5.2_FXL0530.kicad_mod", symbol="FXL0530-2R2-M.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C177247", manufacturer="cjiang (Changjiang Microelectronics Tech)", partno="FXL0530-2R2-M">
+    trait has_designator_prefix<prefix="L">
+
+    # pins
+    pin 1
+    pin 2

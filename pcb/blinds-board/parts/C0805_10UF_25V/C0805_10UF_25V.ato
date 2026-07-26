@@ -1,0 +1,16 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component C0805_10UF_25V_package:
+    """
+    10uF 10% 25V X5R 0805 — roughly 5uF left at 8V of DC bias.
+    """
+    trait is_atomic_part<manufacturer="YAGEO", partnumber="CC0805KKX5R8BB106", footprint="C0805.kicad_mod", symbol="CC0805KKX5R8BB106.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C89831", manufacturer="YAGEO", partno="CC0805KKX5R8BB106">
+    trait has_designator_prefix<prefix="C">
+
+    # pins
+    pin 1
+    pin 2

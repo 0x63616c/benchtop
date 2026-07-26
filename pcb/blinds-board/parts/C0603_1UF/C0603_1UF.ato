@@ -1,0 +1,16 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component C0603_1UF_package:
+    """
+    1uF 10% 25V X7R 0603.
+    """
+    trait is_atomic_part<manufacturer="YAGEO", partnumber="CC0603KRX7R8BB105", footprint="C0603.kicad_mod", symbol="CC0603KRX7R8BB105.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C106858", manufacturer="YAGEO", partno="CC0603KRX7R8BB105">
+    trait has_designator_prefix<prefix="C">
+
+    # pins
+    pin 1
+    pin 2

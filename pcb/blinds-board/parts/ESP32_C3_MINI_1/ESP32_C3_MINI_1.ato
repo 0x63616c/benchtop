@@ -1,0 +1,59 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component ESP32_C3_MINI_1_package:
+    """
+    ESP32-C3-MINI-1-N4 — RISC-V WiFi/BLE module, 4MB flash, PCB antenna.
+    13.2x16.6mm castellated module; keep the antenna end hanging off the
+    board edge with no copper under it on any layer.
+    Strapping pins: IO2 and IO8 must be HIGH at reset, IO9 HIGH for normal
+    boot (internal pull-up; pulling it low enters the ROM downloader).
+    IO18/IO19 are the native USB D-/D+ — wiring those to the USB-C
+    receptacle gives flashing and serial with no UART bridge.
+    """
+    trait is_atomic_part<manufacturer="Espressif Systems", partnumber="ESP32-C3-MINI-1-N4", footprint="WIFIM-SMD_ESP32-C3-MINI-1.kicad_mod", symbol="ESP32-C3-MINI-1-N4.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C2838502", manufacturer="Espressif Systems", partno="ESP32-C3-MINI-1-N4">
+    trait has_designator_prefix<prefix="U">
+
+    # pins
+    signal GND ~ pin 1
+    GND ~ pin 2
+    signal P3V3 ~ pin 3
+    signal IO2 ~ pin 5  # strapping: HIGH at reset
+    signal IO3 ~ pin 6
+    signal EN ~ pin 8  # active-high enable/reset, needs an RC
+    GND ~ pin 11
+    signal IO0 ~ pin 12
+    signal IO1 ~ pin 13
+    GND ~ pin 14
+    signal IO10 ~ pin 16
+    signal IO4 ~ pin 18
+    signal IO5 ~ pin 19
+    signal IO6 ~ pin 20
+    signal IO7 ~ pin 21
+    signal IO8 ~ pin 22  # strapping: HIGH at reset
+    signal IO9 ~ pin 23  # strapping: LOW = ROM download
+    signal IO18 ~ pin 26  # USB D-
+    signal IO19 ~ pin 27  # USB D+
+    signal RXD0 ~ pin 30
+    signal TXD0 ~ pin 31
+    GND ~ pin 36
+    GND ~ pin 37
+    GND ~ pin 38
+    GND ~ pin 39
+    GND ~ pin 40
+    GND ~ pin 41
+    GND ~ pin 42
+    GND ~ pin 43
+    GND ~ pin 44
+    GND ~ pin 45
+    GND ~ pin 46
+    GND ~ pin 47
+    GND ~ pin 48
+    GND ~ pin 49  # GND land under the module
+    GND ~ pin 50
+    GND ~ pin 51
+    GND ~ pin 52
+    GND ~ pin 53

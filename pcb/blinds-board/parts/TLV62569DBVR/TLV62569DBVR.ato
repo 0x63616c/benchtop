@@ -1,0 +1,21 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component TLV62569DBVR_package:
+    """
+    TLV62569 — 2A synchronous buck, SOT-23-5, 1.5MHz. Makes the 3.3V logic
+    rail straight off the charger's SYS node, so the MCU keeps running on
+    battery with the motor rail switched off. FB regulates to 0.6V.
+    """
+    trait is_atomic_part<manufacturer="Texas Instruments", partnumber="TLV62569DBVR", footprint="SOT-23-5_L3.0-W1.7-P0.95-LS2.8-BR.kicad_mod", symbol="TLV62569DBVR.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C141836", manufacturer="Texas Instruments", partno="TLV62569DBVR">
+    trait has_designator_prefix<prefix="U">
+
+    # pins
+    signal EN ~ pin 1
+    signal GND ~ pin 2
+    signal SW ~ pin 3
+    signal VIN ~ pin 4
+    signal FB ~ pin 5  # 0.6V reference

@@ -1,0 +1,41 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component TPS61088RHLR_package:
+    """
+    TPS61088 — 10A synchronous boost, VQFN-20 4.5x3.5mm. Lifts the 2S pack
+    (6.0-8.4V) to the fixed 12V motor rail.
+    EN is driven by the MCU, so the whole motor rail and its quiescent draw
+    are off whenever the blind is idle — the biggest lever on battery life
+    for a device that moves twice a day.
+    MODE floating = PFM at light load (grounded = forced PWM). ILIM sets
+    the switch current limit,
+    FSW the switching frequency, SS the soft-start ramp, COMP the loop
+    compensation.
+    """
+    trait is_atomic_part<manufacturer="Texas Instruments", partnumber="TPS61088RHLR", footprint="VQFN-20_L4.6-W3.6-P0.50-BL.kicad_mod", symbol="TPS61088RHLR.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C87357", manufacturer="Texas Instruments", partno="TPS61088RHLR">
+    trait has_designator_prefix<prefix="U">
+
+    # pins
+    signal VCC ~ pin 1  # internal LDO output — decouple only
+    signal EN ~ pin 2
+    signal FSW ~ pin 3
+    signal SW ~ pin 4
+    SW ~ pin 5
+    SW ~ pin 6
+    SW ~ pin 7
+    signal BOOT ~ pin 8
+    signal VIN ~ pin 9
+    signal SS ~ pin 10
+    signal MODE ~ pin 13
+    signal VOUT ~ pin 14
+    VOUT ~ pin 15
+    VOUT ~ pin 16
+    signal FB ~ pin 17
+    signal COMP ~ pin 18
+    signal ILIM ~ pin 19
+    signal AGND ~ pin 20
+    signal PGND ~ pin 21  # thermal pad

@@ -1,0 +1,27 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component DRV8871DDAR_package:
+    """
+    DRV8871 — 3.6A brushed-DC H-bridge, SO-8 with PowerPAD. Drives the
+    JGB37-520 gearmotor from the 12V rail.
+    IN1/IN2: 00 = coast, 10 = forward, 01 = reverse, 11 = brake (slow decay).
+    ILIM sets the current-regulation trip point — the datasheet's own design
+    example is 30k for 2.1A, and ITRIP scales as 1/R.
+    """
+    trait is_atomic_part<manufacturer="Texas Instruments", partnumber="DRV8871DDAR", footprint="SO-8_L4.9-W3.9-P1.27-LS6.0-BL-EP.kicad_mod", symbol="DRV8871DDAR.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C75864", manufacturer="Texas Instruments", partno="DRV8871DDAR">
+    trait has_designator_prefix<prefix="U">
+
+    # pins
+    signal GND ~ pin 1
+    signal IN2 ~ pin 2
+    signal IN1 ~ pin 3
+    signal ILIM ~ pin 4
+    signal VM ~ pin 5
+    signal OUT1 ~ pin 6
+    signal PGND ~ pin 7
+    signal OUT2 ~ pin 8
+    GND ~ pin 9  # PowerPAD — the only real heat path

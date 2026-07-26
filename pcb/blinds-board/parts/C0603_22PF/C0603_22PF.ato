@@ -1,0 +1,16 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component C0603_22PF_package:
+    """
+    22pF 5% 50V C0G 0603.
+    """
+    trait is_atomic_part<manufacturer="Samsung Electro-Mechanics", partnumber="CL10C220JB8NNNC", footprint="C0603.kicad_mod", symbol="CL10C220JB8NNNC.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C1653", manufacturer="Samsung Electro-Mechanics", partno="CL10C220JB8NNNC">
+    trait has_designator_prefix<prefix="C">
+
+    # pins
+    pin 1
+    pin 2

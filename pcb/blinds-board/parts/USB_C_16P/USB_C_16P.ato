@@ -1,0 +1,33 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component USB_C_16P_package:
+    """
+    USB Type-C 2.0 receptacle, 16-pin SMD with 4 through-hole shield legs.
+    Both CC pins are broken out (the PD sink needs them for orientation) and
+    the two D+/D- pairs reach the MCU as one pair, so the cable works either
+    way round.
+    """
+    trait is_atomic_part<manufacturer="Korean Hroparts Elec", partnumber="TYPE-C-31-M-12", footprint="USB-C_SMD-TYPE-C-31-M-12_1.kicad_mod", symbol="TYPE-C-31-M-12.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C165948", manufacturer="Korean Hroparts Elec", partno="TYPE-C-31-M-12">
+    trait has_designator_prefix<prefix="J">
+
+    # pins
+    signal GND ~ pin A1B12
+    GND ~ pin B1A12
+    signal VBUS ~ pin A4B9
+    VBUS ~ pin B4A9
+    signal CC1 ~ pin A5
+    signal CC2 ~ pin B5
+    signal DP1 ~ pin A6
+    signal DN1 ~ pin A7
+    signal DP2 ~ pin B6
+    signal DN2 ~ pin B7
+    signal SBU1 ~ pin A8
+    signal SBU2 ~ pin B8
+    signal SHIELD ~ pin 1
+    SHIELD ~ pin 2
+    SHIELD ~ pin 3
+    SHIELD ~ pin 4

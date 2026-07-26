@@ -1,0 +1,22 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component SW_KH_6X6X7H_TJ_package:
+    """
+    6x6x7mm through-hole tactile switch, STRAIGHT (top-push) variant.
+    3.6mm body + 3.4mm plunger: the enclosure wall sits over the body and the
+    plunger pokes through the wall hole — the right-angle -ZJ part in the BOM
+    pushes along the board, which this enclosure cannot use.
+    Pins 1/2 are one contact, 3/4 the other.
+    """
+    trait is_atomic_part<manufacturer="Shenzhen Kinghelm Elec", partnumber="KH-6X6X7H-TJ", footprint="SW-TH_4P-L6.0-W6.0-P4.50-LS6.5.kicad_mod", symbol="KH-6X6X7H-TJ.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C2837517", manufacturer="Shenzhen Kinghelm Elec", partno="KH-6X6X7H-TJ">
+    trait has_designator_prefix<prefix="SW">
+
+    # pins
+    signal A ~ pin 1
+    A ~ pin 2
+    signal B ~ pin 3
+    B ~ pin 4

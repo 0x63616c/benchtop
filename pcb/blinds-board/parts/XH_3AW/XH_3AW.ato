@@ -1,0 +1,17 @@
+#pragma experiment("TRAITS")
+import has_designator_prefix
+import has_part_picked
+import is_atomic_part
+
+component XH_3AW_package:
+    """
+    XH 2.5mm 3-pin right-angle shrouded header (JST XH compatible).
+    """
+    trait is_atomic_part<manufacturer="BOOMELE(Boom Precision Elec)", partnumber="XH-3AW", footprint="CONN-TH_3P-P2.50_XH-3A.kicad_mod", symbol="XH-3AW_C18428.kicad_sym">
+    trait has_part_picked::by_supplier<supplier_id="lcsc", supplier_partno="C18428", manufacturer="BOOMELE(Boom Precision Elec)", partno="XH-3AW">
+    trait has_designator_prefix<prefix="J">
+
+    # pins
+    pin 1
+    pin 2
+    pin 3
