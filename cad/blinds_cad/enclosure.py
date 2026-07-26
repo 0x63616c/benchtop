@@ -47,14 +47,16 @@ def shell():
         )
     # two buttons, left wall
     for z in (P.btn_z1, P.btn_z2):
-        body -= Pos(t / 2, P.axis_y, z) * (
+        body -= Pos(t / 2, P.btn_y, z) * (
             Rot(0, 90, 0) * Cylinder(P.btn_d / 2, t + 2)
         )
     # USB-C, bottom face — clearance for the plug shell into the
     # board-mounted receptacle sitting flush on the inner floor
+    # The slot is thin THROUGH the board (x) and wide ACROSS it (y) — the
+    # receptacle is 8.94 wide and 3.26 thick, and #21 had these swapped.
     body -= _box(
-        P.usb_x - P.usb_w / 2, P.axis_y - P.usb_t / 2, -1,
-        P.usb_x + P.usb_w / 2, P.axis_y + P.usb_t / 2, t + 1,
+        P.usb_x - P.usb_t / 2, P.usb_y - P.usb_w / 2, -1,
+        P.usb_x + P.usb_t / 2, P.usb_y + P.usb_w / 2, t + 1,
     )
     return body
 
@@ -62,11 +64,13 @@ def shell():
 def _pcb_rails():
     """Card-edge towers off floor + left wall: the main PCB slides down
     into 2.0 grooves; closed tops react USB plug push-up."""
+    t = P.enc_wall
     g0, g1 = P.pcb_x - 1.0, P.pcb_x + 1.0  # groove x span (board ±0.2)
-    rails = _box(2, 2, 2, 9.3, 5.9, P.rail_top)  # back-edge tower (y≈4 edge)
-    rails += _box(2, 36.1, 2, 9.3, 40, P.rail_top)  # front-edge tower (y≈38)
-    rails -= _box(g0, 3.8, 2, g1, 6.0, P.rail_top - 1)
-    rails -= _box(g0, 36.0, 2, g1, 38.2, P.rail_top - 1)
+    y0, y1 = P.pcb_y0, P.pcb_y0 + P.pcb_w  # board edges
+    rails = _box(t, t, t, 11.0, y0 + 1.9, P.rail_top)          # back-edge tower
+    rails += _box(t, y1 - 1.9, t, 11.0, P.enc_d - t, P.rail_top)  # front-edge tower
+    rails -= _box(g0, y0 - 0.2, t, g1, y0 + 2.0, P.rail_top - 1)
+    rails -= _box(g0, y1 - 2.0, t, g1, y1 + 0.2, P.rail_top - 1)
     return rails
 
 

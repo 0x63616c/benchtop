@@ -74,8 +74,10 @@ class Params:
 
     # --- enclosure ---
     enc_w: float = 98.0            # <=100 rule
-    enc_d: float = 42.0            # accepted off-wall depth
-    enc_h: float = 196.0           # 6× real holders at 24.5 pitch need the room
+    enc_d: float = 44.0            # accepted off-wall depth (+2 over #21: the
+                                   # rev B board is 38 wide and needs rail room)
+    enc_h: float = 221.0           # 6× holders at 24.5 pitch, sitting above a
+                                   # 66mm-tall PCB (#22) instead of a 38mm guess
     enc_wall: float = 2.0          # Ø37 in 42 leaves 0.5/side — thin walls are the point
     enc_fillet: float = 4.0        # vertical outer edges
     bulkhead_t: float = 3.0        # motor-mount rib (6×M3 into it)
@@ -87,19 +89,29 @@ class Params:
     chain_slot: float = 7.0        # top-face slot square (ball 5 + joiner room)
 
     # --- battery bay (holder stack on the carrier) ---
-    bay_z0: float = 58.0           # first cell axis — holder bottom 46.05 clears
-                                   # gearbox top 45.5 and bulkhead top 44
+    bay_z0: float = 82.0           # first cell axis — holder bottom 70.05 clears
+                                   # the real PCB (top edge 68), which is what
+                                   # moved: #21's 58 cleared the gearbox, and the
+                                   # board is now the taller obstacle
     bay_x: float = 44.0            # stack centre — holder right end 85.6, 0.9
                                    # clear of the chain corridor at 86.5
 
-    # --- PCB (vertical, left of motor tail; #19 parts, #22 pins layout) ---
+    # --- PCB (vertical, left of motor tail) ---
+    # REAL rev B geometry, from pcb/blinds-board/tools/place_and_render.py.
+    # #21's 34×38 was a placeholder guess and was wrong by a factor of two in
+    # area: the board carries 87 footprints.
     pcb_t: float = 1.6
-    pcb_w: float = 34.0            # spans y 4..38
-    pcb_h: float = 38.0            # z 2..40, under the battery bay
-    pcb_x: float = 7.3             # board plane centre — puts button plungers
-                                   # 0.5 proud of the wall, USB clear of motor tail
+    pcb_w: float = 38.0            # spans y 3..41
+    pcb_h: float = 66.0            # z 2..68, under the battery bay
+    pcb_x: float = 6.6             # board plane centre. The slab between wall
+                                   # (x=2) and motor tail (x=11.8) is 9.8 wide:
+                                   # 3.8 wall-side for the button bodies, 4.4
+                                   # motor-side for the USB-C and inductors
     pcb_z0: float = 2.0            # bottom edge ON the floor's inner face so the
                                    # USB-C mouth is flush with the slot
+    pcb_comp_h: float = 3.4        # motor-side component envelope — USB-C is
+                                   # the tallest fitted part at 3.26
+    pcb_comp_inset: float = 1.5    # envelope inset from the board outline
 
     # buttons: KH-6X6X7H class 6×6 tactile, board-mounted on the wall-side
     # face, plunger through the wall. NOTE for #22: BOM line C2837543 is the
@@ -109,21 +121,24 @@ class Params:
     btn_plunger_d: float = 3.5
     btn_plunger_len: float = 3.4   # body face -> tip (6×6×7 overall)
     btn_d: float = 5.0             # wall hole Ø
-    btn_z1: float = 26.0
-    btn_z2: float = 36.0
+    btn_y: float = 35.0            # both switches, from the layout (board x=32)
+    btn_z1: float = 53.7           # DOWN (board y=14.3)
+    btn_z2: float = 60.4           # UP   (board y=7.6)
 
     # USB-C: TYPE-C-31-M-12 right-angle SMD on the motor-side face, mouth
     # down through the bottom slot
     usb_body_w: float = 8.94       # across the board (y)
     usb_body_l: float = 7.35       # along the board (z)
     usb_body_h: float = 3.26       # off the board face (x)
-    usb_w: float = 9.2             # bottom-slot cut
-    usb_t: float = 3.4
+    usb_w: float = 9.2             # bottom-slot cut, ACROSS the board (y)
+    usb_t: float = 3.4             # bottom-slot cut, through-board (x)
+    usb_y: float = 17.0            # receptacle centre depth (board x=14)
+    usb_z: float = 5.5             # receptacle body centre height
 
     # card-edge rails: printed towers off floor+left wall gripping the
     # board's y-edges; closed tops react USB insertion push-up
     rail_groove: float = 2.0       # groove width (board 1.6 + 0.2/side)
-    rail_top: float = 41.0
+    rail_top: float = 69.0         # just over the board's top edge (68)
 
     # --- wall plate + cleat ---
     plate_w: float = 90.0
@@ -154,6 +169,15 @@ class Params:
     def cell_axis_y(self) -> float:
         """Cell axis depth: carrier face + holder cradle height."""
         return self.carrier_y0 + self.carrier_t + self.holder_h - self.cell_d / 2
+
+    @property
+    def pcb_y0(self) -> float:
+        """Board's low-y edge: centred in the cavity, rails either side."""
+        return (self.enc_d - self.pcb_w) / 2
+
+    @property
+    def pcb_z1(self) -> float:
+        return self.pcb_z0 + self.pcb_h
 
     @property
     def usb_x(self) -> float:

@@ -145,6 +145,9 @@ MODELS = {
     "blinds-motor": Model(
         "BLINDS JGB37-520B gearmotor reference (ordered part)", "blinds_cad.jgb37"
     ),
+    "blinds-pcb": Model(
+        "BLINDS rev B main PCB reference (38x66, #22 layout)", "blinds_cad.pcbboard"
+    ),
     "blinds-cells": Model(
         "BLINDS 6× 21700 stack reference (2S3P bay)", "blinds_cad.cells21700"
     ),

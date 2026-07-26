@@ -32,16 +32,32 @@ BAY_IN_UNIT = Pos(P.bay_x, P.cell_axis_y, P.bay_z0)
 # PCB envelope: plain box built centred; place its centre.
 PCB_IN_UNIT = Pos(P.pcb_x, P.enc_d / 2, P.pcb_z0 + P.pcb_h / 2)
 
-# USB-C receptacle: centred box onto the board's motor-side face, mouth
-# flush with the floor's inner face.
-USBC_IN_UNIT = Pos(
-    P.pcb_x + P.pcb_t / 2 + P.usb_body_h / 2, P.axis_y, P.pcb_z0 + P.usb_body_l / 2
-)
+# USB-C receptacle: centred box on the board's motor-side face, mouth down
+# into the floor slot. Depth and height come from the real layout, not the
+# board centreline — the receptacle sits well off-centre.
+USBC_IN_UNIT = Pos(P.pcb_x + P.pcb_t / 2 + P.usb_body_h / 2, P.usb_y, P.usb_z)
 
 
 def btn_in_unit(z: float):
     """Tactile body centre on the board's wall-side face at height z."""
-    return Pos(P.pcb_x - P.pcb_t / 2 - P.btn_body_t / 2, P.axis_y, z)
+    return Pos(P.pcb_x - P.pcb_t / 2 - P.btn_body_t / 2, P.btn_y, z)
+
+
+# Same two, in the BOARD's own frame (x = thickness, y/z centred on the
+# outline) so pcbboard.py can pose them without knowing where the unit is.
+USBC_IN_BOARD = Pos(
+    P.pcb_t / 2 + P.usb_body_h / 2,
+    P.usb_y - P.enc_d / 2,
+    P.usb_z - (P.pcb_z0 + P.pcb_h / 2),
+)
+
+
+def btn_in_board(z: float):
+    return Pos(
+        -P.pcb_t / 2 - P.btn_body_t / 2,
+        P.btn_y - P.enc_d / 2,
+        z - (P.pcb_z0 + P.pcb_h / 2),
+    )
 
 # Wall plate: its own frame is x centred, y=0 at the FRONT face (wall
 # side is -y), z=0 at the plate bottom. Hangs behind the unit.
