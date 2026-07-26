@@ -18,6 +18,11 @@ from importlib import import_module
 
 
 def _attr(src: str, name: str):
+    # Bare stem = module in this package; dotted = absolute import of a
+    # sibling project package (e.g. "blinds_cad.jgb37"). One catalog
+    # serves every cad project so the ctl tooling stays single-entry.
+    if "." in src:
+        return getattr(import_module(src), name)
     return getattr(import_module(f".{src}", __package__), name)
 
 
@@ -127,14 +132,32 @@ MODELS = {
         "SIDE QUEST storage-box corner brace: 30mm three-plate corner",
         "boxcorner",
     ),
+    # --- blinds project (blinds_cad package, wayfinder #12) ---
+    "blinds-unit": Model(
+        "BLINDS full unit: shell ghost + motor + sprocket + chain + cells + plate",
+        "blinds_cad.blindsunit",
+    ),
+    "blinds-shell": Model("BLINDS enclosure shell alone", "blinds_cad.enclosure"),
+    "blinds-plate": Model("BLINDS wall plate w/ cleat rail", "blinds_cad.wallplate"),
+    "blinds-sprocket": Model(
+        "BLINDS 12-pocket bead-chain sprocket + chain ghost", "blinds_cad.sprocket"
+    ),
+    "blinds-motor": Model(
+        "BLINDS JGB37-520B gearmotor reference (ordered part)", "blinds_cad.jgb37"
+    ),
+    "blinds-cells": Model(
+        "BLINDS 6× 21700 stack reference (2S3P bay)", "blinds_cad.cells21700"
+    ),
 }
 
 # saved file stem -> model name, for ctl's save auto-focus.
 # First entry wins on shared src (unit.py saves focus the full unit,
-# not the plate-only view).
+# not the plate-only view). Keyed by the module STEM (last dotted
+# segment) because ctl only knows the saved filename — stems must stay
+# unique across every cad project package.
 SRC_TO_MODEL: dict = {}
 for _name, _m in MODELS.items():
-    SRC_TO_MODEL.setdefault(_m.src, _name)
+    SRC_TO_MODEL.setdefault(_m.src.rsplit(".", 1)[-1], _name)
 
 
 # --- printable solids (STL export) ---
@@ -159,6 +182,9 @@ PRINTABLE = {
     "lid-clip": Printable("lidclip", "lid_clip"),
     "lid-clip-post": Printable("lidclip", "lid_clip_post"),
     "box-corner": Printable("boxcorner", "box_corner"),
+    "blinds-sprocket": Printable("blinds_cad.sprocket", "sprocket"),
+    "blinds-shell": Printable("blinds_cad.enclosure", "shell"),
+    "blinds-plate": Printable("blinds_cad.wallplate", "wallplate"),
 }
 
 

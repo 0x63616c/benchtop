@@ -5,7 +5,15 @@ from pathlib import Path
 
 from splitflap_cad.catalog import MODELS, PRINTABLE, RENDERS, SRC_TO_MODEL
 
-SRC = Path(__file__).parent.parent / "splitflap_cad"
+CAD = Path(__file__).parent.parent
+SRC = CAD / "splitflap_cad"
+
+
+def _module_path(src: str) -> Path:
+    """Bare stem lives in splitflap_cad; dotted src is package-absolute."""
+    if "." in src:
+        return CAD / (src.replace(".", "/") + ".py")
+    return SRC / f"{src}.py"
 
 
 def test_every_model_documented():
@@ -15,14 +23,15 @@ def test_every_model_documented():
 
 def test_every_src_is_a_real_module():
     for name, m in MODELS.items():
-        assert (SRC / f"{m.src}.py").exists(), f"{name}: no module {m.src}.py"
+        assert _module_path(m.src).exists(), f"{name}: no module {m.src}"
 
 
 def test_src_map_covers_all_models():
     # models may share a src (unit/plate); the map keeps the first, and
-    # every mapped name must be a real model
+    # every mapped name must be a real model. Keys are module STEMS —
+    # which must therefore stay unique across project packages.
     assert set(SRC_TO_MODEL.values()) <= set(MODELS)
-    assert set(SRC_TO_MODEL) == {m.src for m in MODELS.values()}
+    assert set(SRC_TO_MODEL) == {m.src.rsplit(".", 1)[-1] for m in MODELS.values()}
 
 
 def test_printable_builders_exist():
@@ -46,6 +55,9 @@ def test_printable_builders_exist():
         "lid-clip",
         "lid-clip-post",
         "box-corner",
+        "blinds-sprocket",
+        "blinds-shell",
+        "blinds-plate",
     }
 
 

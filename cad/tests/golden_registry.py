@@ -140,6 +140,30 @@ def _mirror_spacer_corner():
     return spacer_corner()
 
 
+def _blinds_sprocket():
+    from blinds_cad.sprocket import sprocket
+
+    return sprocket()
+
+
+def _blinds_shell():
+    from blinds_cad.enclosure import shell
+
+    return shell()
+
+
+def _blinds_wallplate():
+    from blinds_cad.wallplate import wallplate
+
+    return wallplate()
+
+
+def _blinds_motor():
+    from blinds_cad.jgb37 import jgb37
+
+    return jgb37()
+
+
 # name -> builder. All in their own local frames.
 BREP_PARTS = {
     "flap": _flap,
@@ -162,6 +186,10 @@ BREP_PARTS = {
     "mirror-spacer-corner": _mirror_spacer_corner,
     "unit-full": _full_unit,
     "unit-nema-full": _full_unit_nema,
+    "blinds-sprocket": _blinds_sprocket,
+    "blinds-shell": _blinds_shell,
+    "blinds-wallplate": _blinds_wallplate,
+    "blinds-motor": _blinds_motor,
 }
 
 FINGERPRINT_ONLY = {}

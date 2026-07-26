@@ -128,8 +128,12 @@ func viewJob(model string, emit func(string), stop <-chan struct{}) error {
 	}
 	defer w.Close()
 	srcDir := filepath.Join(root, "cad", "splitflap_cad")
-	if err := w.Add(srcDir); err != nil {
-		return err
+	// every cad project package re-renders on save; catalog stems are
+	// unique across packages so save auto-focus keeps working
+	for _, dir := range []string{srcDir, filepath.Join(root, "cad", "blinds_cad")} {
+		if err := w.Add(dir); err != nil {
+			return err
+		}
 	}
 	if model == "" {
 		logf("watching %s (follow last-saved model)", srcDir)

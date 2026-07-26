@@ -1,0 +1,36 @@
+"""Named frames: where each part's local frame sits in UNIT coordinates.
+
+Unit frame: origin at the back-left-bottom corner of the enclosure.
++X right (along the wall), +Y off the wall into the room, +Z up. The
+wall plate lives at y<0, behind the unit's back face.
+
+Naming: X_IN_UNIT maps X-local coords into unit coords.
+"""
+
+from build123d import Pos, Rot
+
+from .params import P
+
+# Motor frame (shaft axis at gearbox face, shaft +Z, eccentric +Y local)
+# onto the horizontal shaft axis: local +Z -> unit +X (shaft points
+# right, at the sprocket), local +Y (eccentricity) -> unit +Z so the
+# gearbox axis sits 7 ABOVE the sprocket axis.
+MOTOR_IN_UNIT = Pos(P.bulkhead_x, P.axis_y, P.axis_z) * Rot(0, 90, 0) * Rot(0, 0, 90)
+
+# Sprocket frame (wheel axis +Z, hub -Z toward motor) onto the shaft:
+# local +Z -> unit +X, wheel mid-plane at spr_x. The trailing Rot about
+# local Z points the bore's D-flat up (+Z unit), matching the shaft flat.
+SPROCKET_IN_UNIT = Pos(P.spr_x, P.axis_y, P.axis_z) * Rot(0, 90, 0) * Rot(0, 0, 90)
+
+# Chain ghost is built unit-aligned (axis +X at origin) — translate only.
+CHAIN_IN_UNIT = Pos(P.spr_x, P.axis_y, P.axis_z)
+
+# Cell stack: cell 0 axis through (bay_x, bay_y, bay_z0), axes along +X.
+CELLS_IN_UNIT = Pos(P.bay_x, P.bay_y, P.bay_z0)
+
+# PCB envelope: plain box built centred; place its centre.
+PCB_IN_UNIT = Pos(P.pcb_x, P.enc_d / 2, P.pcb_z0 + P.pcb_h / 2)
+
+# Wall plate: its own frame is x centred, y=0 at the FRONT face (wall
+# side is -y), z=0 at the plate bottom. Hangs behind the unit.
+PLATE_IN_UNIT = Pos(P.enc_w / 2, 0, 15.0)
