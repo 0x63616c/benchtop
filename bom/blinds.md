@@ -19,10 +19,51 @@ Unit price at the ladder tier covering a 12-set buy (10 boards + 2 spares of eac
 | TLV62569DBVR | 3.3V buck, 2A (AP63203WU-7 out of stock at LCSC) | [C141836](https://www.lcsc.com/product-detail/C141836.html) | 1 | $0.09 | 77,835 |
 | DRV5032FBDBZR | Hall switch, chain index mark (µW, 1.65–5.5V) | [C2655033](https://www.lcsc.com/product-detail/C2655033.html) | 1 | $0.64 | 1,460 |
 | TYPE-C-31-M-12 | USB-C 16-pin receptacle (PD data pins) | [C165948](https://www.lcsc.com/product-detail/C165948.html) | 1 | $0.17 | 270,670 |
-| KH-6X6X7H-ZJ | Side-press tactile switch (up/down buttons) | [C2837543](https://www.lcsc.com/product-detail/C2837543.html) | 2 | $0.03 | 6,320 (min 20) |
-| Passives, inductors, sense R, ESD, LEDs | est. until schematic | — | ~30 | ~$3.00 | — |
+| KH-6X6X7H-TJ | Tactile switch, up/down. **Straight (top-push)**, not the -ZJ right-angle first listed: in the enclosure the plunger goes through the wall perpendicular to the board ([#22](https://github.com/0x63616c/benchtop/issues/22)) | [C2837517](https://www.lcsc.com/product-detail/C2837517.html) | 2 | $0.02 | 33,048 |
+| Passives, inductors, connectors, LED | **finalised by the [#22](https://github.com/0x63616c/benchtop/issues/22) layout** — 26 line items, all JLC-stocked, most of them Basic. Detail below | — | 76 | $4.92 | — |
 
-**PCB parts per unit ≈ $13.93** → ×12 sets ≈ **$167**
+**PCB parts per unit ≈ $15.82** → ×12 sets ≈ **$190**
+
+87 placed parts per board, 38 line items. The passive estimate was low by
+$1.92 a board: three switching converters and a 2S protector need more
+decoupling, feedback dividers and strap resistors than "~30 passives" allowed.
+
+### Passives, in full (per board)
+
+| Value / part | LCSC # | Qty | Unit $ | Where |
+|---|---|---|---|---|
+| 10uF 25V 0805 X5R | C89831 | 11 | $0.139 | VBUS, PMID, REGN, SYS, BAT, converter inputs, MCU bulk |
+| 100nF 0603 X7R | C14663 | 12 | $0.024 | HF decoupling everywhere |
+| 22uF 25V 0805 X5R | C784585 | 5 | $0.501 | 12V motor rail (3), DRV8871 VM, 3V3 out |
+| 47nF 0603 | C1622 | 3 | $0.014 | charger bootstraps (2), boost soft-start |
+| 1uF 0603 | C106858 | 3 | $0.044 | PD sink VDD, boost VCC, MCU |
+| 330nF 0603 | C282682 | 1 | $0.015 | BQ29209 3s OV delay |
+| 10nF 0603 | C57112 | 1 | $0.012 | boost loop compensation |
+| 1nF 0603 | C100040 | 1 | $0.015 | BQ25798 SDRV (no ship FET fitted) |
+| 22pF 0603 C0G | C1653 | 1 | $0.008 | 3V3 feedback feed-forward |
+| 2.2uH 7.5A 5.4x5.2 | C177247 | 2 | $0.138 | charger buck-boost + 12V boost |
+| 2.2uH 4x4 | C36409 | 1 | $0.064 | 3V3 buck |
+| 200k 1% 0603 | C25811 | 5 | $0.003 | boost FSW/ILIM/FB, /CE divider |
+| 10k 1% 0603 | C25804 | 6 | $0.008 | TS divider, /INT, EN, IO2 strap |
+| 100k 1% 0603 | C25803 | 4 | $0.008 | QON, EN pulls, 3V3 FB |
+| 22k 1% 0603 | C31850 | 2 | $0.007 | boost + buck FB bottom legs |
+| 1M 1% 0603 | C22935 | 2 | $0.003 | HUSB238A mode straps |
+| 100R 1% 0603 | C22775 | 2 | $0.011 | BQ29209 RVD + midpoint sense |
+| 4.7k 1% 0603 | C23162 | 2 | $0.012 | I2C pull-ups |
+| 30k 1% 0603 | C22984 | 1 | $0.012 | DRV8871 ILIM = 2.1A |
+| 21k 1% 0603 | C22956 | 1 | $0.003 | PD sink: request 3A |
+| 8.2k 1% 0603 | C25981 | 1 | $0.008 | BQ25798 PROG: 2 cells, 750kHz |
+| 6.04k 1% 0603 | C25977 | 1 | $0.003 | PD sink: request 12V |
+| 1k 1% 0603 | C21190 | 1 | $0.009 | status LED |
+| 261R 1% 0603 | C22925 | 1 | $0.002 | BQ29209 bottom-cell balance |
+| 160R 1% 0603 | C22814 | 1 | $0.003 | BQ29209 top-cell balance |
+| 0603 green LED | C12624 | 1 | $0.012 | charge status |
+| XH-3AW right-angle | C18428 | 3 | $0.010 | battery, hall (board), hall (tab) |
+| XH-2AW right-angle | C33132 | 1 | $0.010 | motor |
+
+No ESD diodes: the only exposed pins are USB-C's, and both the PD sink and the
+ESP32-C3's USB PHY have their own on-die clamps. Worth revisiting if rev B
+ever sees a static-prone install.
 
 ## Battery (per unit)
 
@@ -65,24 +106,31 @@ on arrival** before cutting all loops.
 
 ## PCB fab + assembly (JLCPCB, ×10)
 
-Live parametric quote 2026-07-26: **90×70mm, 2-layer, qty 10 = $4.00** ($2.00 with special
-offer), + shipping (DHL DDP $27.92 quoted; slower registered mail typically ~$10 — pick at
-order). Assembly: exact PCBA quote needs gerber+BOM+CPL, so it lands with the layout ticket;
-JLC economic assembly runs ~$8 setup + ~$0.0017/joint + parts — with our parts hand-solderable
-except QFN chargers, budget **~$40–60** for assembly of the 4 QFN/power parts ×10, or reflow at
-home (P2S bed... no — hotplate/iron; QFN-29 is the hard one).
+The layout ([#22](https://github.com/0x63616c/benchtop/issues/22)) landed at **38×66mm
+main board + an 18×12mm snap-off hall tab, 38×81mm as one panel, 6 layers**. Six, not two:
+24 nets have to escape a 4mm 29-pin QFN and two routing layers cannot do it — see the ticket.
+
+That changes the fab line from the 2-layer estimate above. JLCPCB 6-layer, 38×81mm, qty 10 is
+roughly **$45–60** (6-layer starts around $40 for small boards at 10pcs), plus shipping (DHL DDP
+$27.92 quoted; registered mail typically ~$10).
+
+Assembly: 87 parts/board across 38 line items, 4 of them fine-pitch (BQ25798 QFN-29 at 0.4mm,
+TPS61088 VQFN-20, HUSB238A QFN-16, BQ29209 SON-8). JLC economic assembly runs ~$8 setup +
+~$0.0017/joint + parts; at ~300 joints a board that is **~$60–90 for ten**, and the QFN-29 is
+the one part not worth attempting with an iron. A full PCBA quote needs the gerber+BOM+CPL
+upload, which is a follow-up.
 
 ## Totals
 
 | Bucket | New spend |
 |---|---|
-| LCSC PCB parts (12 sets) | ~$167 |
+| LCSC PCB parts (12 sets) | ~$190 |
 | 21700 holders (5×10-pack) | $64.95 |
 | Motors ×8 @ $11.98 (2 already ordered + 60rpm unit) | ~$114 |
 | Chain spares + joiners | $21.47 |
 | Rev A breadboard | $60.93 |
-| JLCPCB fab ×10 + ship | ~$15–32 |
-| PCBA (QFN parts) | ~$40–60 |
-| **Grand total (8 units + spares)** | **~$485–520** |
+| JLCPCB fab ×10 + ship (6-layer) | ~$55–90 |
+| PCBA (87 parts × 10) | ~$60–90 |
+| **Grand total (8 units + spares)** | **~$570–650** |
 
-Per-unit marginal electronics cost ≈ **$34** (PCB parts + holders + motor; cells owned).
+Per-unit marginal electronics cost ≈ **$36** (PCB parts + holders + motor; cells owned).
