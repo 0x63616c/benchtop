@@ -13,7 +13,17 @@ import (
 
 const kicadCLIPath = "/Applications/KiCad.app/Contents/MacOS/kicad-cli"
 
-func pcbDir(root string) string { return filepath.Join(root, "pcb", "driver-board") }
+// Which atopile project the pcb commands act on. Every board is laid out the
+// same way (tools/place_and_render.py + tools/build_outputs.sh), so selecting
+// one is just a directory swap: `PCB_BOARD=blinds-board just pcb view`.
+func pcbBoard() string {
+	if b := os.Getenv("PCB_BOARD"); b != "" {
+		return b
+	}
+	return "driver-board"
+}
+
+func pcbDir(root string) string { return filepath.Join(root, "pcb", pcbBoard()) }
 
 func pcbFile(root string) string {
 	return filepath.Join(pcbDir(root), "layouts", "default", "default.kicad_pcb")
