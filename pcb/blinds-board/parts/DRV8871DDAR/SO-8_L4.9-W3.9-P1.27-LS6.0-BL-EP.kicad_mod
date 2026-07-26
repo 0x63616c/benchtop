@@ -1,0 +1,213 @@
+(footprint "DRV8871DDAR:SO-8_L4.9-W3.9-P1.27-LS6.0-BL-EP"
+	(version 20241229)
+	(generator "faebryk_convert")
+	(generator_version "v5")
+	(layer "F.Cu")
+	(tedit "5DC5F6A4")
+	(uuid "ed53dc93-70e2-434d-a0fd-730e06b59491")
+	(property "Reference" "REF**"
+		(at 0 -7 0)
+		(layer "F.SilkS")
+		(uuid "39c21a7e-0e27-47b3-8349-df8782adbff4")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "SO-8_L4.9-W3.9-P1.27-LS6.0-BL-EP"
+		(at 0 7 0)
+		(layer "F.Fab")
+		(uuid "b6d6e316-4b86-4abf-9816-8302a1b5475c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_circle
+		(center -2.51 2.98)
+		(end -2.48 2.98)
+		(stroke
+			(width 0.06)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(locked no)
+		(uuid "3d6948b9-c72f-473b-8ab0-51307d4f281a")
+	)
+	(fp_circle
+		(center -2.12 1.48)
+		(end -1.94 1.48)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(locked no)
+		(uuid "c412641f-5c60-49d7-8811-afa401d74062")
+	)
+	(fp_circle
+		(center -1.9 3.24)
+		(end -1.8 3.24)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "Cmts.User")
+		(locked no)
+		(uuid "f7dcc39f-5ed9-4558-bf24-6fb97a8f5dfc")
+	)
+	(fp_line
+		(start -2.5 -2)
+		(end -2.5 -0.45)
+		(stroke
+			(width 0.13)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "8f5756d8-037e-4f5d-b4f2-7f41164f0ec1")
+	)
+	(fp_line
+		(start 2.5 -2)
+		(end 2.5 2)
+		(stroke
+			(width 0.13)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "2eaa70e9-de0a-4913-a47b-f49181e03e38")
+	)
+	(fp_line
+		(start -2.5 -2)
+		(end 2.5 -2)
+		(stroke
+			(width 0.13)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "c4a4e201-b7f2-4ba5-8de2-408cff502d5a")
+	)
+	(fp_line
+		(start -2.5 2)
+		(end 2.5 2)
+		(stroke
+			(width 0.13)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "ffcab830-7445-40d1-a67f-d9f977509d10")
+	)
+	(fp_line
+		(start -2.5 2)
+		(end -2.5 0.37)
+		(stroke
+			(width 0.13)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "8fffc046-9ec9-4cd2-936b-70c7db091a96")
+	)
+	(fp_arc
+		(start -2.5 0.38)
+		(mid -2.4964221 -0.4399844)
+		(end -2.5071555 0.3799376)
+		(stroke
+			(width 0.13)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(locked no)
+		(uuid "2fde6c59-4763-4f71-8b11-615105ed7ba4")
+	)
+	(fp_text user "%R"
+		(at 0 0)
+		(layer "F.Fab")
+		(uuid "f7a8f5d3-06b1-4aca-89cf-44281f965999")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "8" smd oval
+		(at -1.9 -3 0)
+		(size 0.6 1.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "b3bce85a-48bb-4145-aa8e-7de136673081")
+	)
+	(pad "1" smd oval
+		(at -1.9 3 0)
+		(size 0.6 1.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "59d9a463-a740-4ee3-86ae-09553bb2baed")
+	)
+	(pad "7" smd oval
+		(at -0.63 -3 0)
+		(size 0.6 1.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "40faf410-b53c-4db5-84d9-fb8a83ea9313")
+	)
+	(pad "6" smd oval
+		(at 0.64 -3 0)
+		(size 0.6 1.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "7727e7a8-12ad-4db3-bfd7-450c358e2f5b")
+	)
+	(pad "5" smd oval
+		(at 1.91 -3 0)
+		(size 0.6 1.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "87ebdba9-d484-4764-b8cc-15cc0156a662")
+	)
+	(pad "2" smd oval
+		(at -0.63 3 0)
+		(size 0.6 1.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "20219bb2-95e7-42fe-b3d2-dee4452150c1")
+	)
+	(pad "3" smd oval
+		(at 0.64 3 0)
+		(size 0.6 1.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "b77647cc-c39a-4976-b22c-7904d0444f00")
+	)
+	(pad "4" smd oval
+		(at 1.91 3 0)
+		(size 0.6 1.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "c24d278e-8bf3-44c7-bebd-75228a2144a5")
+	)
+	(pad "9" smd rect
+		(at 0 -0 0)
+		(size 3.2 2.5)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "692628f9-fd39-4c4c-978e-654e470bcddd")
+	)
+	(model "/Users/calum/code/github.com/0x63616c/benchtop/pcb/blinds-board/parts_raw/C75864/C75864.3dshapes/SO-8_L4.9-W3.9-H1.5-LS5.9-P1.27.wrl"
+		(offset
+			(xyz 0 -0 -0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 90)
+		)
+	)
+	(embedded_fonts no)
+)

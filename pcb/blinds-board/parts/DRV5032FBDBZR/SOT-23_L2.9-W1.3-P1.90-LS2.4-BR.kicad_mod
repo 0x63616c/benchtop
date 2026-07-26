@@ -1,0 +1,154 @@
+(footprint "DRV5032FBDBZR:SOT-23_L2.9-W1.3-P1.90-LS2.4-BR"
+	(version 20241229)
+	(generator "faebryk_convert")
+	(generator_version "v5")
+	(layer "F.Cu")
+	(tedit "5DC5F6A4")
+	(uuid "83c09d27-be5b-4ea5-b4f4-578ecbf37ded")
+	(property "Reference" "REF**"
+		(at 0 -4.95 0)
+		(layer "F.SilkS")
+		(uuid "372f556d-5a4a-446c-8e20-ee85a0a74de2")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "SOT-23_L2.9-W1.3-P1.90-LS2.4-BR"
+		(at 0 4.95 0)
+		(layer "F.Fab")
+		(uuid "08d0f608-d7f0-401e-86d9-786ced4c4acb")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_circle
+		(center 1.2 1.45)
+		(end 1.23 1.45)
+		(stroke
+			(width 0.06)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(locked no)
+		(uuid "79b32ae4-1632-493c-bb76-95deb39767b4")
+	)
+	(fp_circle
+		(center 1.75 0.94)
+		(end 1.9 0.94)
+		(stroke
+			(width 0.3)
+			(type solid)
+		)
+		(layer "Cmts.User")
+		(locked no)
+		(uuid "298e2d80-151f-4c4e-953d-def81c98d980")
+	)
+	(fp_line
+		(start -0.7 -0.64)
+		(end -0.7 -1.5)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "784be247-5e34-49c7-8141-d73713669245")
+	)
+	(fp_line
+		(start -0.7 -1.5)
+		(end 0.3 -1.5)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "53ad39c8-9b12-4a58-bec0-f68924a9c5b2")
+	)
+	(fp_line
+		(start 0.7 0.31)
+		(end 0.7 -0.32)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "ab14fe5d-05cc-4968-b881-87bad7bb903d")
+	)
+	(fp_line
+		(start -0.7 1.5)
+		(end -0.7 0.63)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "21137b10-7f81-4fe9-9fcf-d2760f508313")
+	)
+	(fp_line
+		(start -0.7 1.5)
+		(end 0.3 1.5)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "36ddff4a-59e7-4d18-8540-0f289dbaaba7")
+	)
+	(fp_text user "%R"
+		(at 0 0)
+		(layer "F.Fab")
+		(uuid "ce88dd42-eea6-4f8d-9028-53aa1e81abf6")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "2" smd rect
+		(at 1.15 -0.95 180)
+		(size 1 0.8)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "ea755384-01ce-41e5-85a8-91eadbf79d53")
+	)
+	(pad "3" smd rect
+		(at -1.15 0 180)
+		(size 1 0.8)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "04b890ca-a18f-4e4f-a3cb-3d3f84adfddf")
+	)
+	(pad "1" smd rect
+		(at 1.15 0.95 180)
+		(size 1 0.8)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "dffde9e2-7f25-485b-9720-f11f14a39758")
+	)
+	(model "/Users/calum/code/github.com/0x63616c/benchtop/pcb/blinds-board/parts_raw/C2655033/C2655033.3dshapes/SOT-23-3P_L2.9-W1.3-H1.0-LS2.4-P0.95.wrl"
+		(offset
+			(xyz 0 -0 -0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 180)
+		)
+	)
+	(embedded_fonts no)
+)

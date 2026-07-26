@@ -1,0 +1,213 @@
+(footprint "BQ29209DRBR:SON-8_L3.0-W3.0-P0.65-LS3.0-BL-EP"
+	(version 20241229)
+	(generator "faebryk_convert")
+	(generator_version "v5")
+	(layer "F.Cu")
+	(tedit "5DC5F6A4")
+	(uuid "29d3c53a-00e4-4282-a33c-3ef7e160277e")
+	(property "Reference" "REF**"
+		(at 0 -5.4 0)
+		(layer "F.SilkS")
+		(uuid "546c29f5-60a7-4801-b837-3c40167b02c3")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "SON-8_L3.0-W3.0-P0.65-LS3.0-BL-EP"
+		(at 0 5.4 0)
+		(layer "F.Fab")
+		(uuid "91e25d78-6ced-4f8b-98b8-0ec885c34507")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_circle
+		(center -0.99 2.1)
+		(end -0.82 2.1)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(locked no)
+		(uuid "a357798d-6af1-4df9-8460-aa3a0084c405")
+	)
+	(fp_circle
+		(center -1.5 1.5)
+		(end -1.47 1.5)
+		(stroke
+			(width 0.06)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(locked no)
+		(uuid "69bc82d9-dfb1-4c8a-a296-4fb3d3c7ba6c")
+	)
+	(fp_circle
+		(center -0.99 2.1)
+		(end -0.87 2.1)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "Cmts.User")
+		(locked no)
+		(uuid "1fb2cbc8-e87c-4c0f-9bb8-6d2f35dda47e")
+	)
+	(fp_line
+		(start 1.5 1.65)
+		(end 1.5 -1.65)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "f88a2f50-16dc-4ec9-ad3f-069a3c6d34cc")
+	)
+	(fp_line
+		(start -1.5 1.65)
+		(end -1.5 -1.65)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "3efb882e-1dc6-4de3-b8b7-6db9174f0d59")
+	)
+	(fp_line
+		(start -1.5 -1.65)
+		(end -1.4 -1.65)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "47000c93-0a67-4862-86fa-de34342b2c80")
+	)
+	(fp_line
+		(start 1.39 -1.65)
+		(end 1.5 -1.65)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "94fff5e1-70c6-4ea2-9ec7-f3598909aa44")
+	)
+	(fp_line
+		(start -1.5 1.65)
+		(end -1.4 1.65)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "49b86409-28e4-41a7-a121-8899adc1299e")
+	)
+	(fp_line
+		(start 1.39 1.65)
+		(end 1.5 1.65)
+		(stroke
+			(width 0.25)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(layers "F.SilkS")
+		(locked no)
+		(uuid "3e02cecb-9c67-4f15-b5ad-fff82a1536fe")
+	)
+	(fp_text user "%R"
+		(at 0 0)
+		(layer "F.Fab")
+		(uuid "f45fc669-e612-4e22-b281-e9539b67aa33")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" smd rect
+		(at -0.99 1.4 0)
+		(size 0.35 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "6d6e087e-8e2d-4746-bf3b-36ee706c5d2d")
+	)
+	(pad "2" smd rect
+		(at -0.33 1.4 0)
+		(size 0.35 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "b74f2f1b-ed6d-457c-bb91-aacddca1ef82")
+	)
+	(pad "3" smd rect
+		(at 0.33 1.4 0)
+		(size 0.35 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "5bf1f8d9-2017-433b-9439-a993c89a8912")
+	)
+	(pad "4" smd rect
+		(at 0.99 1.4 0)
+		(size 0.35 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "c545a0e9-4854-411c-bbac-38d92d945f4b")
+	)
+	(pad "5" smd rect
+		(at 0.99 -1.4 0)
+		(size 0.35 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "c4d28fb3-dd3d-4d01-b42a-db5e4646146b")
+	)
+	(pad "6" smd rect
+		(at 0.33 -1.4 0)
+		(size 0.35 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "882f54b8-144a-4346-89c3-c996d455d44c")
+	)
+	(pad "7" smd rect
+		(at -0.33 -1.4 0)
+		(size 0.35 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "e56accf8-802b-4a21-9aa1-ddfe9c10a7cc")
+	)
+	(pad "8" smd rect
+		(at -0.99 -1.4 0)
+		(size 0.35 0.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "443e83fb-11b5-4916-9861-81e676946076")
+	)
+	(pad "9" smd rect
+		(at -0 0 0)
+		(size 2.4 1.6)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "f818a466-cced-447a-a2ff-e1380f57ddb7")
+	)
+	(model "/Users/calum/code/github.com/0x63616c/benchtop/pcb/blinds-board/parts_raw/C139352/C139352.3dshapes/SON-8_L3.0-W3.0-H1.0-P0.65.wrl"
+		(offset
+			(xyz 0 -0 -0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 270)
+		)
+	)
+	(embedded_fonts no)
+)
