@@ -196,3 +196,6 @@ dmypy.json
 cython_debug/
 parts_raw/
 preview.svg.png
+
+# viewer artefact, regenerated on every `just pcb view`
+tools/viewer/board.glb
