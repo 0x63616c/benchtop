@@ -187,11 +187,18 @@ GND_LAYERS = ["F.Cu", "In1.Cu", "In4.Cu", "B.Cu"]
 
 
 def pad_layers(pad):
-    """Which routing layers a pad's copper is on. THT pads reach all of them."""
-    s = str(pad.layers)
-    if "*" in s:
+    """Which routing layers a pad's copper is on. THT pads reach all of them.
+
+    pad.layers is a pyzig list, and str() on it gives "<pyzig.MutableList object
+    at 0x...>" — no layer names, no "*". Formatting it instead of iterating it
+    silently put EVERY pad on F.Cu alone, so the router happily ran tracks
+    through every through-hole pad on the inner and bottom layers. That was
+    ~100 DRC shorts wearing a hundred different disguises.
+    """
+    names = [str(x) for x in pad.layers]
+    if any(n.startswith("*") for n in names):
         return list(ROUTE_LAYERS)
-    out = [ly for ly in ROUTE_LAYERS if ly in s]
+    out = [ly for ly in ROUTE_LAYERS if ly in names]
     return out or ["F.Cu"]
 
 # Fine-pitch parts get a fanout stub per pad before anything else is routed:
@@ -679,9 +686,10 @@ def route_pass(k, priority, report=False, strict=False):
                 # eight thermal vias and the USB-C two mounting posts, none of
                 # them on a net. Left unstamped they are invisible to the router
                 # and it lays tracks straight over them.
+                pad_r = router.CLEAR + W_BIG / 2
                 for ly in ROUTE_LAYERS:
-                    g.block(box[0] - router.CLEAR, box[1] - router.CLEAR,
-                            box[2] + router.CLEAR, box[3] + router.CLEAR, [ly])
+                    g.block(box[0] - pad_r, box[1] - pad_r,
+                            box[2] + pad_r, box[3] + pad_r, [ly])
                 continue
             n = pad.net.number
             layers = pad_layers(pad)
@@ -690,7 +698,7 @@ def route_pass(k, priority, report=False, strict=False):
                 for r in rects:
                     g.core(ly, r[0], r[1], r[2], r[3], n)
             pads_by_net.setdefault(n, []).append((f"{addr}.{name}", box, layers))
-            pad_shape[f"{addr}.{name}"] = rects
+            pad_shape.setdefault(f"{addr}.{name}", []).extend(rects)
     stub_rects = fanout(k, g, boxes, pads_by_net)
 
     for n, pads in pads_by_net.items():
@@ -856,7 +864,7 @@ def _pad_cells(g, pad, net):
         for gy in range(g._gy(box[1]), g._gy(box[3]) + 1):
             for gx in range(g._gx(box[0]), g._gx(box[2]) + 1):
                 i = g.idx(gx, gy)
-                if g.cells[ly][i] == net:
+                if g.cells[ly][i] == net and g.is_core[ly][i]:
                     s.add(i)
         if s:
             out[ly] = s
@@ -894,8 +902,9 @@ def stitch_vias(k, g, pads_by_net, net_name):
             continue
         for _, box, _ in pads:
             cx, cy = (box[0] + box[2]) / 2, (box[1] + box[3]) / 2
-            for dx, dy in ((0, 0), (0.8, 0), (-0.8, 0), (0, 0.8), (0, -0.8),
-                           (0.8, 0.8), (-0.8, -0.8)):
+            for dx, dy in ((0, 0), (0.7, 0), (-0.7, 0), (0, 0.7), (0, -0.7),
+                           (0.7, 0.7), (-0.7, -0.7), (0.7, -0.7), (-0.7, 0.7),
+                           (1.1, 0), (-1.1, 0), (0, 1.1), (0, -1.1)):
                 x, y = cx + dx, cy + dy
                 if _via_fits(g, x, y, n):
                     for ly in ROUTE_LAYERS:
@@ -912,7 +921,10 @@ def stitch_vias(k, g, pads_by_net, net_name):
 
 
 def _via_fits(g, x, y, net):
-    r = VIA_SIZE / 2 + router.CLEAR + W_BIG / 2
+    # Stitching happens after every track is down, so a stitch via only has to
+    # clear what already exists — no need to reserve room for a future rail.
+    # The stricter margin was leaving ground pads stranded off the pour.
+    r = VIA_SIZE / 2 + router.CLEAR
     for gy in range(g._gy(y - r), g._gy(y + r) + 1):
         for gx in range(g._gx(x - r), g._gx(x + r) + 1):
             i = g.idx(gx, gy)

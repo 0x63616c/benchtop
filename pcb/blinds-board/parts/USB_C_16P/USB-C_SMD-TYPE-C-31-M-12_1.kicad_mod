@@ -61,26 +61,11 @@
 		(locked no)
 		(uuid "73b381b7-dc78-4a0b-9213-0908ecf9eacc")
 	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
+
+
+
+
+
 	(fp_line
 		(start -4.98 -3.17)
 		(end 4.98 -3.17)

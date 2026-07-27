@@ -44,6 +44,56 @@ def fix_usb():
     return n
 
 
+def strip_copper_graphics():
+    """Delete fp_lines/polys drawn on F.Cu or B.Cu in the vendored footprints.
+
+    Several EasyEDA connector footprints draw their outline on a COPPER layer
+    instead of silk. KiCad treats that as netless copper and every track or via
+    that passes near one is a clearance error against a shape that was only
+    ever meant to be a drawing.
+    Also drops zero-length lines with no layer at all: trim_lib_silk leaves one
+    behind for every silk segment it clips away to nothing, and a layerless line
+    inherits the footprint's layer — which is F.Cu. Thirteen of them sit on the
+    origin of every XH connector, and KiCad reports a clearance error against
+    each one.
+    """
+    n = 0
+    for path in sorted(PARTS.glob("*/*.kicad_mod")):
+        text = path.read_text()
+        out, i, hit = [], 0, 0
+        while True:
+            j = min([x for x in (text.find("(fp_line", i), text.find("(fp_poly", i),
+                                 text.find("(fp_rect", i), text.find("(fp_circle", i))
+                     if x >= 0] or [-1])
+            if j < 0:
+                out.append(text[i:])
+                break
+            depth, k = 0, j
+            while k < len(text):
+                if text[k] == "(":
+                    depth += 1
+                elif text[k] == ")":
+                    depth -= 1
+                    if depth == 0:
+                        k += 1
+                        break
+                k += 1
+            block = text[j:k]
+            degenerate = "(layer" not in block or "(start 0 0)" in block and "(end 0 0)" in block
+            if '(layer "F.Cu")' in block or '(layer "B.Cu")' in block or degenerate:
+                out.append(text[i:j].rstrip("\t"))   # drop the graphic
+                hit += 1
+            else:
+                out.append(text[i:k])
+            i = k
+        if hit:
+            path.write_text("".join(out))
+            print(f"  {path.parent.name}: dropped {hit} copper-layer graphic(s)")
+            n += hit
+    return n
+
+
 if __name__ == "__main__":
     print(f"TPS61088: {fix_tps()} thermal vias renamed to PGND and opened to 0.55/0.3")
     print(f"USB-C: {fix_usb()} mounting posts made non-plated")
+    print(f"copper graphics: {strip_copper_graphics()} dropped")

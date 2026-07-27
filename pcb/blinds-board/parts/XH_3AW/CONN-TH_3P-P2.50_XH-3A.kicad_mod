@@ -72,58 +72,19 @@
 		(locked no)
 		(uuid "b87d37c9-711f-4ca5-ada3-04ced855c011")
 	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
-	(fp_line
-		(start 0 0)
-		(end 0 0)
-	)
+
+
+
+
+
+
+
+
+
+
+
+
+
 	(fp_line
 		(start -3.35 -0.95)
 		(end 3.45 -0.95)
