@@ -17,27 +17,39 @@ over the drop to the blind's chain wheel.
 
 ## Decisions
 
-- **Layout A (interleaved)**, keeps 98 × 44 footprint, height ≈ 232:
-  - PCB flat on the floor, components up.
-  - 4 battery holders horizontal, full width, above the PCB.
-  - Motor vertical at center (shaft x=49, y=21, eccentric toward −X),
-    shaft up, encoder down.
-  - 2 battery holders rotated 90° (cells vertical) flanking the motor.
-  - Bevel mesh + sprocket at the top, chain slots in the top face.
-- **Drive: printed 1:1 module-2 bevel pair.** Pinion on the 6mm
-  D-shaft; bevel ring printed as ONE piece with the 12-pocket sprocket
-  (geometry from #16 unchanged). Sprocket+ring spins on a fixed M5
-  cross-axle through the guide block. Bores sized so a ~$10 steel 1:1
-  bevel pair drops in if the printed pair wears. 111rpm × 1:1 →
-  ~133mm/s chain speed (target 100). Working torque ~0.4Nm of 0.6
-  available.
-- **Motor mount: horizontal deck** at z≈197 — shaft hole + 6×M3 BCD31
-  screwed down into the gearbox face; lower cradle ring steadies the
-  can. Replaces v1's vertical bulkhead.
-- **Carrier PCB v2:** one tall carrier (~94×195) with a Ø40+ arch
-  cutout around the motor; all 6 holders on the same face (4
-  horizontal + 2 rotated 90°); same 2S3P busing, balance tap,
-  XT30PW + JST-XH.
+**Geometry check killed the vertical-motor layout that was approved
+verbally:** with the shaft vertical at (49, 21), the shaft tip crosses
+the sprocket's Y-axis axle plane, and no rotating hub can bridge the
+sprocket's back and front past a static shaft that intersects its own
+axis. The corrected layout keeps every approved property (chain
+centered, strands left/right, 98 × 44, printed gears with steel
+fallback) with the motor horizontal:
+
+- **Layout (tower), 98 × 44 × 242:**
+  - PCB flat on the floor (z 6..7.6), components up, on 4× M3 bosses.
+  - All 6 battery holders horizontal, full width, one stack
+    (z ≈ 14..160) — the v1-style rectangular carrier survives.
+  - Motor horizontal along X near the top: gearbox face x=67, shaft
+    +X, shaft axis (y 21, z 189), eccentric DOWN (gearbox axis z 182,
+    can z 163.5..200.5).
+  - Sprocket axis along Y at (x 49, z 220); chain slots in the top
+    face at x = 49 ± 11.5, y ≈ 36.
+- **Drive: two printed stages.** Spur pair m2 14:17 (motor pinion on
+  the D-shaft at x≈81.5 → layshaft at (21, 220), center distance 31).
+  Layshaft is one print: spur gear + Ø8 shaft + m2 z10 bevel at its
+  left end (heel plane x=59). That bevel meshes a z10 bevel ring
+  printed as ONE piece with the 12-pocket sprocket (ring heel plane
+  y=11, drum bridge, wheel at y≈36). Sprocket spins on a fixed M5
+  cross-axle (front wall → cleat bar). Net: 111rpm × 14/17 ≈ 91rpm →
+  ~109mm/s chain (target 100); sprocket torque ≈ 0.6 × 17/14 × ~0.72
+  gear efficiency ≈ 0.52Nm vs 0.39 needed. Steel bevel fallback still
+  possible (bores stay standard).
+- **Motor mount:** vertical rib bulkhead at x 67..70 (6×M3 BCD31 into
+  the gearbox face, layshaft U-saddle in the same rib) + tail collar
+  near x≈11. Layshaft right end rides a second U-saddle at x 86..92;
+  saddles open toward the back for insertion, retained by clips.
+- **Carrier PCB:** unchanged concept from v1 — rectangular, 6 holders,
+  2S3P busing, balance tap, XT30PW + JST-XH.
 - **Main PCB rev C:** reshape to ~90×35 lying flat. Buttons = the
   right-angle tactile the BOM already lists (C2837543), front edge,
   plungers through the front wall at z≈8. USB-C right-angle exits the
@@ -52,8 +64,11 @@ over the drop to the blind's chain wheel.
 - Widen to ~130 for direct drive — breaks the ≤100 width rule.
 - Worm drive — kills the ~30s travel target.
 - Chain-redirect idlers — friction + 90° twist forced in ~50mm.
-- Horizontal motor + layshaft (spur+bevel) — 4 gears, no layout win.
-- Tower layout (6 cells in one stack) — same drive, height ≈ 280.
+- Vertical motor + bevel — shaft tip intersects the sprocket axle
+  plane; every bridge topology (drum over the shaft, crown+spur,
+  wheel-beside-ring) collides with the pinion, gearbox, or cleat bar.
+- Single-bevel off the motor shaft directly — the motor is 82mm along
+  its axis, so its shaft tip can never reach x≈49 inside 98mm.
 
 ## Risks / verify on arrival
 
