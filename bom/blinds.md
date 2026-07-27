@@ -112,7 +112,14 @@ main board + an 18×12mm snap-off hall tab, 38×81mm as one panel, 6 layers**. S
 
 That changes the fab line from the 2-layer estimate above. JLCPCB 6-layer, 38×81mm, qty 10 is
 roughly **$45–60** (6-layer starts around $40 for small boards at 10pcs), plus shipping (DHL DDP
-$27.92 quoted; registered mail typically ~$10).
+$27.92, live-quoted 2026-07-26).
+
+That $27.92 and the calculator's behaviour are real — the quote page was driven live — but the
+**6-layer 38×81 qty-10 price above is still an estimate**: cmux's WKWebView bridge could not set
+layers/dimensions/qty on JLC's SPA (no eval in the main frame, no mouse input), and it has no
+file-upload primitive at all, which the PCBA flow requires. The one number the calculator did
+return was $47.80 for its own defaults (2-layer, 100×100mm, qty 5, incl. $16.80 lead-free HASL).
+Getting the real PCBA quote needs a human-driven upload of the fab package.
 
 Assembly: 87 parts/board across 38 line items, 4 of them fine-pitch (BQ25798 QFN-29 at 0.4mm,
 TPS61088 VQFN-20, HUSB238A QFN-16, BQ29209 SON-8). JLC economic assembly runs ~$8 setup +
