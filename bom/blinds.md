@@ -19,7 +19,7 @@ Unit price at the ladder tier covering a 12-set buy (10 boards + 2 spares of eac
 | TLV62569DBVR | 3.3V buck, 2A (AP63203WU-7 out of stock at LCSC) | [C141836](https://www.lcsc.com/product-detail/C141836.html) | 1 | $0.09 | 77,835 |
 | DRV5032FBDBZR | Hall switch, chain index mark (µW, 1.65–5.5V) | [C2655033](https://www.lcsc.com/product-detail/C2655033.html) | 1 | $0.64 | 1,460 |
 | TYPE-C-31-M-12 | USB-C 16-pin receptacle (PD data pins) | [C165948](https://www.lcsc.com/product-detail/C165948.html) | 1 | $0.17 | 270,670 |
-| KH-6X6X7H-TJ | Tactile switch, up/down. **Straight (top-push)**, not the -ZJ right-angle first listed: in the enclosure the plunger goes through the wall perpendicular to the board ([#22](https://github.com/0x63616c/benchtop/issues/22)) | [C2837517](https://www.lcsc.com/product-detail/C2837517.html) | 2 | $0.02 | 33,048 |
+| KH-6X6X7H-ZJ | Tactile switch, up/down. **Right-angle again** (v2 center-drop, spec 2026-07-26): the board lies flat, plungers go +Y out of the front wall — the -ZJ this line originally listed is correct after all; the straight -TJ swap was a rev B artifact | [C2837543](https://www.lcsc.com/product-detail/C2837543.html) | 2 | $0.02 | 25,000+ |
 | Passives, inductors, connectors, LED | **finalised by the [#22](https://github.com/0x63616c/benchtop/issues/22) layout** — 26 line items, all JLC-stocked, most of them Basic. Detail below | — | 76 | $4.92 | — |
 
 **PCB parts per unit ≈ $15.82** → ×12 sets ≈ **$190**
@@ -106,8 +106,9 @@ on arrival** before cutting all loops.
 
 ## PCB fab + assembly (JLCPCB, ×10)
 
-The layout ([#22](https://github.com/0x63616c/benchtop/issues/22)) landed at **38×66mm
-main board + an 18×12mm snap-off hall tab, 38×81mm as one panel, 6 layers**. Six, not two:
+The rev B layout ([#22](https://github.com/0x63616c/benchtop/issues/22)) landed at 38×66;
+the v2 center-drop unit (spec 2026-07-26) reshapes it to **88×32mm flat main board + an
+18×12mm snap-off hall tab below, 88×47mm as one panel, 6 layers**. Six, not two:
 24 nets have to escape a 4mm 29-pin QFN and two routing layers cannot do it — see the ticket.
 
 That changes the fab line from the 2-layer estimate above. JLCPCB 6-layer, 38×81mm, qty 10 is
@@ -141,3 +142,16 @@ upload, which is a follow-up.
 | **Grand total (8 units + spares)** | **~$570–650** |
 
 Per-unit marginal electronics cost ≈ **$36** (PCB parts + holders + motor; cells owned).
+
+## Mechanical, v2 center-drop drive (per unit)
+
+The v2 drive train (spec 2026-07-26) is printed: spur pinion m2 z14 on the
+motor D-shaft, one-piece layshaft (m2 z17 spur + Ø8 shaft + m2 z10 bevel),
+and the z10 bevel ring printed into the sprocket. Bought hardware:
+
+| Part | Qty | Note |
+|---|---|---|
+| M5×40 bolt + nut | 1 | fixed sprocket cross-axle, front wall → cleat bar |
+| M3×8 (into gearbox face) | 6 | motor → bulkhead rib, BCD31 |
+| M3×8 + heat-set (board, carrier) | 3 + 4 | rev C board bosses, carrier bosses |
+| Steel 1:1 bevel pair, m2-ish, Ø5/Ø6 bores | 0 (fallback) | only if the printed bevels wear — bores are standard |

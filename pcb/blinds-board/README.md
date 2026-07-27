@@ -1,13 +1,17 @@
-# blinds driver rev B — 2S USB-PD charger + 12 V motor rail
+# blinds driver rev C — 2S USB-PD charger + 12 V motor rail
 
 One board per automated blind ([wayfinder #12](https://github.com/0x63616c/benchtop/issues/12),
 layout [#22](https://github.com/0x63616c/benchtop/issues/22)). It charges a 2S3P
 21700 pack from USB-C Power Delivery, boosts the pack to a 12 V rail **only
 while the blind is moving**, and runs an ESP32-C3 on 3.3 V the rest of the time.
 
-**38 × 66 mm, 4-layer, 1.6 mm FR4**, plus a snap-off 18 × 12 mm hall-sensor tab
-(panel is 38 × 81 mm). Components on the top side only; the two tactile
-switches and the three XH connectors are through-hole.
+**88 × 32 mm, 6-layer, 1.6 mm FR4**, plus a snap-off 18 × 12 mm hall-sensor tab
+below the board (panel is 88 × 47 mm). Rev C lies FLAT on the enclosure floor
+(v2 center-drop unit): buttons + USB-C mouth out of the FRONT edge, 3× M3
+mount holes onto printed bosses, and a plain enclosure pillar under the USB
+edge (no 4th screw — that corner is the module antenna). Components on the
+top side only; the two tactile switches (right-angle in rev C) and the three
+XH connectors are through-hole.
 
 ## Power chain
 
