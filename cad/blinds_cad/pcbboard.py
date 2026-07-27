@@ -30,12 +30,12 @@ from .params import P
 
 
 def board():
-    """The laminate, corner holes included."""
+    """The laminate, mount holes included (positions from the layout)."""
     b = Box(P.pcb_l, P.pcb_wd, P.pcb_t)
-    ins = P.pcb_hole_inset
-    for x in (-P.pcb_l / 2 + ins, P.pcb_l / 2 - ins):
-        for y in (-P.pcb_wd / 2 + ins, P.pcb_wd / 2 - ins):
-            b -= Pos(x, y, 0) * Cylinder(1.6, P.pcb_t + 2)
+    cx = P.pcb_x0 + P.pcb_l / 2
+    cy = P.pcb_y0 + P.pcb_wd / 2
+    for x, y in P.pcb_holes:
+        b -= Pos(x - cx, y - cy, 0) * Cylinder(1.6, P.pcb_t + 2)
     return b
 
 

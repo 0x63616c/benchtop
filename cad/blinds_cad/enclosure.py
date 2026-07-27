@@ -177,16 +177,19 @@ def _rail_cut():
 
 
 def _floor_bosses():
-    """4× M3 bosses under the flat main PCB's corner holes."""
-    ins = P.pcb_hole_inset
+    """3× M3 bosses under the flat main PCB's holes + the plain support
+    pillar under the USB-C edge (plug insertion force)."""
     bosses = None
-    for x in (P.pcb_x0 + ins, P.pcb_x0 + P.pcb_l - ins):
-        for y in (P.pcb_y0 + ins, P.pcb_y0 + P.pcb_wd - ins):
-            b = Pos(x, y, (P.enc_wall + P.pcb_z0) / 2) * Cylinder(
-                3.5, P.pcb_z0 - P.enc_wall
-            )
-            b -= Pos(x, y, P.pcb_z0 - 3) * Cylinder(1.3, 6.2)
-            bosses = b if bosses is None else bosses + b
+    for x, y in P.pcb_holes:
+        b = Pos(x, y, (P.enc_wall + P.pcb_z0) / 2) * Cylinder(
+            3.5, P.pcb_z0 - P.enc_wall
+        )
+        b -= Pos(x, y, P.pcb_z0 - 3) * Cylinder(1.3, 6.2)
+        bosses = b if bosses is None else bosses + b
+    px, py = P.pcb_pillar
+    bosses += Pos(px, py, (P.enc_wall + P.pcb_z0) / 2) * Cylinder(
+        3.0, P.pcb_z0 - P.enc_wall
+    )
     return bosses
 
 

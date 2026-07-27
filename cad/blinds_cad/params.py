@@ -123,7 +123,11 @@ class Params:
                                    # they stay under the holder stack (14.05)
     pcb_comp_inset: float = 1.5    # envelope inset from the board outline
     pcb_comp_front_inset: float = 6.0  # front strip is the buttons'/USB's own
-    pcb_hole_inset: float = 4.0    # M3 corner holes / floor bosses
+    # M3 holes + bosses, UNIT coords (= board holes in tools/place_and_render:
+    # unit x = board x + 5, unit y = 40 - board y). The 4th corner is the
+    # MCU/antenna — no screw; a plain pillar under the USB edge instead.
+    pcb_holes: tuple = ((90.0, 36.0), (9.0, 13.0), (90.0, 13.0))
+    pcb_pillar: tuple = (49.0, 38.0)
 
     # buttons: KH-6X6X7H right-angle 6x6 tactile (BOM line C2837543 —
     # v1 flagged it as the wrong variant; flat-board v2 makes it RIGHT),
