@@ -13,52 +13,58 @@ from .params import P
 
 # Motor frame (shaft axis at gearbox face, shaft +Z, eccentric +Y local)
 # onto the horizontal shaft axis: local +Z -> unit +X (shaft points
-# right, at the sprocket), local +Y (eccentricity) -> unit +Z so the
-# gearbox axis sits 7 ABOVE the sprocket axis.
-MOTOR_IN_UNIT = Pos(P.bulkhead_x, P.axis_y, P.axis_z) * Rot(0, 90, 0) * Rot(0, 0, 90)
+# right), local +Y (eccentricity) -> unit -Z so the gearbox axis sits
+# 7 BELOW the shaft axis (clears the wrap guide above).
+_SHAFT_ROT = Rot(0, 90, 0) * Rot(0, 0, -90)
+MOTOR_IN_UNIT = Pos(P.bulkhead_x, P.drive_y, P.motor_z) * _SHAFT_ROT
 
-# Sprocket frame (wheel axis +Z, hub -Z toward motor) onto the shaft:
-# local +Z -> unit +X, wheel mid-plane at spr_x. The trailing Rot about
-# local Z points the bore's D-flat up (+Z unit), matching the shaft flat.
-SPROCKET_IN_UNIT = Pos(P.spr_x, P.axis_y, P.axis_z) * Rot(0, 90, 0) * Rot(0, 0, 90)
+# Spur pinion (axis +Z, D-flat toward local +Y like the shaft) onto the
+# shaft tip, teeth centered on the mesh plane.
+PINION_IN_UNIT = Pos(P.pinion_x, P.drive_y, P.motor_z) * _SHAFT_ROT
 
-# Chain ghost is built unit-aligned (axis +X at origin) — translate only.
-CHAIN_IN_UNIT = Pos(P.spr_x, P.axis_y, P.axis_z)
+# Layshaft (axis +Z, bevel heel plane at local z=0, apex +Z, body -Z)
+# onto its axis: local +Z -> unit -X so the apex points at the sprocket
+# and the shaft/spur run right toward the saddles.
+LAYSHAFT_IN_UNIT = Pos(P.bevel_heel_x, P.drive_y, P.lay_z) * Rot(0, -90, 0)
+
+# Sprocket (axis +Z, wheel mid-plane z=0, ring gear +Z) onto the M5
+# axle: local +Z -> unit -Y so the ring sits wall-side at y=11.
+SPROCKET_IN_UNIT = Pos(P.drive_x, P.spr_wy, P.spr_z) * Rot(90, 0, 0)
+
+# Chain ghost is built unit-aligned (wheel axis +Y) — translate only.
+CHAIN_IN_UNIT = Pos(P.drive_x, P.spr_wy, P.spr_z)
 
 # Battery bay (cells + holders + carrier share one frame): cell 0 axis
-# through (bay_x, cell_axis_y, bay_z0), cells along +X, carrier at -y.
-BAY_IN_UNIT = Pos(P.bay_x, P.cell_axis_y, P.bay_z0)
+# through (drive_x, cell_axis_y, bay_z0), cells along +X, carrier at -y.
+BAY_IN_UNIT = Pos(P.drive_x, P.cell_axis_y, P.bay_z0)
 
-# PCB envelope: plain box built centred; place its centre.
-PCB_IN_UNIT = Pos(P.pcb_x, P.enc_d / 2, P.pcb_z0 + P.pcb_h / 2)
-
-# USB-C receptacle: centred box on the board's motor-side face, mouth down
-# into the floor slot. Depth and height come from the real layout, not the
-# board centreline — the receptacle sits well off-centre.
-USBC_IN_UNIT = Pos(P.pcb_x + P.pcb_t / 2 + P.usb_body_h / 2, P.usb_y, P.usb_z)
-
-
-def btn_in_unit(z: float):
-    """Tactile body centre on the board's wall-side face at height z."""
-    return Pos(P.pcb_x - P.pcb_t / 2 - P.btn_body_t / 2, P.btn_y, z)
-
-
-# Same two, in the BOARD's own frame (x = thickness, y/z centred on the
-# outline) so pcbboard.py can pose them without knowing where the unit is.
-USBC_IN_BOARD = Pos(
-    P.pcb_t / 2 + P.usb_body_h / 2,
-    P.usb_y - P.enc_d / 2,
-    P.usb_z - (P.pcb_z0 + P.pcb_h / 2),
+# Main PCB: flat on the floor bosses, board center.
+PCB_IN_UNIT = Pos(
+    P.pcb_x0 + P.pcb_l / 2, P.pcb_y0 + P.pcb_wd / 2, P.pcb_z0 + P.pcb_t / 2
 )
 
+# USB-C receptacle: mouth flush with the front wall's inner face.
+_USB_YC = P.enc_d - P.enc_wall - P.usb_body_l / 2
+USBC_IN_UNIT = Pos(P.usb_x, _USB_YC, P.usb_z)
 
-def btn_in_board(z: float):
-    return Pos(
-        -P.pcb_t / 2 - P.btn_body_t / 2,
-        P.btn_y - P.enc_d / 2,
-        z - (P.pcb_z0 + P.pcb_h / 2),
-    )
+_BTN_YC = P.enc_d - P.enc_wall - P.btn_body_t / 2
+
+
+def btn_in_unit(x: float):
+    """Right-angle tactile body centre at the board's front edge."""
+    return Pos(x, _BTN_YC, P.btn_z)
+
+
+# Same two, in the BOARD's own frame (laminate centred at the origin)
+# so pcbboard.py can pose them without knowing where the unit is.
+_B = PCB_IN_UNIT.position
+USBC_IN_BOARD = Pos(P.usb_x - _B.X, _USB_YC - _B.Y, P.usb_z - _B.Z)
+
+
+def btn_in_board(x: float):
+    return Pos(x - _B.X, _BTN_YC - _B.Y, P.btn_z - _B.Z)
+
 
 # Wall plate: its own frame is x centred, y=0 at the FRONT face (wall
 # side is -y), z=0 at the plate bottom. Hangs behind the unit.
-PLATE_IN_UNIT = Pos(P.enc_w / 2, 0, 15.0)
+PLATE_IN_UNIT = Pos(P.enc_w / 2, 0, P.plate_z0)

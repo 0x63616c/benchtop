@@ -1,14 +1,18 @@
-"""Bead-chain sprocket — 12-pocket wheel per ticket #16's paper spec.
+"""Bead-chain sprocket — 12-pocket wheel per ticket #16, v2: printed
+as ONE piece with its m2 z10 bevel ring gear.
 
-Printable. Local frame: wheel axis +Z, z=0 at the wheel's mid-plane;
-hub boss extends -Z (motor side, seats toward the gearbox boss).
+Printable. Local frame: axis +Z, z=0 at the WHEEL's mid-plane. Going
++Z (toward the wall once posed): wheel (±4), Ø10 drum bridge, bevel
+ring with its heel plane at z=25 and cone apex at z=15, back disc to
+z=27.5. Plain Ø5.2 bore throughout — it spins on a fixed M5 cross-axle
+(front wall -> cleat bar), driven by the layshaft's identical bevel.
 
-Geometry: pitch circle Ø≈22.9 (12 × 6mm pitch / π); hemispherical
-Ø5.4 ball pockets centred ON the pitch circle; continuous 3.5mm cord
-groove at pocket depth (the per-gap joiner reliefs of #16 overlap into
-a full ring — see params). D-bore matches the motor's 6mm D-shaft.
+Pocket geometry unchanged from #16: pitch circle Ø≈22.9 (12 × 6mm
+pitch / π); hemispherical Ø5.4 ball pockets centred ON the pitch
+circle; continuous 3.5mm cord groove at pocket depth.
 
-Print flat, pockets up, no supports (P2S, PLA).
+Print standing on the wheel face (z=-4 down), no supports (P2S, PLA):
+the drum and 45° ring cone self-support.
 
 View it: `just cad view blinds-sprocket` (chain ghost included).
 """
@@ -18,6 +22,7 @@ import math
 from build123d import Box, Cylinder, Pos, Rot, Sphere, Torus
 
 from .params import P
+from .gears import bevel
 
 
 def sprocket():
@@ -34,18 +39,21 @@ def sprocket():
             P.spr_pocket_d / 2
         )
 
-    hub = Pos(0, 0, -P.spr_w / 2 - P.spr_hub_len / 2) * Cylinder(
-        P.spr_hub_d / 2, P.spr_hub_len
+    # drum bridge: wheel back face -> ring gear
+    drum_z0, drum_z1 = P.spr_w / 2, 25.0 - P.bevel_face / math.sqrt(2)
+    drum = Pos(0, 0, (drum_z0 + drum_z1) / 2) * Cylinder(
+        P.spr_drum_d / 2, drum_z1 - drum_z0
     )
-    body = wheel + hub
 
-    # D-bore through everything
-    bore = Cylinder(P.spr_bore_d / 2, P.spr_w + 2 * P.spr_hub_len)
-    flat_y = P.spr_bore_flat - P.spr_bore_d / 2
-    bore -= Pos(0, flat_y + P.spr_bore_d / 2) * Box(
-        P.spr_bore_d * 2, P.spr_bore_d, P.spr_w + 2 * P.spr_hub_len
-    )
-    return body - bore
+    # bevel ring: heel plane z=25, apex toward the wheel at z=15 —
+    # gears.bevel() builds apex +Z, so flip it over before placing
+    ring = Pos(0, 0, 25.0) * (Rot(180, 0, 0) * bevel(P.gear_m, P.bevel_z, P.bevel_face))
+    ring += Pos(0, 0, 26.25) * Cylinder(7.5, 2.5)  # back disc, z 25..27.5
+
+    body = wheel + drum + ring
+    # plain bore on the M5 axle
+    body -= Pos(0, 0, 11) * Cylinder(P.spr_bore_d / 2, 42)
+    return body
 
 
 def _ring(r_in: float, r_out: float, w: float):
@@ -54,25 +62,24 @@ def _ring(r_in: float, r_out: float, w: float):
 
 
 def chain_ghost(run_len: float = 120.0):
-    """The chain path in a UNIT-aligned local frame: wheel axis +X at
-    the origin, two vertical (+Z) bead runs at y=±pitch radius, 180°
-    wrap under the wheel as a half torus. Display-only."""
+    """The chain path, UNIT-aligned at the wheel center: wheel axis +Y,
+    two vertical (+Z) bead runs at x=±pitch radius, 180° wrap under the
+    wheel as a half torus. Display-only."""
     r = P.spr_pcd / 2
     rod = Cylinder(P.chain_ball_d / 2, run_len)
-    runs = Pos(0, -r, run_len / 2) * rod + Pos(0, r, run_len / 2) * rod
-    # torus about +Z tipped onto +X (Rot maps pre +X -> post -Z), so the
-    # kept lower half is the pre x>0 half: cut away pre x<0
-    wrap = Torus(r, P.chain_ball_d / 2) - Pos(-(r + P.chain_ball_d), 0, 0) * Box(
-        2 * r + 2 * P.chain_ball_d, 4 * r, 4 * P.chain_ball_d
-    )
-    return runs + Rot(0, 90, 0) * wrap
+    runs = Pos(-r, 0, run_len / 2) * rod + Pos(r, 0, run_len / 2) * rod
+    wrap = Rot(90, 0, 0) * Torus(r, P.chain_ball_d / 2)  # ring in the X-Z plane
+    wrap -= Pos(0, 0, r + P.chain_ball_d) * Box(
+        4 * r, 4 * P.chain_ball_d, 2 * r + 2 * P.chain_ball_d
+    )  # keep the lower half
+    return runs + wrap
 
 
 def scene():
     from splitflap_cad.viewer import Scene
 
     s = Scene()
-    # pose the wheel into the chain frame (axis +X) so they co-display
-    s.add(sprocket(), "sprocket", color="orange", loc=Rot(0, 90, 0))
+    # pose the wheel into the chain frame (axis +Y) so they co-display
+    s.add(sprocket(), "sprocket", color="orange", loc=Rot(90, 0, 0))
     s.add(chain_ghost(), "chain", color="gray", alpha=0.5)
     return s

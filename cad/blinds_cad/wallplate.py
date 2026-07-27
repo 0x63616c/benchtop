@@ -12,7 +12,7 @@ from build123d import Box, Cylinder, Cone, Polygon, Pos, Rot, extrude
 
 from .params import P
 
-RAIL_TOP_LOCAL = 155.0  # = unit z 170 (plate hangs at unit z=15)
+RAIL_TOP_LOCAL = P.cleat_rail_top - P.plate_z0  # 170 = unit z 185
 
 
 def wallplate():
@@ -27,10 +27,13 @@ def wallplate():
         (P.cleat_t, RAIL_TOP_LOCAL),
         (0, RAIL_TOP_LOCAL),
     )
-    # length fits inside the shell's back-opening rim (unit x 10..88)
-    rail_len = P.enc_w - 21.0
+    # length matches the shell's hook bar span (stops short of the
+    # layshaft spur wheel, like the bar itself)
+    rail_len = P.cleat_x1 - P.cleat_x0 - 1.0
     # Rot(0,90,90) is the cyclic axis map: sketch(x,y)+extrude(z) -> local(y,z,x)
-    body += Pos(-rail_len / 2, 0, 0) * (Rot(0, 90, 90) * extrude(rail, amount=rail_len))
+    body += Pos(P.cleat_x0 + 0.5 - P.enc_w / 2, 0, 0) * (
+        Rot(0, 90, 90) * extrude(rail, amount=rail_len)
+    )
 
     # 4× countersunk screw holes
     ins = P.plate_screw_inset

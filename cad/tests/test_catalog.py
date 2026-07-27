@@ -58,6 +58,8 @@ def test_printable_builders_exist():
         "blinds-sprocket",
         "blinds-shell",
         "blinds-plate",
+        "blinds-pinion",
+        "blinds-layshaft",
     }
 
 

@@ -146,7 +146,11 @@ MODELS = {
         "BLINDS JGB37-520B gearmotor reference (ordered part)", "blinds_cad.jgb37"
     ),
     "blinds-pcb": Model(
-        "BLINDS rev B main PCB reference (38x66, #22 layout)", "blinds_cad.pcbboard"
+        "BLINDS rev C flat main PCB envelope (88x32, v2 layout)", "blinds_cad.pcbboard"
+    ),
+    "blinds-gears": Model(
+        "BLINDS printed drive: spur pinion + layshaft (spur+bevel)",
+        "blinds_cad.gears",
     ),
     "blinds-cells": Model(
         "BLINDS 6× 21700 stack reference (2S3P bay)", "blinds_cad.cells21700"
@@ -188,6 +192,8 @@ PRINTABLE = {
     "blinds-sprocket": Printable("blinds_cad.sprocket", "sprocket"),
     "blinds-shell": Printable("blinds_cad.enclosure", "shell"),
     "blinds-plate": Printable("blinds_cad.wallplate", "wallplate"),
+    "blinds-pinion": Printable("blinds_cad.gears", "pinion"),
+    "blinds-layshaft": Printable("blinds_cad.gears", "layshaft"),
 }
 
 

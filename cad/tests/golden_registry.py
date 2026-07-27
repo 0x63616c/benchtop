@@ -164,6 +164,18 @@ def _blinds_motor():
     return jgb37()
 
 
+def _blinds_pinion():
+    from blinds_cad.gears import pinion
+
+    return pinion()
+
+
+def _blinds_layshaft():
+    from blinds_cad.gears import layshaft
+
+    return layshaft()
+
+
 # name -> builder. All in their own local frames.
 BREP_PARTS = {
     "flap": _flap,
@@ -190,6 +202,8 @@ BREP_PARTS = {
     "blinds-shell": _blinds_shell,
     "blinds-wallplate": _blinds_wallplate,
     "blinds-motor": _blinds_motor,
+    "blinds-pinion": _blinds_pinion,
+    "blinds-layshaft": _blinds_layshaft,
 }
 
 FINGERPRINT_ONLY = {}
