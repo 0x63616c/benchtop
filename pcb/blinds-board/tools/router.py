@@ -166,7 +166,8 @@ def _neighbours(g, i):
         yield i + g.nx
 
 
-def route_net(g, net, sources, targets, width, base_width, strict=False):
+def route_net(g, net, sources, targets, width, base_width, strict=False,
+              clear=None):
     """A* from any source cell to any target cell. Returns [(layer, i), ...].
 
     sources/targets are {layer: set(index)}. The path is stamped by the caller
@@ -175,7 +176,8 @@ def route_net(g, net, sources, targets, width, base_width, strict=False):
     extra = max(0.0, (width - base_width) / 2)
     via_extra = max(0.0, (VIA_SIZE - base_width) / 2)
     if strict:
-        rad, via_rad = CLEAR + width / 2, CLEAR + VIA_SIZE / 2
+        c = CLEAR if clear is None else clear
+        rad, via_rad = c + width / 2, c + VIA_SIZE / 2
 
         def free(layer, cell):
             return strict_ok(g, layer, cell, net, rad)
@@ -228,11 +230,16 @@ def route_net(g, net, sources, targets, width, base_width, strict=False):
             if best.get((ly, j), 1 << 30) > nc:
                 best[(ly, j)] = nc
                 heapq.heappush(open_q, (nc + h(j), nc, (ly, j), state))
+        # via_free is the expensive test (a disc on every layer), and it does
+        # not depend on which layer we are hopping to — ask once per node.
+        hop = None
         for other in g.layers:
             if other == ly or not free(other, i):
                 continue
-            if not via_free(i):
-                continue
+            if hop is None:
+                hop = via_free(i)
+            if not hop:
+                break
             nc = cost + VIA_COST
             if best.get((other, i), 1 << 30) > nc:
                 best[(other, i)] = nc
@@ -284,6 +291,7 @@ def stamp_path(g, path, net, width, base_width):
     radius at query time.
     """
     halo = CLEAR + base_width / 2
+    via_halo = CLEAR + 0.2        # a via must still clear the widest later track
     half = width / 2
     vhalf = VIA_SIZE / 2
     prev = None
@@ -292,5 +300,5 @@ def stamp_path(g, path, net, width, base_width):
         g.stamp(ly, x - half, y - half, x + half, y + half, net, halo)
         if prev is not None and prev[0] != ly:
             for lay in g.layers:
-                g.stamp(lay, x - vhalf, y - vhalf, x + vhalf, y + vhalf, net, halo)
+                g.stamp(lay, x - vhalf, y - vhalf, x + vhalf, y + vhalf, net, via_halo)
         prev = (ly, i)

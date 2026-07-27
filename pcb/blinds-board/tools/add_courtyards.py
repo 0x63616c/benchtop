@@ -22,8 +22,14 @@ from faebryk.libs.kicad.fileformats import kicad
 PARTS = Path(__file__).parent.parent / "parts"
 MARGIN = 0.05
 
+# Parts whose housing deliberately hangs off the board edge: their courtyard is
+# their PADS, not their silk. A courtyard that runs off Edge.Cuts is a fab
+# question ("is this part in the way of the router?"), and for a connector
+# mounted at the edge the answer is no.
+PADS_ONLY = {"XH_2AW", "XH_3AW", "USB_C_16P"}
 
-def body_box(fp):
+
+def body_box(fp, pads_only=False):
     xs, ys = [], []
     for pad in fp.pads:
         if pad.primitives is not None and len(pad.primitives.gr_polys):
@@ -37,22 +43,32 @@ def body_box(fp):
             w, h = h, w
         xs += [pad.at.x - w / 2, pad.at.x + w / 2]
         ys += [pad.at.y - h / 2, pad.at.y + h / 2]
-    for ln in list(fp.fp_lines) + list(fp.fp_rects):
-        if "SilkS" not in str(ln.layer):
-            continue
-        xs += [ln.start.x, ln.end.x]
-        ys += [ln.start.y, ln.end.y]
+    if not pads_only:
+        for ln in list(fp.fp_lines) + list(fp.fp_rects):
+            if "SilkS" not in str(ln.layer):
+                continue
+            xs += [ln.start.x, ln.end.x]
+            ys += [ln.start.y, ln.end.y]
     return min(xs) - MARGIN, min(ys) - MARGIN, max(xs) + MARGIN, max(ys) + MARGIN
 
 
 def main():
     added = 0
     for path in sorted(PARTS.glob("*/*.kicad_mod")):
-        fpf = kicad.loads(kicad.pcb.FootprintFile, path.read_text())
+        fpf = kicad.loads(kicad.footprint.FootprintFile, path.read_text())
         fp = fpf.footprint
-        if any("CrtYd" in str(ln.layer) for ln in list(fp.fp_lines) + list(fp.fp_rects)):
-            continue
-        x0, y0, x1, y1 = body_box(fp)
+        pads_only = path.parent.name in PADS_ONLY
+        keep = [ln for ln in fp.fp_lines if "CrtYd" not in str(ln.layer)]
+        if len(keep) == len(fp.fp_lines):
+            pass
+        elif not pads_only:
+            continue                     # already has one and is happy with it
+        else:
+            while len(fp.fp_lines):
+                fp.fp_lines.pop(len(fp.fp_lines) - 1)
+            for ln in keep:
+                fp.fp_lines.append(ln)
+        x0, y0, x1, y1 = body_box(fp, pads_only)
         for (ax, ay), (bx, by) in (((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)),
                                    ((x1, y1), (x0, y1)), ((x0, y1), (x0, y0))):
             fp.fp_lines.append(kicad.pcb.Line(

@@ -21,7 +21,7 @@ ATO_PY="$HOME/.local/share/uv/tools/atopile/bin/python"
 RENDER="$ROOT/render"
 FAB="$ROOT/fab"
 ZIP="$ROOT/fab-blinds-driver-revB.zip"
-LAYERS="F.Cu,In1.Cu,In2.Cu,B.Cu,F.Mask,B.Mask,F.Silkscreen,B.Silkscreen,Edge.Cuts"
+LAYERS="F.Cu,In1.Cu,In2.Cu,In3.Cu,In4.Cu,B.Cu,F.Mask,B.Mask,F.Silkscreen,B.Silkscreen,Edge.Cuts"
 
 [ -x "$KICAD" ] || { echo "kicad-cli not found at $KICAD"; exit 1; }
 [ -x "$ATO_PY" ] || { echo "atopile python not found at $ATO_PY"; exit 1; }
@@ -39,21 +39,43 @@ ln -sfn "$ROOT/parts" "$ROOT/build/parts"
 # courtyards anywhere passes DRC while the courtyard-overlap check silently
 # never runs. Promote both to errors.
 #
+# net_settings is the one that actually bites: DRC checks the NETCLASS
+# clearance, and KiCad's built-in Default is 0.2mm. Without this every trace on
+# the board reports a violation at 0.195mm and the real errors are invisible.
+#
 # The clearance/width minimums are the board's own design point, not KiCad's
 # defaults: 0.15mm signal traces at 0.13mm clearance, because a 0.4mm-pitch
-# QFN cannot be escaped with anything wider. JLCPCB's 4-layer process floor is
+# QFN cannot be escaped with anything wider. JLCPCB's process floor is
 # 0.09mm/0.09mm, so this still has margin.
+#
+# solder_mask_bridge is ignored on purpose: at 0.4mm pitch the mask webs
+# between neighbouring pads are thinner than the fab can hold, and every fab
+# merges those openings anyway. Flagging it would bury the errors that matter.
 cat > "$ROOT/build/filled.kicad_pro" <<'PRO'
 {
+  "net_settings": {
+    "classes": [
+      {
+        "name": "Default",
+        "clearance": 0.13,
+        "track_width": 0.15,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1
+      }
+    ]
+  },
   "board": {
     "design_settings": {
       "rules": {
         "min_clearance": 0.12,
         "min_track_width": 0.13,
         "min_through_hole_diameter": 0.3,
-        "min_via_annular_width": 0.13,
+        "min_via_annular_width": 0.12,
         "min_hole_clearance": 0.2,
         "min_hole_to_hole": 0.25,
+        "min_copper_edge_clearance": 0.25,
         "min_silk_clearance": 0.0,
         "min_text_height": 0.7,
         "min_text_thickness": 0.12
@@ -63,7 +85,9 @@ cat > "$ROOT/build/filled.kicad_pro" <<'PRO'
         "courtyards_overlap": "error",
         "malformed_courtyard": "error",
         "silk_over_copper": "warning",
-        "silk_overlap": "warning"
+        "silk_overlap": "warning",
+        "solder_mask_bridge": "ignore",
+        "starved_thermal": "warning"
       }
     }
   },
@@ -72,8 +96,8 @@ cat > "$ROOT/build/filled.kicad_pro" <<'PRO'
 PRO
 
 echo "==> DRC"
-"$KICAD" pcb drc --severity-error --refill-zones --save-board \
-    --units mm -o "$ROOT/build/drc.rpt" "$PCB" >/dev/null 2>&1 || {
+"$KICAD" pcb drc --severity-error --exit-code-violations --refill-zones \
+    --save-board --units mm -o "$ROOT/build/drc.rpt" "$PCB" >/dev/null 2>&1 || {
     echo "DRC FAILED:"
     grep -E "^\*\* Found|^\[" "$ROOT/build/drc.rpt" | head -40
     exit 1

@@ -34,7 +34,9 @@ PCB = ROOT / "layouts/default/default.kicad_pcb"
 BOARD_W, BOARD_H = 38.0, 66.0          # main board — fits the enclosure slab
 TAB = (20.0, 69.0, 38.0, 81.0)         # snap-off hall tab
 NECK = (30.0, 66.0, 34.0, 69.0)
-EDGE_KEEP = 0.3                        # copper inset from any board edge
+EDGE_KEEP = 0.55                       # track CENTRELINE inset from any board
+                                       # edge: 0.4mm of copper plus KiCad's
+                                       # 0.25mm copper-to-edge rule
 
 # The module's antenna half must see no copper on any layer, including the
 # poured planes. Module body spans y 0.5..17.1 with the antenna at the low-y
@@ -142,6 +144,10 @@ SILK = [
 # 0.15mm signal traces: the BQ25798's 0.4mm-pitch pads leave 0.2mm between
 # neighbours, so a wider escape simply does not fit. JLC's 4-layer floor is 0.09.
 W_SIG, W_PWR, W_BIG = 0.15, 0.3, 0.4
+W_FINE, CLEAR_FINE = 0.1, 0.1     # last-resort hop, still inside JLC's floor
+HAIRLINE = False                  # searching the whole board at 0.1mm clearance
+                                  # costs 20+ minutes and has never been what
+                                  # closed a net — kept for the day it is
 NET_BY_PAD = {
     "gnd": "chg.27", "gnd_tab": "hall.3",
     "vbus": "chg.2", "pmid": "chg.29", "sys": "chg.25", "bat": "chg.22",
@@ -166,7 +172,7 @@ GND_NETS = {"gnd", "gnd_tab"}
 # its passive bank on one side and the board edge on the other. These nets go
 # down before anything else competes for that space; found by watching which
 # ones the retry loop kept rescuing.
-PRIORITY_PADS = ["chg.29", "chg.22", "chg.5", "chg.14", "chg.15", "chg.25", "chg.19", "chg.4",
+PRIORITY_PADS = ["chg.29", "chg.22", "chg.5", "chg.20", "chg.14", "mcu.19", "chg.15", "chg.25", "chg.19", "chg.4",
                  "chg.21"]
 
 VIA_SIZE, VIA_DRILL = 0.6, 0.3
@@ -198,7 +204,7 @@ FANOUT = {"chg": 1.2, "boost": 1.0, "pd": 0.8, "prot": 0.7, "drv": 0.7,
 # Per-pad override, for the one or two pins whose lane the rest of the fanout
 # closes off. BATP only senses the battery, so its run is long by nature —
 # reaching past the traffic beats fighting it.
-FANOUT_PAD = {"chg.18": 3.2, "chg.17": 2.5}
+FANOUT_PAD = {"chg.18": 3.2, "chg.17": 2.5, "chg.20": 2.8}
 
 
 def rot(x, y, deg):
@@ -431,6 +437,7 @@ def main():
     if missing:
         raise SystemExit("no placement for: " + ", ".join(sorted(missing)))
 
+    clean_custom_pads(k)
     outline(k)
     silkscreen(k)
     thicken_silk(k)
@@ -440,6 +447,38 @@ def main():
     kicad.dumps(pcb, PCB)
     set_mask_expansion()
     render(pcb)
+
+
+def clean_custom_pads(k):
+    """Drop repeated vertices from custom pad polygons.
+
+    EasyEDA's L-shaped QFN corner pads come out with consecutive duplicate
+    points. KiCad rejects the padstack outright ("must resolve to a single
+    polygon"), and it is a pure geometry defect — the outline is unchanged.
+    Done on the board rather than the library so it also survives a rebuild.
+    """
+    fixed = 0
+    for fp in k.footprints:
+        for pad in fp.pads:
+            if pad.primitives is None:
+                continue
+            for poly in pad.primitives.gr_polys:
+                pts = [(pt.x, pt.y) for pt in poly.pts.xys]
+                keep = [pts[0]]
+                for xy in pts[1:]:
+                    if xy != keep[-1]:
+                        keep.append(xy)
+                if len(keep) > 1 and keep[0] == keep[-1]:
+                    keep.pop()
+                if len(keep) == len(pts):
+                    continue
+                while len(poly.pts.xys):
+                    poly.pts.xys.pop(len(poly.pts.xys) - 1)
+                for x, y in keep:
+                    poly.pts.xys.append(kicad.pcb.Xy(x=x, y=y))
+                fixed += 1
+    if fixed:
+        print(f"padstacks: de-duplicated {fixed} custom pad polygons")
 
 
 def outline(k):
@@ -487,7 +526,8 @@ def fanout(k, g, boxes, pads_by_net):
     """
     by_addr = {addr: (pads, body) for addr, pads, body in boxes}
     stub_rects = []
-    made = vias = 0
+    pending = []
+    made = 0
     for addr, length in FANOUT.items():
         if addr not in by_addr:
             continue
@@ -505,7 +545,14 @@ def fanout(k, g, boxes, pads_by_net):
             # end-of-stub vias far enough apart to be legal (0.6mm pads at
             # 0.4mm pitch need 0.73mm centre to centre; the diagonal gives
             # 0.81mm).
-            length_i = FANOUT_PAD.get(f"{addr}.{name}", length + (i % 4) * 0.7)
+            # Depth order 0,2,1,3 repeating. A stub can only END in a via if
+            # it is longer than BOTH its neighbours — otherwise a neighbour's
+            # stub runs 0.4mm past the via pad, which is a short. This order
+            # makes that true for half the pins instead of a quarter.
+            level = (0, 2, 1, 3)[i % 4]
+            can_via = level >= 2 and (0, 2, 1, 3)[(i + 1) % 4] < level \
+                and (0, 2, 1, 3)[(i - 1) % 4] < level
+            length_i = FANOUT_PAD.get(f"{addr}.{name}", length + level * 0.7)
             px, py = (box[0] + box[2]) / 2, (box[1] + box[3]) / 2
             dx, dy = px - cx, py - cy
             if abs(dx) < 0.5 and abs(dy) < 0.5:
@@ -529,34 +576,35 @@ def fanout(k, g, boxes, pads_by_net):
                 width=W_SIG, layer=layers[0], net=n,
             ))
             # the pad's routable footprint is now pad + stub
-            # Drop straight through to the inner/bottom layers at the end of
-            # the stub. F.Cu around a 29-pin QFN is the most contested copper
-            # on the board; every net that leaves vertically is one that is
-            # not fighting for it.
-            box = stub
-            vhalf = VIA_SIZE / 2
-            if router.via_fits(g, g.idx(g._gx(end[0]), g._gy(end[1])), n,
-                               vhalf + router.CLEAR):
-                for ly in ROUTE_LAYERS:
-                    g.core(ly, end[0] - vhalf, end[1] - vhalf,
-                           end[0] + vhalf, end[1] + vhalf, n)
-                k.vias.append(kicad.pcb.Via(
-                    at=kicad.pcb.Xy(x=round(end[0], 3), y=round(end[1], 3)),
-                    size=VIA_SIZE, drill=VIA_DRILL,
-                    layers=["F.Cu", "B.Cu"], net=n,
-                ))
-                box = (min(stub[0], end[0] - vhalf), min(stub[1], end[1] - vhalf),
-                       max(stub[2], end[0] + vhalf), max(stub[3], end[1] + vhalf))
-                vias += 1
-                stub_rects.append((ROUTE_LAYERS, (end[0] - vhalf, end[1] - vhalf,
-                                                  end[0] + vhalf, end[1] + vhalf), n))
-            key = f"{addr}.{name}"
-            for j, (pn, pb, pl) in enumerate(pads_by_net[n]):
-                if pn == key:
-                    pads_by_net[n][j] = (pn, (min(pb[0], box[0]), min(pb[1], box[1]),
-                                              max(pb[2], box[2]), max(pb[3], box[3])),
-                                         sorted(set(pl) | set(ROUTE_LAYERS)) if box is not stub else pl)
+            pending.append((f"{addr}.{name}", n, stub, end, can_via))
             made += 1
+
+    # Vias go down only once EVERY stub is on the grid. Placed inline, a via
+    # was judged against the stubs that happened to exist already, and the next
+    # pin's stub then ran 0.4mm past it — which DRC calls a short.
+    vias = 0
+    for key, n, stub, end, can_via in pending:
+        vhalf = VIA_SIZE / 2
+        box, layers = stub, None
+        if can_via and router.via_fits(g, g.idx(g._gx(end[0]), g._gy(end[1])), n,
+                           vhalf + router.CLEAR + W_BIG / 2):
+            for ly in ROUTE_LAYERS:
+                g.stamp(ly, end[0] - vhalf, end[1] - vhalf,
+                        end[0] + vhalf, end[1] + vhalf, n, router.CLEAR + W_BIG / 2)
+            k.vias.append(kicad.pcb.Via(
+                at=kicad.pcb.Xy(x=round(end[0], 3), y=round(end[1], 3)),
+                size=VIA_SIZE, drill=VIA_DRILL,
+                layers=["F.Cu", "B.Cu"], net=n,
+            ))
+            box = (min(stub[0], end[0] - vhalf), min(stub[1], end[1] - vhalf),
+                   max(stub[2], end[0] + vhalf), max(stub[3], end[1] + vhalf))
+            layers = list(ROUTE_LAYERS)
+            vias += 1
+        for j, (pn, pb, pl) in enumerate(pads_by_net[n]):
+            if pn == key:
+                pads_by_net[n][j] = (pn, (min(pb[0], box[0]), min(pb[1], box[1]),
+                                          max(pb[2], box[2]), max(pb[3], box[3])),
+                                     sorted(set(pl) | set(layers)) if layers else pl)
     print(f"fanout: {made} escape stubs, {vias} of them dropping to a via")
     return stub_rects
 
@@ -627,6 +675,13 @@ def route_pass(k, priority, report=False, strict=False):
     for addr, pads, _ in boxes:
         for name, box, pad in pads:
             if not pad.net or not pad.net.number:
+                # Netless copper is still copper: the TPS61088 footprint carries
+                # eight thermal vias and the USB-C two mounting posts, none of
+                # them on a net. Left unstamped they are invisible to the router
+                # and it lays tracks straight over them.
+                for ly in ROUTE_LAYERS:
+                    g.block(box[0] - router.CLEAR, box[1] - router.CLEAR,
+                            box[2] + router.CLEAR, box[3] + router.CLEAR, [ly])
                 continue
             n = pad.net.number
             layers = pad_layers(pad)
@@ -658,7 +713,7 @@ def route_pass(k, priority, report=False, strict=False):
     # almost anywhere. Ties broken by pad count.
     ordered = sorted(pads_by_net,
                      key=lambda n: (n not in priority, span(n), len(pads_by_net[n])))
-    routed, failed, narrowed, squeezed = 0, [], [], []
+    routed, failed, narrowed, squeezed, hairline = 0, [], [], [], []
     for n in ordered:
         name = net_name.get(n, str(n))
         if name in GND_NETS:
@@ -682,13 +737,24 @@ def route_pass(k, priority, report=False, strict=False):
                 if path is not None:
                     narrowed.append(f"{name} -> {pad[0]}")
             if path is None and strict:
-                # Last resort, and only on the final pass because it is slow:
-                # re-judge the locked seams with the exact clearance test
-                # instead of the halo approximation.
+                # Last resort: re-judge the locked seams with the exact
+                # clearance test instead of the halo approximation. A cell
+                # both nets' halos claim is often still legal for one of them.
                 path = router.route_net(g, n, grown, target, W_SIG, W_SIG, strict=True)
                 if path is not None:
                     w = W_SIG
                     squeezed.append(f"{name} -> {pad[0]}")
+                elif strict and HAIRLINE:
+                    # Only for a net the retry loop has already singled out:
+                    # drop to JLC's finest process for this one hop — 0.1mm at
+                    # 0.1mm, inside their 0.09/0.09 floor. Searching the whole
+                    # board at that clearance for every straggler costs more
+                    # time than it is worth, so it is not the default.
+                    path = router.route_net(g, n, grown, target, W_FINE, W_FINE,
+                                            strict=True, clear=CLEAR_FINE)
+                    if path is not None:
+                        w = W_FINE
+                        hairline.append(f"{name} -> {pad[0]}")
             if path is None:
                 failed.append((n, f"{name} -> {pad[0]} "
                               f"(src {sum(len(s) for s in grown.values())} cells/"
@@ -706,9 +772,11 @@ def route_pass(k, priority, report=False, strict=False):
 
     if DEBUG_MAP:
         dump_map(g, pads_by_net, *DEBUG_MAP)
+    kicad_names = {n.number: n.name for n in k.nets}
     gnd_net = next(n for n, v in net_name.items() if v == "gnd")
     gnd_tab_net = next(n for n, v in net_name.items() if v == "gnd_tab")
-    pour_ground(k, gnd_net, gnd_tab_net)
+    pour_ground(k, (gnd_net, kicad_names[gnd_net]),
+                (gnd_tab_net, kicad_names[gnd_tab_net]))
     stitch_vias(k, g, pads_by_net, net_name)
     if report or not failed:
         print(f"routed {routed} nets, {len(k.segments)} segments, {len(k.vias)} vias")
@@ -716,6 +784,8 @@ def route_pass(k, priority, report=False, strict=False):
             print(f"narrowed to {W_SIG}mm: " + ", ".join(narrowed))
         if squeezed:
             print("threaded on exact clearance: " + ", ".join(squeezed))
+        if hairline:
+            print(f"hairline ({W_FINE}mm/{CLEAR_FINE}mm): " + ", ".join(hairline))
         if failed:
             print("UNROUTED:\n  " + "\n  ".join(m for _, m in failed))
     return failed
@@ -828,8 +898,9 @@ def stitch_vias(k, g, pads_by_net, net_name):
                            (0.8, 0.8), (-0.8, -0.8)):
                 x, y = cx + dx, cy + dy
                 if _via_fits(g, x, y, n):
-                    g.stamp("F.Cu", x - 0.3, y - 0.3, x + 0.3, y + 0.3, n, router.CLEAR)
-                    g.stamp("B.Cu", x - 0.3, y - 0.3, x + 0.3, y + 0.3, n, router.CLEAR)
+                    for ly in ROUTE_LAYERS:
+                        g.stamp(ly, x - 0.3, y - 0.3, x + 0.3, y + 0.3, n,
+                                router.CLEAR + W_BIG / 2)
                     k.vias.append(kicad.pcb.Via(
                         at=kicad.pcb.Xy(x=round(x, 3), y=round(y, 3)),
                         size=VIA_SIZE, drill=VIA_DRILL,
@@ -841,7 +912,7 @@ def stitch_vias(k, g, pads_by_net, net_name):
 
 
 def _via_fits(g, x, y, net):
-    r = VIA_SIZE / 2 + router.CLEAR
+    r = VIA_SIZE / 2 + router.CLEAR + W_BIG / 2
     for gy in range(g._gy(y - r), g._gy(y + r) + 1):
         for gx in range(g._gx(x - r), g._gx(x + r) + 1):
             i = g.idx(gx, gy)
@@ -851,7 +922,7 @@ def _via_fits(g, x, y, net):
     return True
 
 
-def pour_ground(k, gnd_net, gnd_tab_net):
+def pour_ground(k, gnd, gnd_tab):
     """Ground pours on all four layers, for both halves of the panel.
 
     The main-board polygon is the board minus the module's antenna corner — a
@@ -860,7 +931,7 @@ def pour_ground(k, gnd_net, gnd_tab_net):
     """
     while len(k.zones):
         k.zones.pop(len(k.zones) - 1)
-    e = EDGE_KEEP
+    e = 0.35        # pours only need their own edge clearance
     ax0, ay0, ax1, ay1 = ANTENNA_KEEPOUT
     main = [
         (e, e), (ax0, e), (ax0, ay1), (ax1, ay1), (ax1, e),
@@ -868,7 +939,7 @@ def pour_ground(k, gnd_net, gnd_tab_net):
     ]
     tab = [(TAB[0] + e, TAB[1] + e), (TAB[2] - e, TAB[1] + e),
            (TAB[2] - e, TAB[3] - e), (TAB[0] + e, TAB[3] - e)]
-    for net, name, pts in ((gnd_net, "gnd", main), (gnd_tab_net, "gnd_tab", tab)):
+    for (net, name), pts in ((gnd, main), (gnd_tab, tab)):
         for layer in GND_LAYERS:
             k.zones.append(kicad.pcb.Zone(
                 net=net, net_name=name, layer=layer,

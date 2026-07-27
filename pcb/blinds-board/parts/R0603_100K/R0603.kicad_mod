@@ -111,6 +111,46 @@
 		(locked no)
 		(uuid "a19c4354-90aa-40d3-b9cd-1eb1c6bf09d9")
 	)
+	(fp_line
+		(start -1.44 -0.71)
+		(end 1.44 -0.71)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "07bdc86d-1241-4619-ba3a-556da0e1e848")
+	)
+	(fp_line
+		(start 1.44 -0.71)
+		(end 1.44 0.71)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "5483da9c-9e2a-4e54-98fc-0e929b5d0a4d")
+	)
+	(fp_line
+		(start 1.44 0.71)
+		(end -1.44 0.71)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "692f6496-1424-46e6-b0e8-9632618ecb1f")
+	)
+	(fp_line
+		(start -1.44 0.71)
+		(end -1.44 -0.71)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "0e2c4524-3290-4385-bc75-cf90ff11da6b")
+	)
 	(fp_text user "%R"
 		(at 0 0)
 		(layer "F.Fab")
