@@ -31,9 +31,9 @@ from router import GRID, Grid
 ROOT = Path(__file__).parent.parent
 PCB = ROOT / "layouts/default/default.kicad_pcb"
 
-BOARD_W, BOARD_H = 38.0, 66.0          # main board — fits the enclosure slab
-TAB = (20.0, 69.0, 38.0, 81.0)         # snap-off hall tab
-NECK = (30.0, 66.0, 34.0, 69.0)
+BOARD_W, BOARD_H = 88.0, 32.0          # main board — flat on the v2 floor
+TAB = (36.0, 35.0, 54.0, 47.0)         # snap-off hall tab, below the board
+NECK = (43.0, 32.0, 47.0, 35.0)
 EDGE_KEEP = 0.55                       # track CENTRELINE inset from any board
                                        # edge: 0.4mm of copper plus KiCad's
                                        # 0.25mm copper-to-edge rule
@@ -48,94 +48,112 @@ MIN_SILK_W = 0.15
 # --- placement ---------------------------------------------------------------
 # address -> (x, y, rot). Origin top-left, y down, mm.
 ANCHORS = {
-    # top: MCU (antenna at the board edge) and the battery side
-    "mcu": (10.5, 12.0, 0),
-    "j_bat": (31.0, 1.2, 180),
+    # left block: MCU (antenna at the top/front edge) + protector — the
+    # whole rev B top region survives the v2 reshape untouched
+    "mcu": (10.5, 11.4, 0),  # 0.6 up: widens the pad-row -> bulk-row corridor
     "prot": (21.5, 6.0, 0),
-    "sw_up": (32.0, 7.6, 0),
-    "sw_dn": (32.0, 14.3, 0),
-    # middle-left: charger
-    "chg": (6.5, 30.0, 0),
-    "l_chg": (6.5, 41.5, 0),
-    # middle-right: boost
-    "boost": (25.5, 30.0, 0),
-    "l_bst": (26.5, 40.5, 0),
-    # bottom band
-    "buck": (18.0, 47.0, 0),
-    "l_buck": (24.0, 62.0, 0),
-    "pd": (4.0, 48.0, 0),
-    "j_usb": (14.0, 61.5, 0),
-    "drv": (34.0, 58.5, 0),
-    "j_mot": (34.0, 64.8, 180),
-    "j_hall": (4.0, 64.8, 0),
+    # front edge, matching the enclosure's wall holes (unit x 38/49/60)
+    "sw_dn": (33.0, 3.4, 0),
+    "j_usb": (44.0, 3.65, 180),
+    "sw_up": (55.0, 3.4, 0),
+    # PD sink under the USB
+    "pd": (41.5, 14.0, 0),
+    # charger, middle-left
+    "chg": (33.0, 13.0, 180),  # SW pins face the inductor below; 0 aims them at sw_dn
+    "l_chg": (33.0, 24.5, 0),
+    # buck, center
+    "buck": (54.0, 16.0, 0),
+    "l_buck": (48.5, 24.5, 0),
+    # boost, middle-right
+    "boost": (68.0, 12.0, 0),
+    "l_bst": (69.0, 22.5, 0),
+    # H-bridge + connectors, right / back edge
+    "drv": (81.5, 13.0, 0),
+    "j_bat": (64.5, 30.7, 0),
+    "j_mot": (80.0, 30.7, 0),
+    "j_hall": (10.0, 30.7, 0),
     # the tab
-    "hall": (24.0, 72.5, 0),
-    "c_hall": (24.0, 75.5, 0),
-    "j_hall_tab": (24.0, 79.0, 0),
+    "hall": (45.0, 39.0, 0),
+    "c_hall": (45.0, 42.0, 0),
+    "j_hall_tab": (45.0, 45.1, 0),
 }
 
 # Right-angle connectors are meant to hang their housing off the board edge —
 # only their pads have to land on copper. Everything else must sit fully inside.
-EDGE_PARTS = {"j_bat", "j_mot", "j_hall", "j_usb", "j_hall_tab"}
+EDGE_PARTS = {"j_bat", "j_mot", "j_hall", "j_usb", "j_hall_tab", "sw_up", "sw_dn"}
+
+# M3 mounting holes (the enclosure's floor bosses match these — keep the CAD
+# params in cad/blinds_cad in the same commit as any move). Ø3.2 cutout, and
+# a square keep-out that placement AND routing both respect.
+MOUNT_HOLES = [(85.0, 4.0), (4.0, 27.0), (85.0, 27.0)]
+HOLE_D = 3.2
+HOLE_KEEP = 2.6                        # centre -> edge of the keep-out square
+# The 4th corner is the MCU + antenna — no screw there (steel in the antenna
+# zone, no room either). Instead the enclosure puts a plain pillar under the
+# USB edge to take plug insertion force; keep B.Cu clear where it presses.
+PILLAR_KEEP = (41.0, 0.0, 47.0, 4.6)
 
 # (x0, y0, cols, pitch_x, pitch_y, rot, [addr, ...]) — filled left to right,
 # top to bottom. Keep each bank next to the chip it serves.
 BANKS = [
-    # protector network, right of the MCU
-    (20.4, 10.4, 2, 3.2, 2.0, 0, ["r_vd", "r_cb2", "r_cb", "r_cb1",
+    # protector network, right of the MCU (unchanged rev B cluster)
+    (20.6, 10.4, 2, 3.4, 2.2, 0, ["r_vd", "r_cb2", "r_cb", "r_cb1",
                                  "c_prot_vdd", "c_cell1", "c_cell2", "c_cd"]),
     # Charger bulk: one 0805 row straight across, under the MCU. VBUS, PMID,
     # REGN, SYS and BAT are all quiet nodes — none of them is in a switching
     # loop — so a tidy spine beats scattering them around the chip.
     (2.4, 18.8, 6, 4.3, 2.4, 0, ["c_vbus1", "c_vbus2", "c_regn",
                                  "c_sys1", "c_sys2", "c_bat2"]),
-    (2.4, 21.2, 1, 4.3, 2.4, 0, ["c_mcu_bulk"]),
-    (7.0, 21.2, 5, 3.4, 2.0, 0, ["c_mcu_hf", "c_mcu_mid", "r_en_mcu",
-                                 "c_en_mcu", "r_io2"]),
-    # charger small stuff, to the right of the chip
+    (2.4, 21.8, 1, 4.3, 2.4, 0, ["c_mcu_bulk"]),
+    (7.0, 21.8, 2, 3.4, 2.0, 0, ["c_mcu_hf", "c_mcu_mid"]),
+    (8.5, 24.5, 2, 3.2, 2.0, 0, ["r_en_mcu", "c_en_mcu", "r_io2"]),
+    # bootstrap/drive caps hug the charger's right flank — sw_chg nets
+    # must not cross the board
+    (37.5, 7.5, 1, 3.2, 2.0, 0, ["c_btst1", "c_btst2", "c_sdrv"]),
+    # charger small stuff, below the bulk row
+    (15.0, 24.0, 4, 3.2, 2.0, 0, ["r_ts_hi", "r_ts_lo", "r_prog", "r_qon",
+                                  "r_int", "r_sda", "r_scl", "r_ce_pd",
+                                  "r_ce_ov"]),
     # PMID's pair sits under the charger's flank, next to the pin: it is the
     # input node of a switching converter, and 8mm of trace to the bulk cap
     # would be a loop worth avoiding even if it routed.
-    (11.0, 34.6, 1, 3.0, 2.5, 0, ["c_pmid_hf"]),
-    (11.3, 37.0, 1, 4.3, 2.4, 0, ["c_pmid"]),
+    (37.8, 17.6, 1, 3.0, 2.5, 0, ["c_pmid_hf"]),
+    (38.5, 20.0, 1, 4.3, 2.4, 0, ["c_pmid"]),
     # BATP is a sense pin on the charger's right flank with nowhere to go —
     # give it battery copper 3mm away instead of across the board.
-    (11.8, 32.6, 1, 4.3, 2.4, 0, ["c_bat1"]),
-    (15.4, 26.5, 3, 3.0, 2.0, 0, ["c_btst1", "c_btst2", "c_sdrv",
-                                  "r_ts_hi", "r_ts_lo", "r_prog", "r_qon",
-                                  "r_int", "r_sda", "r_scl", "r_ce_pd",
-                                  "r_ce_ov"]),
-    # status LED out in the open — squeezed into the charger bank it was the
-    # one net the router could never finish
-    (24.5, 21.2, 2, 3.4, 2.0, 0, ["d_stat", "r_stat"]),
-    # boost small stuff, right edge
-    (32.0, 26.5, 2, 3.2, 2.0, 0, ["c_boot", "c_vcc_bst", "c_ss", "c_comp",
+    (27.0, 16.2, 1, 4.3, 2.4, 90, ["c_bat1"]),  # BATP flank is LEFT at rot 180 —
+                                                   # vertical, in the slot between the prot bank
+                                                   # and the pin-18 escape stub
+    # status LED out in the open
+    (24.0, 29.5, 2, 3.4, 2.0, 0, ["d_stat", "r_stat"]),
+    # PD sink straps, right of the PD chip under the USB
+    (46.5, 8.2, 2, 3.2, 2.0, 0, ["r_vset", "r_iset", "r_hvdcp", "r_flgin",
+                                 "c_pdvdd", "c_vbus_hf"]),
+    # buck + 3V3, center
+    (58.5, 12.0, 2, 3.2, 2.0, 0, ["r_en_buck", "r_fb_buck_hi", "r_fb_buck_lo",
+                                  "c_ff", "c_buck_hf"]),
+    (54.5, 22.5, 1, 4.3, 2.4, 0, ["c_buck_in", "c_buck_o"]),
+    # boost small stuff, right of the boost
+    (74.0, 16.0, 2, 3.2, 2.0, 0, ["c_boot", "c_vcc_bst", "c_ss", "c_comp",
                                   "r_comp", "r_fsw", "r_ilim_bst",
                                   "r_fb_bst_hi", "r_fb_bst_lo", "r_en_bst"]),
-    (21.0, 41.5, 1, 4.3, 2.4, 0, ["c_bst_in"]),
+    (63.0, 27.5, 1, 4.3, 2.4, 0, ["c_bst_in"]),
     # 12V bulk, between the boost and the H-bridge
-    (23.3, 47.5, 2, 4.1, 2.4, 0, ["c_bst_o1", "c_bst_o2", "c_bst_o3", "c_vm"]),
-    (33.0, 46.0, 1, 3.2, 2.0, 0, ["c_bst_hf", "c_vm_hf", "r_ilim_mot"]),
-    # PD sink straps
-    (1.9, 52.5, 2, 3.2, 2.0, 0, ["r_vset", "r_iset", "r_hvdcp", "r_flgin",
-                                 "c_pdvdd", "c_vbus_hf"]),
-    # buck + 3V3
-    (16.5, 51.0, 2, 3.2, 2.0, 0, ["r_en_buck", "r_fb_buck_hi", "r_fb_buck_lo",
-                                  "c_ff", "c_buck_hf"]),
-    (29.0, 54.0, 1, 4.3, 2.4, 0, ["c_buck_in", "c_buck_o"]),
+    (70.0, 26.5, 2, 4.1, 2.4, 0, ["c_bst_o1", "c_bst_o2", "c_bst_o3", "c_vm"]),
+    (86.0, 18.0, 1, 3.2, 2.0, 0, ["c_bst_hf", "c_vm_hf", "r_ilim_mot"]),
 ]
 
 # Board-level silk: (text, x, y, size, rot)
 SILK = [
-    ("BLINDS DRIVER rev B", 10.0, 24.0, 0.9, 0),
-    ("0x63616c", 31.5, 21.4, 0.8, 0),
-    ("BAT 2S  + M -", 31.0, 3.6, 0.7, 0),
-    ("MOTOR", 34.0, 62.8, 0.7, 0),
-    ("HALL", 4.0, 62.8, 0.7, 0),
-    ("USB-C PD", 9.0, 58.5, 0.7, 0),
-    ("UP", 32.0, 4.6, 0.8, 0),
-    ("DOWN", 32.0, 19.5, 0.8, 0),
-    ("HALL TAB - snap off", 27.0, 70.5, 0.7, 0),
+    ("BLINDS DRIVER rev C", 62.0, 5.0, 0.9, 0),
+    ("0x63616c", 62.0, 7.5, 0.8, 0),
+    ("BAT 2S  + M -", 64.5, 28.6, 0.7, 0),
+    ("MOTOR", 78.0, 28.6, 0.7, 0),
+    ("HALL", 10.0, 28.6, 0.7, 0),
+    ("USB-C PD", 44.0, 6.2, 0.7, 0),
+    ("DOWN", 33.0, 7.8, 0.8, 0),
+    ("UP", 55.0, 7.8, 0.8, 0),
+    ("HALL TAB - snap off", 45.0, 36.5, 0.7, 0),
 ]
 
 # Track width by net. atopile's net NAMES are whatever pad it happened to name
@@ -172,8 +190,8 @@ GND_NETS = {"gnd", "gnd_tab"}
 # its passive bank on one side and the board edge on the other. These nets go
 # down before anything else competes for that space; found by watching which
 # ones the retry loop kept rescuing.
-PRIORITY_PADS = ["chg.29", "chg.22", "chg.5", "chg.20", "chg.14", "mcu.19", "chg.15", "chg.25", "chg.19", "chg.4",
-                 "chg.21"]
+PRIORITY_PADS = ["chg.26", "chg.14", "chg.29", "chg.22", "chg.5", "chg.20", "mcu.19", "chg.15", "chg.25",
+                 "chg.19", "chg.4", "chg.21"]
 
 VIA_SIZE, VIA_DRILL = 0.6, 0.3
 
@@ -207,11 +225,13 @@ def pad_layers(pad):
 # two neighbours there is 0.2mm, and the narrowest legal trace plus its two
 # clearances needs more than that. addr -> stub length past the pad edge, mm.
 FANOUT = {"chg": 1.2, "boost": 1.0, "pd": 0.8, "prot": 0.7, "drv": 0.7,
-          "buck": 0.6, "mcu": 0.6, "hall": 0.6}
+          "buck": 0.6, "mcu": 0.6, "hall": 0.6, "j_usb": 0.8}
 # Per-pad override, for the one or two pins whose lane the rest of the fanout
 # closes off. BATP only senses the battery, so its run is long by nature —
 # reaching past the traffic beats fighting it.
-FANOUT_PAD = {"chg.18": 3.2, "chg.17": 2.5, "chg.20": 2.8}
+FANOUT_PAD = {"chg.26": 2.0, "chg.18": 3.6, "chg.14": 2.9, "chg.21": 3.3}  # staggered lengths so tips of
+                                  # neighbouring escape stubs don't seal each other;
+                                  # rev B's rot-0 values re-derived for the 180 charger
 
 
 def rot(x, y, deg):
@@ -364,6 +384,10 @@ def check(k):
             errs.append(f"{addr}: body off-board {tuple(round(v, 2) for v in body)}")
         if overlap(body, ANTENNA_KEEPOUT) and addr != "mcu":
             errs.append(f"{addr}: body inside the antenna keepout")
+        for hx, hy in MOUNT_HOLES:
+            hole = (hx - HOLE_KEEP, hy - HOLE_KEEP, hx + HOLE_KEEP, hy + HOLE_KEEP)
+            if overlap(body, hole):
+                errs.append(f"{addr}: body inside the mount-hole keepout at ({hx},{hy})")
 
     for i, (a_addr, a_pads, a_body) in enumerate(boxes):
         for b_addr, b_pads, b_body in boxes[i + 1:]:
@@ -499,13 +523,19 @@ def outline(k):
         (nx1, ny0), (nx1, ny1), (tx1, ty0), (tx1, ty1), (tx0, ty1), (tx0, ty0),
         (nx0, ny1), (nx0, ny0), (0, BOARD_H),
     ]
-    for (x1, y1), (x2, y2) in zip(pts, pts[1:] + pts[:1]):
-        k.gr_lines.append(kicad.pcb.Line(
-            start=kicad.pcb.Xy(x=x1, y=y1),
-            end=kicad.pcb.Xy(x=x2, y=y2),
-            stroke=kicad.pcb.Stroke(width=0.1, type="default"),
-            layer="Edge.Cuts",
-        ))
+    loops = [pts]
+    for hx, hy in MOUNT_HOLES:
+        r = HOLE_D / 2
+        loops.append([(hx + r * math.cos(a), hy + r * math.sin(a))
+                      for a in (i * 2 * math.pi / 16 for i in range(16))])
+    for loop in loops:
+        for (x1, y1), (x2, y2) in zip(loop, loop[1:] + loop[:1]):
+            k.gr_lines.append(kicad.pcb.Line(
+                start=kicad.pcb.Xy(x=x1, y=y1),
+                end=kicad.pcb.Xy(x=x2, y=y2),
+                stroke=kicad.pcb.Stroke(width=0.1, type="default"),
+                layer="Edge.Cuts",
+            ))
 
 
 def silkscreen(k):
@@ -668,6 +698,9 @@ def route_pass(k, priority, report=False, strict=False):
     ]
     g = Grid(BOARD_W, TAB[3], ROUTE_LAYERS, regions)
     g.block(*ANTENNA_KEEPOUT)
+    for hx, hy in MOUNT_HOLES:
+        g.block(hx - HOLE_KEEP, hy - HOLE_KEEP, hx + HOLE_KEEP, hy + HOLE_KEEP)
+    g.block(*PILLAR_KEEP, layers=["B.Cu"])
 
     # Every pad's copper goes down before any halo does. The other order lets a
     # crowded neighbour's clearance ring lock out a pad's own cells, which
@@ -686,7 +719,9 @@ def route_pass(k, priority, report=False, strict=False):
                 # eight thermal vias and the USB-C two mounting posts, none of
                 # them on a net. Left unstamped they are invisible to the router
                 # and it lays tracks straight over them.
-                pad_r = router.CLEAR + W_BIG / 2
+                # Wide enough that a VIA hole next to netless copper still
+                # meets the 0.2 hole-clearance rule, not just a track.
+                pad_r = router.CLEAR + W_BIG / 2 + 0.2
                 for ly in ROUTE_LAYERS:
                     g.block(box[0] - pad_r, box[1] - pad_r,
                             box[2] + pad_r, box[3] + pad_r, [ly])

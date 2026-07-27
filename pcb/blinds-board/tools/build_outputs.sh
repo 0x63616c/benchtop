@@ -20,7 +20,7 @@ KICAD="/Applications/KiCad.app/Contents/MacOS/kicad-cli"
 ATO_PY="$HOME/.local/share/uv/tools/atopile/bin/python"
 RENDER="$ROOT/render"
 FAB="$ROOT/fab"
-ZIP="$ROOT/fab-blinds-driver-revB.zip"
+ZIP="$ROOT/fab-blinds-driver-revC.zip"
 LAYERS="F.Cu,In1.Cu,In2.Cu,In3.Cu,In4.Cu,B.Cu,F.Mask,B.Mask,F.Silkscreen,B.Silkscreen,Edge.Cuts"
 
 [ -x "$KICAD" ] || { echo "kicad-cli not found at $KICAD"; exit 1; }
