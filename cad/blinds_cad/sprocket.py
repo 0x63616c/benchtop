@@ -39,20 +39,29 @@ def sprocket():
             P.spr_pocket_d / 2
         )
 
+    # back-rim relief: the layshaft bevel's heel teeth sweep to within
+    # 0.6 of the wheel's back face at its outer radius — recess the rim
+    # beyond the drum over the last 1mm (pockets live at mid-plane, safe)
+    wheel -= Pos(0, 0, 3.55) * _ring(P.spr_drum_d / 2 + 0.2, P.spr_od / 2 + 1, 1.1)
+
+    # ring heel plane in local z: wheel mid-plane is unit y=spr_wy and
+    # local +Z runs wall-ward, so the heel (unit y=ring_heel_y) lands at
+    rz = P.spr_wy - P.ring_heel_y  # 25.6
+
     # drum bridge: wheel back face -> ring gear
-    drum_z0, drum_z1 = P.spr_w / 2, 25.0 - P.bevel_face / math.sqrt(2)
+    drum_z0, drum_z1 = P.spr_w / 2, rz - P.bevel_face / math.sqrt(2)
     drum = Pos(0, 0, (drum_z0 + drum_z1) / 2) * Cylinder(
         P.spr_drum_d / 2, drum_z1 - drum_z0
     )
 
-    # bevel ring: heel plane z=25, apex toward the wheel at z=15 —
+    # bevel ring: heel plane z=rz, apex toward the wheel at rz-10 —
     # gears.bevel() builds apex +Z, so flip it over before placing
-    ring = Pos(0, 0, 25.0) * (Rot(180, 0, 0) * bevel(P.gear_m, P.bevel_z, P.bevel_face))
-    ring += Pos(0, 0, 26.25) * Cylinder(7.5, 2.5)  # back disc, z 25..27.5
+    ring = Pos(0, 0, rz) * (Rot(180, 0, 0) * bevel(P.gear_m, P.bevel_z, P.bevel_face))
+    ring += Pos(0, 0, rz + 1.25) * Cylinder(7.5, 2.5)  # back disc
 
     body = wheel + drum + ring
     # plain bore on the M5 axle
-    body -= Pos(0, 0, 11) * Cylinder(P.spr_bore_d / 2, 42)
+    body -= Pos(0, 0, 11) * Cylinder(P.spr_bore_d / 2, 44)
     return body
 
 

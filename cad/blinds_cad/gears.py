@@ -20,13 +20,17 @@ View: `just cad view blinds-gears`.
 
 import math
 
-from build123d import Box, Cylinder, Polygon, Pos, Rot, extrude, loft
+from build123d import Box, Cylinder, Polygon, Pos, extrude
 
 from .params import P
 
 
 def _inv(t: float) -> float:
     return t - math.atan(t)
+
+
+BACKLASH = 0.2  # arc-mm of tooth thinning at the pitch circle — printed
+                # gears at nominal center distance need the slack
 
 
 def gear_outline(m: float, z: int, pa_deg: float = 20.0) -> list:
@@ -36,7 +40,8 @@ def gear_outline(m: float, z: int, pa_deg: float = 20.0) -> list:
     r_b = r_p * math.cos(pa)
     r_a = r_p + m            # addendum
     r_r = r_p - 1.25 * m     # dedendum
-    beta = math.pi / (2 * z) + _inv(math.tan(pa))  # base half-thickness angle
+    beta = (math.pi / (2 * z) + _inv(math.tan(pa))
+            - BACKLASH / (2 * r_p))  # base half-thickness angle, thinned
     t_a = math.sqrt((r_a / r_b) ** 2 - 1)          # roll param at the tip
     theta_tip = beta - _inv(t_a)
     pitch = 2 * math.pi / z
@@ -76,16 +81,22 @@ def spur(m: float, z: int, width: float):
     return extrude(Polygon(*gear_outline(m, z)), amount=width)
 
 
-def bevel(m: float, z: int, face: float):
-    """Straight 45° miter bevel: heel outline at z=0 lofted toward the
-    cone apex at z=+pitch_r. Toe scale follows the cone distance."""
+def bevel(m: float, z: int, face: float, steps: int = 6):
+    """Straight 45° miter bevel: heel outline at z=0 shrinking toward
+    the cone apex at z=+pitch_r, built as a stack of thin extruded
+    slices. (A single loft between the two 300-point outlines twists
+    its vertex correspondence and emits knife-thin fins.)"""
     r_p = m * z / 2
     cone = r_p * math.sqrt(2)          # heel cone distance
-    s = (cone - face) / cone           # toe scale about the apex
     dz = face / math.sqrt(2)
     heel = gear_outline(m, z)
-    toe = [(x * s, y * s) for x, y in heel]
-    return loft([Polygon(*heel), Pos(0, 0, dz) * Polygon(*toe)])
+    body = None
+    for i in range(steps):
+        s = (cone - face * i / steps) / cone   # scale at the slice BASE —
+        pts = [(x * s, y * s) for x, y in heel]  # each slice slightly proud
+        sl = Pos(0, 0, i * dz / steps) * extrude(Polygon(*pts), amount=dz / steps)
+        body = sl if body is None else body + sl
+    return body
 
 
 def _d_bore(length: float):
@@ -97,8 +108,15 @@ def _d_bore(length: float):
 
 
 def pinion():
-    """Motor spur pinion, centered on z=0 (rides the shaft flat)."""
+    """Motor spur pinion, centered on z=0 (rides the shaft flat).
+
+    Half-tooth phase rotation BEFORE the bore: posed on the shaft, the
+    layshaft spur presents a gap at the mesh line, so the pinion must
+    present a tooth there — while the D-flat stays aligned local +Y."""
+    from build123d import Rot
+
     g = Pos(0, 0, -P.spur_w / 2) * spur(P.gear_m, P.spur_pinion_z, P.spur_w)
+    g = Rot(0, 0, 360.0 / (2 * P.spur_pinion_z)) * g
     return g - _d_bore(P.spur_w + 2)
 
 

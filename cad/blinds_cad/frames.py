@@ -19,7 +19,8 @@ _SHAFT_ROT = Rot(0, 90, 0) * Rot(0, 0, -90)
 MOTOR_IN_UNIT = Pos(P.bulkhead_x, P.drive_y, P.motor_z) * _SHAFT_ROT
 
 # Spur pinion (axis +Z, D-flat toward local +Y like the shaft) onto the
-# shaft tip, teeth centered on the mesh plane.
+# shaft tip, teeth centered on the mesh plane. Tooth phasing lives in
+# gears.pinion() so the D-bore stays aligned with the shaft flat.
 PINION_IN_UNIT = Pos(P.pinion_x, P.drive_y, P.motor_z) * _SHAFT_ROT
 
 # Layshaft (axis +Z, bevel heel plane at local z=0, apex +Z, body -Z)

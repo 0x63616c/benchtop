@@ -104,7 +104,9 @@ class Params:
     saddle_x1: float = 92.0
     collar_x0: float = 8.0         # motor tail collar x span
     collar_x1: float = 14.0
-    spr_wy: float = 36.0           # sprocket WHEEL center depth (chain plane y)
+    spr_wy: float = 36.6           # sprocket WHEEL center depth (chain plane y);
+                                   # 36.0 grazed the layshaft bevel's heel teeth
+                                   # with the wheel's back rim
     guide_or: float = 17.0         # wrap-guide clearance radius envelope
     chain_slot: float = 7.0        # top-face slot square (ball 5 + joiner room)
 

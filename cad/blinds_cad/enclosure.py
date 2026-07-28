@@ -136,7 +136,8 @@ def _wrap_guide():
     Vertical run slots exit upward through the top-face chain slots."""
     cx, cz, wy = P.drive_x, P.spr_z, P.spr_wy
     r_ball = P.chain_ball_d / 2 + P.spr_ball_clear
-    block = _box(cx - 10, 31, cz - P.guide_or, cx + 10, P.enc_d - P.enc_wall, P.enc_h - P.enc_wall)
+    y0 = P.spr_wy - P.spr_w / 2 - 1  # flush with the wheel-clearance bore
+    block = _box(cx - 10, y0, cz - P.guide_or, cx + 10, P.enc_d - P.enc_wall, P.enc_h - P.enc_wall)
     # wheel clearance
     block -= Pos(cx, wy, cz) * (
         Rot(90, 0, 0) * Cylinder(P.spr_od / 2 + 1.2, P.spr_w + 2)

@@ -12,12 +12,14 @@ import pytest
 
 pytestmark = pytest.mark.slow
 
-# pairs that touch by design
-MESHES = [
-    {"chain", "sprocket"},      # the ghost chain rides in the wheel's pockets
-    {"sprocket", "layshaft"},   # bevel mesh
-    {"layshaft", "pinion"},     # spur mesh
-]
+# pairs that touch by design: allowed interpenetration in mm^3. The gear
+# meshes are phased + backlashed, so anything beyond a straight-tooth
+# approximation graze means the mesh geometry regressed.
+MESHES = {
+    frozenset({"chain", "sprocket"}): 200.0,   # ghost rides in the pockets
+    frozenset({"sprocket", "layshaft"}): 0.5,  # bevel mesh graze
+    frozenset({"layshaft", "pinion"}): 0.5,    # spur mesh graze
+}
 
 
 @pytest.fixture(scope="module")
@@ -53,11 +55,10 @@ def posed():
 def test_no_interference(posed):
     clashes = []
     for a, b in itertools.combinations(posed, 2):
-        if {a, b} in MESHES:
-            continue
+        limit = MESHES.get(frozenset({a, b}), 1e-6)
         v = (posed[a] & posed[b]).volume
-        if v > 1e-6:
-            clashes.append(f"{a} x {b}: {v:.2f} mm3")
+        if v > limit:
+            clashes.append(f"{a} x {b}: {v:.2f} mm3 (limit {limit})")
     assert not clashes, clashes
 
 
