@@ -2,22 +2,24 @@
 
 The motor gearbox face is z=0 with its Ø37 centre at the origin. Its
 6mm D-shaft is eccentric 7mm in -Y. The attachment stays within a Ø37
-main circular body; only the horizontal output bearing nose, output rod,
-and M3 screw heads may project. The 16T:24T pair gives a 3:2 reduction
-and directs the 5mm output rod inward along +Y.
+main circular body; only the integrated output nose, output rod, and M3
+screw heads may project. The enclosure splits through the output-shaft
+centreline, so each half contains an open semicircular 625ZZ seat and
+prints without a horizontal tunnel. The 16T:24T pair gives a 3:2
+reduction and directs the 5mm output rod inward along +Y.
 
 View: `just cad view gear-box-motor`.
 """
 
 from math import cos, radians, sin
 
-from build123d import Align, Cone, Pos, Rot
+from build123d import Pos, Rot
 
 from . import frames as F
 from .gearbox import (
+    _box_at,
     _cylinder,
     _d_prism,
-    _box_at,
     _pair_parts,
     bearing_625zz,
 )
@@ -65,21 +67,91 @@ def motor_reference():
     return gearbox + can + encoder + boss + shaft
 
 
-def housing():
-    """Ø37 mounting flange and shell with an outward bearing nose."""
-    body = _cylinder(P.gba_outer_r, P.gba_body_h)
-    body -= Pos(0, 0, P.gba_base_t) * _cylinder(
-        P.gba_inner_r, P.gba_body_h - P.gba_base_t + 1
+def _output_boss(axis_z: float):
+    y0 = P.gba_output_bearing_y0 - 0.5
+    y1 = P.gba_outer_r + P.gba_output_nose
+    return (
+        Pos(0, y0, axis_z)
+        * Rot(-90, 0, 0)
+        * _cylinder(P.gba_output_boss_d / 2, y1 - y0)
     )
+
+
+def _bearing_pocket(axis_z: float):
+    y0 = P.gba_output_bearing_y0 - 0.5
+    depth = P.gba_output_bearing_y1 - y0 + 0.2
+    return (
+        Pos(0, y0, axis_z)
+        * Rot(-90, 0, 0)
+        * _cylinder(P.gb_bearing_pocket_d / 2, depth)
+    )
+
+
+def _shaft_passage(axis_z: float):
+    y0 = P.gba_output_bearing_y1 - 0.1
+    y1 = P.gba_outer_r + P.gba_output_nose + 0.1
+    return (
+        Pos(0, y0, axis_z)
+        * Rot(-90, 0, 0)
+        * _cylinder(P.gb_gear_bore_d / 2, y1 - y0)
+    )
+
+
+def _split_boss_half(axis_z: float, upper: bool):
+    boss = _output_boss(axis_z)
+    radius = P.gba_output_boss_d / 2 + 0.5
+    y0 = P.gba_output_bearing_y0 - 1
+    depth = P.gba_outer_r + P.gba_output_nose + 1 - y0
+    if upper:
+        clip = _box_at(-radius, y0, axis_z, 2 * radius, depth, radius + 0.5)
+    else:
+        clip = _box_at(
+            -radius,
+            y0,
+            axis_z - radius - 0.5,
+            2 * radius,
+            depth,
+            radius + 0.5,
+        )
+    return boss & clip
+
+
+def _cut_screw_windows(part, z0: float, height: float):
+    for index in range(P.gba_motor_screw_n):
+        angle = index * 360 / P.gba_motor_screw_n
+        window = Rot(0, 0, angle) * _box_at(
+            P.gba_motor_screw_bcd / 2 - P.gba_screw_window_w / 2,
+            -P.gba_screw_window_w / 2,
+            z0,
+            P.gba_screw_window_w,
+            P.gba_screw_window_w,
+            height,
+        )
+        part -= window
+    return part
+
+
+def housing():
+    """Lower enclosure with integral lower 625ZZ bearing cradles."""
+    body = _cylinder(P.gba_outer_r, P.gba_axis_z)
+    body -= Pos(0, 0, P.gba_base_t) * _cylinder(
+        P.gba_inner_r, P.gba_axis_z - P.gba_base_t + 1
+    )
+    seam_rebate = Pos(0, 0, P.gba_axis_z - P.gba_seam_step_h) * (
+        _cylinder(P.gba_outer_r + 0.5, P.gba_seam_step_h + 0.5)
+        - _cylinder(
+            P.gba_outer_r - P.gba_seam_step_radial,
+            P.gba_seam_step_h + 0.5,
+        )
+    )
+    body -= seam_rebate
 
     # The eccentric motor boss passes through the mounting deck.
     body -= Pos(0, P.gba_input_y, -0.5) * _cylinder(
         P.gba_boss_clear_d / 2, P.gba_base_t + 1
     )
 
-    # Six top-installed M3 screws. Full-height channels intentionally open
-    # through the Ø37 rim, keeping every screw visible and reachable from
-    # the open top despite the tight 32mm bolt circle.
+    # Six top-installed M3 screws remain reachable through both halves.
     for index in range(P.gba_motor_screw_n):
         hole = _polar(
             P.gba_motor_screw_bcd / 2,
@@ -88,83 +160,45 @@ def housing():
         body -= hole * Pos(0, 0, -0.5) * _cylinder(
             P.gba_mount_clear_d / 2, P.gba_base_t + 1
         )
-        body -= hole * Pos(0, 0, P.gba_base_t) * _cylinder(
-            P.gba_screw_head_d / 2,
-            P.gba_body_h - P.gba_base_t + 0.5,
-        )
-
-    # A top-open keyed saddle receives the separately printed bearing
-    # cartridge. This avoids an unprintable horizontal bearing tunnel.
-    cartridge_y0 = P.gba_output_bearing_y0 - 0.5
-    main_slot_w = P.gba_bearing_cartridge_d + 2 * P.gba_cartridge_clear
-    body -= _box_at(
-        -main_slot_w / 2,
-        cartridge_y0,
-        P.gba_axis_z - main_slot_w / 2,
-        main_slot_w,
-        P.gba_outer_r + 1.5 - cartridge_y0,
-        P.gba_body_h - (P.gba_axis_z - main_slot_w / 2) + 0.5,
+    body = _cut_screw_windows(
+        body, P.gba_base_t, P.gba_axis_z - P.gba_base_t + 0.5
     )
-    flange_slot_w = P.gba_bearing_flange_d + 2 * P.gba_cartridge_clear
-    flange_y0 = P.gba_outer_r + 1 - P.gba_bearing_flange_t
-    body -= _box_at(
-        -flange_slot_w / 2,
-        flange_y0,
-        P.gba_axis_z - flange_slot_w / 2,
-        flange_slot_w,
-        P.gba_bearing_flange_t + 0.6,
-        P.gba_body_h - (P.gba_axis_z - flange_slot_w / 2) + 0.5,
-    )
+    body += _split_boss_half(P.gba_axis_z, upper=False)
+    body -= seam_rebate
+    body -= _bearing_pocket(P.gba_axis_z)
+    body -= _shaft_passage(P.gba_axis_z)
     return body
 
 
 def lid():
-    """Circular press-fit lid with a bearing-cartridge capture rib."""
-    plate = _cylinder(P.gba_outer_r, P.gba_lid_t)
-    plug = Pos(0, 0, -P.gba_lid_plug) * _cylinder(
-        P.gba_lid_plug_r, P.gba_lid_plug
+    """Upper enclosure and integral upper bearing seats, in assembly pose."""
+    cap_h = P.gba_body_h - P.gba_axis_z
+    cap = _cylinder(P.gba_outer_r, cap_h + P.gba_lid_t)
+    cap -= Pos(0, 0, -0.5) * _cylinder(P.gba_inner_r, cap_h + 0.5)
+
+    seam_skirt_inner_r = (
+        P.gba_outer_r - P.gba_seam_step_radial + P.gba_seam_clear
     )
-    cartridge_top = P.gba_axis_z + P.gba_bearing_flange_d / 2
-    capture_h = P.gba_body_h - cartridge_top - P.gba_lid_capture_gap
-    capture = _box_at(
-        -3,
-        P.gba_outer_r - 1.1,
-        -capture_h,
-        6,
-        1.1,
-        capture_h,
+    seam_skirt = Pos(0, 0, -P.gba_seam_step_h) * (
+        _cylinder(P.gba_outer_r, P.gba_seam_step_h)
+        - _cylinder(seam_skirt_inner_r, P.gba_seam_step_h)
     )
-    return plate + plug + capture
+    cap += seam_skirt
+    cap = _cut_screw_windows(
+        cap,
+        -P.gba_seam_step_h - 0.5,
+        cap_h + P.gba_lid_t + P.gba_seam_step_h + 1,
+    )
+    cap += _split_boss_half(0, upper=True)
+    cap -= _bearing_pocket(0)
+    cap -= _shaft_passage(0)
+    return cap
 
 
-def bearing_cartridge():
-    """Support-free upright print carrying the two horizontal 625ZZs."""
-    y0 = P.gba_output_bearing_y0 - 0.5
-    length = P.gba_outer_r + 1 - y0
-    body_r = P.gba_bearing_cartridge_d / 2
-    flange_r = P.gba_bearing_flange_d / 2
-    ramp_h = flange_r - body_r
-    ramp_z = length - P.gba_bearing_flange_t
-
-    body = _cylinder(body_r, ramp_z)
-    body += Pos(0, 0, ramp_z) * Cone(
-        body_r,
-        flange_r,
-        ramp_h,
-        align=(Align.CENTER, Align.CENTER, Align.MIN),
-    )
-    body += Pos(0, 0, ramp_z + ramp_h) * _cylinder(
-        flange_r, P.gba_bearing_flange_t - ramp_h
-    )
-
-    pocket_depth = P.gba_output_bearing_y1 - y0 + 0.2
-    body -= Pos(0, 0, -0.1) * _cylinder(
-        P.gb_bearing_pocket_d / 2, pocket_depth + 0.1
-    )
-    body -= Pos(0, 0, pocket_depth - 0.1) * _cylinder(
-        P.gb_gear_bore_d / 2, length - pocket_depth + 0.2
-    )
-    return body
+def lid_print():
+    """Upper enclosure flipped onto its flat roof for support-free printing."""
+    oriented = Rot(180, 0, 0) * lid()
+    return Pos(0, 0, -oriented.bounding_box().min.Z) * oriented
 
 
 def input_spacer():
@@ -194,11 +228,6 @@ def _output_bearings():
         P.gba_axis_z,
     ) * Rot(90, 0, 0)
     return outer * bearing + inner * bearing
-
-
-def _posed_bearing_cartridge():
-    y0 = P.gba_output_bearing_y0 - 0.5
-    return Pos(0, y0, P.gba_axis_z) * Rot(-90, 0, 0) * bearing_cartridge()
 
 
 def _output_rod():
@@ -235,7 +264,6 @@ def scene() -> Scene:
     result.add(output_part, "output-bevel", color="gold", loc=F.GBA_PAIR_ON_MOTOR)
     result.add(_posed_input_spacer(), "input-spacer", color="darkorange")
     result.add(_posed_output_spacer(), "output-spacer", color="goldenrod")
-    result.add(_posed_bearing_cartridge(), "bearing-cartridge", color="deepskyblue")
     result.add(_output_bearings(), "output-bearings", color="silver")
     result.add(_output_rod(), "output-rod", color="dimgray")
     return result

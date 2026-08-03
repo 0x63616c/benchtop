@@ -76,7 +76,6 @@ def test_printable_builders_exist():
         "gear-box-motor-lid",
         "gear-box-motor-input-spacer",
         "gear-box-motor-output-spacer",
-        "gear-box-motor-bearing-cartridge",
         "blinds-sprocket",
         "blinds-frame",
         "blinds-axle-keeper",

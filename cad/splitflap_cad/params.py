@@ -985,16 +985,14 @@ class Params:
     gba_base_t: float = 3.0
     gba_body_h: float = 35.0
     gba_lid_t: float = 3.0
-    gba_lid_plug: float = 1.2
-    gba_lid_clear: float = 0.25
+    gba_seam_step_h: float = 1.2
+    gba_seam_step_radial: float = 1.0
+    gba_seam_clear: float = 0.15
     gba_mount_clear_d: float = 3.4
-    gba_screw_head_d: float = 6.2
+    gba_screw_window_w: float = 6.2
     gba_boss_clear_d: float = 12.4
-    gba_bearing_cartridge_d: float = 20.0
-    gba_bearing_flange_d: float = 23.0
-    gba_bearing_flange_t: float = 2.0
-    gba_cartridge_clear: float = 0.25
-    gba_lid_capture_gap: float = 0.3
+    gba_output_boss_d: float = 19.0
+    gba_output_nose: float = 0.5
     gba_pair_z0: float = 9.0
 
     @property
@@ -1074,10 +1072,6 @@ class Params:
     @property
     def gba_inner_r(self) -> float:
         return self.gba_outer_r - self.gba_wall
-
-    @property
-    def gba_lid_plug_r(self) -> float:
-        return self.gba_inner_r - self.gba_lid_clear
 
     @property
     def gba_input_y(self) -> float:

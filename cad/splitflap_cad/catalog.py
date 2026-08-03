@@ -294,15 +294,12 @@ PRINTABLE = {
     "gear-box-test-bushings": Printable("gear-box", "gearbox", "test_bushings"),
     "gear-box-mesh-jig": Printable("gear-box", "gearbox", "mesh_jig"),
     "gear-box-motor-housing": Printable("gear-box", "motorbevel", "housing"),
-    "gear-box-motor-lid": Printable("gear-box", "motorbevel", "lid"),
+    "gear-box-motor-lid": Printable("gear-box", "motorbevel", "lid_print"),
     "gear-box-motor-input-spacer": Printable(
         "gear-box", "motorbevel", "input_spacer"
     ),
     "gear-box-motor-output-spacer": Printable(
         "gear-box", "motorbevel", "output_spacer"
-    ),
-    "gear-box-motor-bearing-cartridge": Printable(
-        "gear-box", "motorbevel", "bearing_cartridge"
     ),
     "blinds-sprocket": Printable("blinds", "blinds_cad.sprocket", "sprocket"),
     "blinds-frame": Printable("blinds", "blinds_cad.enclosure", "frame"),

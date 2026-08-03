@@ -249,9 +249,9 @@ def _gearbox_motor_housing():
 
 
 def _gearbox_motor_lid():
-    from splitflap_cad.motorbevel import lid
+    from splitflap_cad.motorbevel import lid_print
 
-    return lid()
+    return lid_print()
 
 
 def _gearbox_motor_input_spacer():
@@ -264,12 +264,6 @@ def _gearbox_motor_output_spacer():
     from splitflap_cad.motorbevel import output_spacer
 
     return output_spacer()
-
-
-def _gearbox_motor_bearing_cartridge():
-    from splitflap_cad.motorbevel import bearing_cartridge
-
-    return bearing_cartridge()
 
 
 # name -> builder. All in their own local frames.
@@ -315,7 +309,6 @@ BREP_PARTS = {
     "gear-box-motor-lid": _gearbox_motor_lid,
     "gear-box-motor-input-spacer": _gearbox_motor_input_spacer,
     "gear-box-motor-output-spacer": _gearbox_motor_output_spacer,
-    "gear-box-motor-bearing-cartridge": _gearbox_motor_bearing_cartridge,
 }
 
 FINGERPRINT_ONLY = {}

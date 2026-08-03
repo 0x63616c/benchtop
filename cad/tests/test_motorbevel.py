@@ -4,7 +4,7 @@ import pytest
 from build123d import Pos
 
 from splitflap_cad.gearbox import _cylinder
-from splitflap_cad.motorbevel import bearing_cartridge, housing, motor_reference, scene
+from splitflap_cad.motorbevel import housing, lid_print, motor_reference, scene
 from splitflap_cad.params import P
 
 
@@ -28,15 +28,13 @@ def test_measured_motor_reference_matches_the_attachment_contract():
     assert motor_bb.max.Z == pytest.approx(21)
 
 
-def test_main_body_is_37mm_and_cartridge_is_the_only_output_nose():
+def test_main_body_is_37mm_with_only_a_small_integrated_output_nose():
     bb = housing().bounding_box()
-    cartridge_bb = _parts()["bearing-cartridge"].bounding_box()
 
     assert bb.min.X == pytest.approx(-P.gba_outer_r)
     assert bb.max.X == pytest.approx(P.gba_outer_r)
     assert bb.min.Y == pytest.approx(-P.gba_outer_r)
-    assert bb.max.Y == pytest.approx(P.gba_outer_r)
-    assert cartridge_bb.max.Y == pytest.approx(P.gba_outer_r + 1)
+    assert bb.max.Y == pytest.approx(P.gba_outer_r + P.gba_output_nose)
     assert P.gba_motor_screw_bcd / 2 + P.gba_mount_clear_d / 2 < P.gba_outer_r
 
 
@@ -50,6 +48,15 @@ def test_m3_head_windows_run_from_the_base_deck_to_the_open_top():
 
     assert (body & lower_wall).volume > 0
     assert (body & upper_window).volume < 1e-6
+
+
+def test_m3_head_windows_have_square_corners():
+    body = housing()
+    square_corner = Pos(17.8, 2.8, P.gba_base_t) * _cylinder(
+        0.1, P.gba_axis_z - P.gba_base_t
+    )
+
+    assert (body & square_corner).volume < 1e-6
 
 
 def test_input_gear_hub_remains_fully_engaged_on_the_motor_shaft():
@@ -67,7 +74,7 @@ def test_compact_closed_attachment_is_38mm_tall():
     parts = _parts()
 
     assert P.gba_body_h == 35
-    assert parts["housing"].bounding_box().max.Z == pytest.approx(35)
+    assert parts["housing"].bounding_box().max.Z == pytest.approx(P.gba_axis_z)
     assert parts["lid"].bounding_box().max.Z == pytest.approx(38)
 
 
@@ -81,26 +88,30 @@ def test_gears_and_running_stack_clear_the_circular_housing():
         "output-bevel",
         "input-spacer",
         "output-spacer",
-        "bearing-cartridge",
         "output-bearings",
         "output-rod",
     ):
         assert (parts["housing"] & parts[name]).volume < 1e-6, name
         assert (parts["lid"] & parts[name]).volume < 1e-6, name
 
-    assert (parts["bearing-cartridge"] & parts["output-bearings"]).volume < 1e-6
-    assert (parts["bearing-cartridge"] & parts["output-rod"]).volume < 1e-6
+    assert (parts["housing"] & parts["lid"]).volume < 1e-6
 
 
-def test_bearing_cartridge_prints_upright_with_a_45_degree_flange_ramp():
-    bb = bearing_cartridge().bounding_box()
-    radial_growth = (P.gba_bearing_flange_d - P.gba_bearing_cartridge_d) / 2
+def test_split_bearing_seats_close_directly_around_both_625zzs():
+    parts = _parts()
+    bearings = parts["output-bearings"]
 
-    assert bb.min.Z == pytest.approx(0)
-    assert radial_growth <= P.gba_bearing_flange_t
-    assert bb.size.Z == pytest.approx(
-        P.gba_outer_r + 1 - (P.gba_output_bearing_y0 - 0.5)
-    )
+    assert bearings.bounding_box().min.Z < P.gba_axis_z
+    assert bearings.bounding_box().max.Z > P.gba_axis_z
+    assert (parts["housing"] & bearings).volume < 1e-6
+    assert (parts["lid"] & bearings).volume < 1e-6
+
+
+def test_upper_enclosure_exports_roof_down_on_the_print_bed():
+    printable = lid_print()
+
+    assert printable.bounding_box().min.Z == pytest.approx(0)
+    assert printable.volume == pytest.approx(_parts()["lid"].volume)
 
 
 def test_spacers_locate_the_mesh_and_output_projects_10mm():
