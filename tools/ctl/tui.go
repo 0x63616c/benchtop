@@ -35,11 +35,13 @@ type menuItem struct {
 // screen is one level of the menu stack. id "run" renders the active
 // runState's log instead of items.
 type screen struct {
-	id     string // routes enter-key handling
-	title  string
-	items  []menuItem
-	names  []string // pick-* screens: model name per item
-	cursor int
+	id      string // routes enter-key handling
+	title   string
+	action  string // project pickers: operation to continue after selection
+	project string // model pickers: selected project scope
+	items   []menuItem
+	names   []string // pick-* screens: model/project name per item
+	cursor  int
 
 	// `/` fuzzy filter (pick-* screens): items/names hold the filtered view,
 	// allItems/allNames the full set.
@@ -540,9 +542,9 @@ func (m *appModel) select_() (tea.Model, tea.Cmd) {
 		case 0:
 			m.stack = append(m.stack, viewScreen())
 		case 1:
-			m.stack = append(m.stack, pickScreen("pick-export", m.catalog(), true))
+			m.stack = append(m.stack, cadProjectScreen("export", m.catalog(), m.root))
 		case 2:
-			m.stack = append(m.stack, pickRenderScreen(m.root))
+			m.stack = append(m.stack, cadProjectScreen("render", m.catalog(), m.root))
 		case 3:
 			m.stack = append(m.stack, listScreen(m.catalog()))
 		case 4:
@@ -572,10 +574,20 @@ func (m *appModel) select_() (tea.Model, tea.Cmd) {
 		return m.startBenchScreen(s.names[s.cursor], true)
 	case "pick-render":
 		return m.startDemo("render "+s.names[s.cursor], s.names[s.cursor])
+	case "cad-project":
+		project := s.names[s.cursor]
+		switch s.action {
+		case "view":
+			m.stack = append(m.stack, pickScreen("pick-view", m.catalog(), false, project))
+		case "export":
+			m.stack = append(m.stack, pickScreen("pick-export", m.catalog(), true, project))
+		case "render":
+			m.stack = append(m.stack, pickRenderScreen(m.root, m.catalog(), project))
+		}
 	case "view":
 		switch s.cursor {
 		case 0:
-			m.stack = append(m.stack, pickScreen("pick-view", m.catalog(), false))
+			m.stack = append(m.stack, cadProjectScreen("view", m.catalog(), m.root))
 		case 1:
 			return m.startRun("view (follow)", startView(""))
 		}
@@ -922,14 +934,22 @@ func viewScreen() screen {
 	}}
 }
 
-func pickScreen(id string, cat catalog, printable bool) screen {
+func pickScreen(id string, cat catalog, printable bool, project string) screen {
 	var names []string
 	if printable {
-		names = append(names, cat.Printable...)
-		names = append(names, "flaps") // glyph artwork: 3MFs + plates
+		for _, name := range cat.Printable {
+			if cat.PrintableProjects[name] == project {
+				names = append(names, name)
+			}
+		}
+		if project == "split-flap" {
+			names = append(names, "flaps") // glyph artwork: 3MFs + plates
+		}
 	} else {
 		for n := range cat.Models {
-			names = append(names, n)
+			if cat.ModelProjects[n] == project {
+				names = append(names, n)
+			}
 		}
 	}
 	sort.Strings(names)
@@ -941,54 +961,131 @@ func pickScreen(id string, cat catalog, printable bool) screen {
 		}
 		items[i] = menuItem{label: label}
 	}
-	s := screen{id: id, title: "pick a model", items: items, names: names,
+	s := screen{id: id, title: project + " models", project: project, items: items, names: names,
 		canFilter: true, allItems: items, allNames: names}
 	if printable { // export picker: space marks rows, enter runs the set
 		s.multi = true
 		s.selected = map[string]bool{}
-		s.title = "pick a model(s)"
+		s.title = project + " models"
 	}
 	return s
 }
 
+// cadProjectScreen asks for a project before showing the models relevant to
+// an action. The project list is itself derived from the catalog entries, so
+// empty projects never lead to an empty model picker.
+func cadProjectScreen(action string, cat catalog, root string) screen {
+	projects := map[string]bool{}
+	switch action {
+	case "view":
+		for _, project := range cat.ModelProjects {
+			projects[project] = true
+		}
+	case "export":
+		for _, project := range cat.PrintableProjects {
+			projects[project] = true
+		}
+	case "render":
+		for _, path := range findSTLs(root) {
+			project := cat.PrintableProjects[stlName(path)]
+			if project == "" {
+				project = "other"
+			}
+			projects[project] = true
+		}
+		if len(projects) == 0 {
+			return screen{id: "render-empty", title: "render", items: []menuItem{
+				{label: "no exports found", disabled: true},
+				{label: "run: just cad export", disabled: true},
+			}}
+		}
+	}
+
+	names := make([]string, 0, len(projects))
+	for project := range projects {
+		names = append(names, project)
+	}
+	sort.Strings(names)
+	items := make([]menuItem, len(names))
+	for i, project := range names {
+		help := cat.Projects[project]
+		if project == "other" {
+			help = "exports no longer present in the catalog"
+		}
+		items[i] = menuItem{label: project, help: help}
+	}
+	return screen{id: "cad-project", title: "pick a project", action: action,
+		items: items, names: names, canFilter: true, allItems: items, allNames: names}
+}
+
 // pickRenderScreen lists what can actually be drawn: the STLs on disk, not
 // the catalog, since a model with no export has no geometry to render.
-func pickRenderScreen(root string) screen {
+func pickRenderScreen(root string, cat catalog, project string) screen {
 	paths := findSTLs(root)
-	if len(paths) == 0 {
-		return screen{id: "render-empty", title: "render", items: []menuItem{
-			{label: "no exports found", disabled: true},
-			{label: "run: just cad export", disabled: true},
-		}}
-	}
-	names := make([]string, len(paths))
-	for i, p := range paths {
-		names[i] = stlName(p)
+	var names []string
+	for _, path := range paths {
+		name := stlName(path)
+		entryProject := cat.PrintableProjects[name]
+		if entryProject == "" {
+			entryProject = "other"
+		}
+		if entryProject == project {
+			names = append(names, name)
+		}
 	}
 	sort.Strings(names)
 	items := make([]menuItem, len(names))
 	for i, n := range names {
 		items[i] = menuItem{label: n}
 	}
-	return screen{id: "pick-render", title: "render", items: items, names: names,
+	return screen{id: "pick-render", title: project + " exports", project: project,
+		items: items, names: names,
 		canFilter: true, allItems: items, allNames: names}
 }
 
 func listScreen(cat catalog) screen {
-	var names []string
-	for n := range cat.Models {
-		names = append(names, n)
+	projects := make([]string, 0, len(cat.Projects))
+	for project := range cat.Projects {
+		projects = append(projects, project)
 	}
-	sort.Strings(names)
-	items := []menuItem{{label: "models:", disabled: true}}
-	for _, n := range names {
-		items = append(items, menuItem{label: fmt.Sprintf("  %-12s %s", n, cat.Models[n]), disabled: true})
+	sort.Strings(projects)
+	var items []menuItem
+	for _, project := range projects {
+		var models []string
+		for name := range cat.Models {
+			if cat.ModelProjects[name] == project {
+				models = append(models, name)
+			}
+		}
+		sort.Strings(models)
+		var printable []string
+		for _, name := range cat.Printable {
+			if cat.PrintableProjects[name] == project {
+				printable = append(printable, name)
+			}
+		}
+		if len(models) == 0 && len(printable) == 0 {
+			continue
+		}
+		if len(items) > 0 {
+			items = append(items, menuItem{label: "", disabled: true})
+		}
+		items = append(items, menuItem{
+			label: fmt.Sprintf("%s — %s", project, cat.Projects[project]), disabled: true,
+		})
+		for _, name := range models {
+			items = append(items, menuItem{
+				label: fmt.Sprintf("  %-20s %s", name, cat.Models[name]), disabled: true,
+			})
+		}
+		if len(printable) > 0 {
+			items = append(items, menuItem{label: "  printable:", disabled: true})
+			for _, name := range printable {
+				items = append(items, menuItem{label: "    " + name, disabled: true})
+			}
+		}
 	}
-	items = append(items, menuItem{label: "printable:", disabled: true})
-	for _, n := range cat.Printable {
-		items = append(items, menuItem{label: "  " + n, disabled: true})
-	}
-	return screen{id: "list", title: "models", items: items}
+	return screen{id: "list", title: "models by project", items: items}
 }
 
 // --- entrypoints -------------------------------------------------------

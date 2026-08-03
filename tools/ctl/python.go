@@ -37,9 +37,13 @@ func pyCmd(root string, args ...string) *exec.Cmd {
 }
 
 type catalog struct {
-	Models     map[string]string `json:"models"`
-	Printable  []string          `json:"printable"`
-	SrcToModel map[string]string `json:"src_to_model"`
+	Projects          map[string]string `json:"projects"`
+	Models            map[string]string `json:"models"`
+	ModelProjects     map[string]string `json:"model_projects"`
+	Printable         []string          `json:"printable"`
+	PrintableProjects map[string]string `json:"printable_projects"`
+	RenderProjects    map[string]string `json:"render_projects"`
+	SrcToModel        map[string]string `json:"src_to_model"`
 }
 
 func parseCatalog(data []byte) (catalog, error) {

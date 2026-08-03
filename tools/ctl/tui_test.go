@@ -102,13 +102,22 @@ func TestPickRenderListsExports(t *testing.T) {
 	if err != nil {
 		t.Skip("not in a repo")
 	}
-	s := pickRenderScreen(root)
+	cat, err := loadCatalog(root)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(findSTLs(root)) == 0 {
+		s := cadProjectScreen("render", cat, root)
 		if s.id != "render-empty" {
 			t.Fatalf("no exports should give the empty screen, got id %q", s.id)
 		}
 		return
 	}
+	projects := cadProjectScreen("render", cat, root)
+	if projects.id != "cad-project" || len(projects.names) == 0 {
+		t.Fatalf("render project picker = %+v", projects)
+	}
+	s := pickRenderScreen(root, cat, projects.names[0])
 	if s.id != "pick-render" {
 		t.Fatalf("id %q, want pick-render", s.id)
 	}
@@ -131,8 +140,13 @@ func TestStartDemoOpensChosenScene(t *testing.T) {
 	if err != nil || len(findSTLs(root)) == 0 {
 		t.Skip("no exports on disk")
 	}
+	cat, err := loadCatalog(root)
+	if err != nil {
+		t.Fatal(err)
+	}
 	m := &appModel{stack: []screen{rootScreen()}, root: root}
-	want := pickRenderScreen(root).names[0]
+	project := cadProjectScreen("render", cat, root).names[0]
+	want := pickRenderScreen(root, cat, project).names[0]
 	m.startDemo("render "+want, want)
 	if m.top().id != "demo" {
 		t.Fatalf("top screen is %q, want demo", m.top().id)
@@ -140,6 +154,42 @@ func TestStartDemoOpensChosenScene(t *testing.T) {
 	if got := m.cube.scene().label; got != want {
 		t.Fatalf("opened on %q, want %q", got, want)
 	}
+}
+
+func TestCadProjectPickerScopesModels(t *testing.T) {
+	root, err := repoRoot()
+	if err != nil {
+		t.Skip("not in a repo")
+	}
+	cat, err := loadCatalog(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	projects := cadProjectScreen("view", cat, root)
+	if projects.id != "cad-project" || !contains(projects.names, "split-flap") || !contains(projects.names, "blinds") {
+		t.Fatalf("view project picker = %+v", projects)
+	}
+	blinds := pickScreen("pick-view", cat, false, "blinds")
+	if len(blinds.names) == 0 {
+		t.Fatal("blinds model picker is empty")
+	}
+	for _, name := range blinds.names {
+		if cat.ModelProjects[name] != "blinds" {
+			t.Fatalf("model %q belongs to %q, not blinds", name, cat.ModelProjects[name])
+		}
+	}
+	if contains(blinds.names, "assembly") {
+		t.Fatal("split-flap assembly leaked into blinds picker")
+	}
+}
+
+func contains(names []string, want string) bool {
+	for _, name := range names {
+		if name == want {
+			return true
+		}
+	}
+	return false
 }
 
 // Keys pressed together arrive as one batched rune message; each must still

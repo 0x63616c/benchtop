@@ -3,13 +3,19 @@ package main
 import "testing"
 
 func TestParseCatalog(t *testing.T) {
-	data := []byte(`{"models":{"assembly":"full unit","holder":"flap jig"},` +
-		`"printable":["holder"],"src_to_model":{"holder":"holder","params":""}}`)
+	data := []byte(`{"projects":{"split-flap":"modular display"},` +
+		`"models":{"assembly":"full unit","holder":"flap jig"},` +
+		`"model_projects":{"assembly":"split-flap","holder":"split-flap"},` +
+		`"printable":["holder"],"printable_projects":{"holder":"split-flap"},` +
+		`"render_projects":{},"src_to_model":{"holder":"holder","params":""}}`)
 	c, err := parseCatalog(data)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if c.Models["holder"] != "flap jig" || c.Printable[0] != "holder" || c.SrcToModel["holder"] != "holder" {
+	if c.Projects["split-flap"] != "modular display" ||
+		c.Models["holder"] != "flap jig" || c.ModelProjects["holder"] != "split-flap" ||
+		c.Printable[0] != "holder" || c.PrintableProjects["holder"] != "split-flap" ||
+		c.SrcToModel["holder"] != "holder" {
 		t.Fatalf("bad parse: %+v", c)
 	}
 }
