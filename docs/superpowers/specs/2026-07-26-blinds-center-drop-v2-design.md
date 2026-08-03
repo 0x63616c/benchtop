@@ -52,10 +52,10 @@ fallback) with the motor horizontal:
   saddles open toward the back for insertion, retained by clips.
 - **Carrier PCB:** unchanged concept from v1 — rectangular, 6 holders,
   2S3P busing, balance tap, XT30PW + JST-XH.
-- **Main PCB rev C:** reshape to ~90×35 lying flat. Buttons = the
+- **Main PCB rev C:** 88×32 lying flat. Buttons = the
   right-angle tactile the BOM already lists (C2837543), front edge,
-  plungers through the front wall at z≈8. USB-C right-angle exits the
-  front face beside them. Schematic unchanged; re-place + A* re-route.
+  plungers through the front wall at z≈11.2. USB-C right-angle exits the
+  front face beside them. Schematic, placement, and A* routing are complete.
 - **Enclosure (revised 2026-08-03):** a wall-mounted structural
   exoskeleton owns the motor bulkhead, layshaft saddles, fixed sprocket
   axle, battery-carrier bosses, PCB tray, and four #8 wall anchors. A
@@ -63,7 +63,8 @@ fallback) with the motor horizontal:
   by two underside M3 screws. Rear and front top-cap halves meet at the
   chain plane, closing around both installed strands without threading.
   A flat-printed, four-screw front keeper supports the axle without
-  bridging over the sprocket cavity. Button, USB, and axle-head openings remain in the sleeve front face.
+  bridging over the sprocket cavity. Button, USB, and axle-head openings
+  remain in the sleeve front face.
   The French cleat and monolithic structural shell are removed.
 
 ## Rejected
@@ -81,7 +82,8 @@ fallback) with the motor horizontal:
 
 - Printed bevel wear under 0.4Nm — steel fallback designed in.
 - Shaft flat length (pinion rides the shaft tip) — caliper on arrival.
-- Button feel at ~80mm off the floor on the front face.
+- Button feel through the 0.8 mm sleeve at the z≈11.2 axis — verify on
+  the first physical print.
 
 ## Execution order
 

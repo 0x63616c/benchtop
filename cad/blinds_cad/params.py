@@ -126,7 +126,7 @@ class Params:
     pcb_t: float = 1.6
     pcb_l: float = 88.0            # along the wall (x), spans 5..93
     pcb_wd: float = 32.0           # off the wall (y), spans 8..40
-    pcb_z0: float = 6.0            # laminate bottom, on 4x M3 bosses
+    pcb_z0: float = 6.0            # on 3x M3 bosses + plain USB-edge pillar
     pcb_boss_h: float = 4.0
     pcb_comp_h: float = 5.8        # component envelope above the laminate —
                                    # XH-2.5 housings (5.75) are the ceiling;

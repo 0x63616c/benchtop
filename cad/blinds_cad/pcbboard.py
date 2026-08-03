@@ -1,8 +1,8 @@
 """Main PCB reference — the rev C envelope for the v2 center-drop unit.
 
-The board lies FLAT on the enclosure floor (components up, 4× M3
-corner holes onto printed bosses): 88×32×1.6, an envelope until the
-rev C re-layout in pcb/blinds-board catches up. The two tactile
+The board lies FLAT on the enclosure floor (components up, three M3
+holes onto printed bosses plus a plain USB-edge support pillar):
+88×32×1.6, matching the completed rev C layout in pcb/blinds-board. The two tactile
 switches become the RIGHT-ANGLE KH-6X6X7H variant (the part BOM line
 C2837543 always was), bodies at the board's front edge with plungers
 +Y through the front wall; the USB-C receptacle sits between them,
