@@ -52,13 +52,23 @@ def test_m3_head_windows_run_from_the_base_deck_to_the_open_top():
     assert (body & upper_window).volume < 1e-6
 
 
-def test_motor_shaft_tip_and_input_gear_hub_finish_flush():
+def test_input_gear_hub_remains_fully_engaged_on_the_motor_shaft():
     parts = _parts()
     shaft_tip = P.gba_motor_boss_h + P.gba_motor_shaft_len
+    input_gear_bb = parts["input-bevel"].bounding_box()
 
-    assert parts["input-bevel"].bounding_box().max.Z == pytest.approx(shaft_tip)
+    assert input_gear_bb.min.Z > P.gba_motor_boss_h
+    assert input_gear_bb.max.Z < shaft_tip
     assert (parts["motor"] & parts["input-bevel"]).volume < 1e-6
     assert (parts["motor"] & parts["input-spacer"]).volume < 1e-6
+
+
+def test_compact_closed_attachment_is_38mm_tall():
+    parts = _parts()
+
+    assert P.gba_body_h == 35
+    assert parts["housing"].bounding_box().max.Z == pytest.approx(35)
+    assert parts["lid"].bounding_box().max.Z == pytest.approx(38)
 
 
 def test_gears_and_running_stack_clear_the_circular_housing():

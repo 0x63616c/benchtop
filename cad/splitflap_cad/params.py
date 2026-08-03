@@ -983,7 +983,7 @@ class Params:
     gba_outer_d: float = 37.0
     gba_wall: float = 2.0
     gba_base_t: float = 3.0
-    gba_body_h: float = 42.0
+    gba_body_h: float = 35.0
     gba_lid_t: float = 3.0
     gba_lid_plug: float = 1.2
     gba_lid_clear: float = 0.25
@@ -995,7 +995,7 @@ class Params:
     gba_bearing_flange_t: float = 2.0
     gba_cartridge_clear: float = 0.25
     gba_lid_capture_gap: float = 0.3
-    gba_pair_z0: float = 15.0
+    gba_pair_z0: float = 9.0
 
     @property
     def unit_back_rise(self) -> float:
