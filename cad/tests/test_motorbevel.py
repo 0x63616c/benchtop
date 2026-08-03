@@ -140,6 +140,16 @@ def test_upper_enclosure_exports_roof_down_on_the_print_bed():
     assert printable.volume == pytest.approx(_parts()["lid"].volume)
 
 
+def test_upper_bearing_cradle_is_solid_to_the_roof_down_print_face():
+    printable = lid_print()
+    cap_h = P.gba_body_h - P.gba_axis_z + P.gba_lid_t
+    pocket_top = P.gb_bearing_pocket_d / 2
+    supported_h = cap_h - pocket_top
+    support_probe = Pos(0, -10, 0) * _cylinder(0.2, supported_h)
+
+    assert (printable & support_probe).volume == pytest.approx(support_probe.volume)
+
+
 def test_spacers_locate_the_mesh_and_output_projects_10mm():
     parts = _parts()
     input_spacer_bb = parts["input-spacer"].bounding_box()

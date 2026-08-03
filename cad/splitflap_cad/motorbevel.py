@@ -131,8 +131,8 @@ def _cut_screw_windows(part, z0: float, height: float):
     return part
 
 
-def _bearing_pedestal():
-    """Solid print support from the motor deck to the lower bearing cradle."""
+def _bearing_pedestal(height: float):
+    """Solid print support from a flat face to a split bearing cradle."""
     y0 = P.gba_output_bearing_y0 - 0.5
     pedestal = _box_at(
         -P.gba_output_boss_d / 2,
@@ -140,9 +140,9 @@ def _bearing_pedestal():
         0,
         P.gba_output_boss_d,
         P.gba_inner_r - y0 + 0.5,
-        P.gba_axis_z,
+        height,
     )
-    return pedestal & _cylinder(P.gba_outer_r, P.gba_axis_z)
+    return pedestal & _cylinder(P.gba_outer_r, height)
 
 
 def housing():
@@ -177,7 +177,7 @@ def housing():
     body = _cut_screw_windows(
         body, P.gba_base_t, P.gba_axis_z - P.gba_base_t + 0.5
     )
-    body += _bearing_pedestal()
+    body += _bearing_pedestal(P.gba_axis_z)
     body += _split_boss_half(P.gba_axis_z, upper=False)
     body -= seam_rebate
     body -= _bearing_pocket(P.gba_axis_z)
@@ -204,6 +204,7 @@ def lid():
         -P.gba_seam_step_h - 0.5,
         cap_h + P.gba_lid_t + P.gba_seam_step_h + 1,
     )
+    cap += _bearing_pedestal(cap_h + P.gba_lid_t)
     cap += _split_boss_half(0, upper=True)
     cap -= _bearing_pocket(0)
     cap -= _shaft_passage(0)
