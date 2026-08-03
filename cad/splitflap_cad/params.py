@@ -908,6 +908,45 @@ class Params:
     bcnr_size: float = 30.0        # leg reach along each axis
     bcnr_t: float = 2.0            # plate thickness
 
+    # --- right-angle bevel gearbox (side quest) ---
+    # Box frame: back-left-bottom outer corner is (0, 0, 0), +X right,
+    # +Y front, +Z up. The bottom input shaft is vertical; its circle's
+    # front-most point is exactly gb_shaft_far_from_back from y=0. The
+    # output shaft shares its axis intersection and exits the y=depth
+    # front face. The 45 x 45 requirement is the top-down footprint;
+    # height stays below that envelope.
+    gb_outer_w: float = 45.0
+    gb_outer_d: float = 45.0
+    gb_outer_h: float = 36.0
+    gb_wall: float = 2.4
+    gb_lid_t: float = 3.0
+    gb_lid_plug: float = 1.2
+    gb_lid_clear: float = 0.25     # gap per side on the press-fit plug
+
+    # User-owned running hardware. First pass assumes the 625ZZ bearings
+    # already researched for the split-flap: 5 x 16 x 5mm. Two adjacent
+    # bearings per axis resist the bevel pair's cantilever and thrust loads.
+    gb_shaft_d: float = 5.0
+    gb_shaft_clear: float = 0.2    # diametral running clearance in printed bores
+    gb_shaft_exposed: float = 10.0  # maximum rod beyond each box face
+    gb_shaft_far_from_back: float = 15.0
+    gb_bearing_d: float = 16.0
+    gb_bearing_w: float = 5.0
+    gb_bearing_n: int = 2
+    gb_bearing_clear: float = 0.2  # diametral slip-fit allowance
+    gb_bearing_shoulder: float = 0.8
+    gb_bearing_boss_d: float = 20.0
+    gb_running_gap: float = 0.2
+
+    # Equal 1:1, 90-degree miter pair. Module 1 leaves 0.9mm tooth-to-wall
+    # clearance behind the offset input shaft while remaining FDM printable.
+    gb_axis_z: float = 22.0
+    gb_gear_module: float = 1.0
+    gb_gear_teeth: int = 16
+    gb_gear_face: float = 4.0
+    gb_gear_backlash: float = 0.08  # coefficient of module in py_gearworks
+    gb_gear_hub_d: float = 10.0
+
 
     @property
     def unit_back_rise(self) -> float:
@@ -929,6 +968,66 @@ class Params:
         """Top/bottom wall window width along X: wall length minus 3
         margins, halved (same [][] scheme as the back wall)."""
         return (self.unit_plate_w - 3 * self.unit_window_margin) / 2
+
+    # --- right-angle gearbox: derived placement and fits ---
+
+    @property
+    def gb_center_x(self) -> float:
+        return self.gb_outer_w / 2
+
+    @property
+    def gb_input_y(self) -> float:
+        """Rod axis that keeps its front-most edge 15mm from the back."""
+        return self.gb_shaft_far_from_back - self.gb_shaft_d / 2
+
+    @property
+    def gb_pitch_r(self) -> float:
+        return self.gb_gear_module * self.gb_gear_teeth / 2
+
+    @property
+    def gb_pair_z0(self) -> float:
+        """py_gearworks input-gear origin below the shared pitch apex."""
+        return self.gb_axis_z - self.gb_pitch_r
+
+    @property
+    def gb_housing_h(self) -> float:
+        return self.gb_outer_h - self.gb_lid_t
+
+    @property
+    def gb_bearing_stack(self) -> float:
+        return self.gb_bearing_n * self.gb_bearing_w
+
+    @property
+    def gb_bearing_pocket_d(self) -> float:
+        return self.gb_bearing_d + self.gb_bearing_clear
+
+    @property
+    def gb_gear_bore_d(self) -> float:
+        return self.gb_shaft_d + self.gb_shaft_clear
+
+    @property
+    def gb_input_bearing_z0(self) -> float:
+        return self.gb_bearing_shoulder
+
+    @property
+    def gb_input_bearing_z1(self) -> float:
+        return self.gb_input_bearing_z0 + self.gb_bearing_stack
+
+    @property
+    def gb_output_bearing_y1(self) -> float:
+        return self.gb_outer_d - self.gb_bearing_shoulder
+
+    @property
+    def gb_output_bearing_y0(self) -> float:
+        return self.gb_output_bearing_y1 - self.gb_bearing_stack
+
+    @property
+    def gb_lid_plug_w(self) -> float:
+        return self.gb_outer_w - 2 * (self.gb_wall + self.gb_lid_clear)
+
+    @property
+    def gb_lid_plug_d(self) -> float:
+        return self.gb_outer_d - 2 * (self.gb_wall + self.gb_lid_clear)
 
     # --- mirror backlight: everything below is DERIVED from the three
     # measured mirror numbers. Nothing here is a measurement.

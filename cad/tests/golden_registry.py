@@ -176,6 +176,36 @@ def _blinds_layshaft():
     return layshaft()
 
 
+def _gearbox_housing():
+    from splitflap_cad.gearbox import housing
+
+    return housing()
+
+
+def _gearbox_lid():
+    from splitflap_cad.gearbox import lid
+
+    return lid()
+
+
+def _gearbox_input_gear():
+    from splitflap_cad.gearbox import input_gear
+
+    return input_gear()
+
+
+def _gearbox_output_gear():
+    from splitflap_cad.gearbox import output_gear
+
+    return output_gear()
+
+
+def _gearbox_output_spacer():
+    from splitflap_cad.gearbox import output_spacer
+
+    return output_spacer()
+
+
 # name -> builder. All in their own local frames.
 BREP_PARTS = {
     "flap": _flap,
@@ -204,6 +234,11 @@ BREP_PARTS = {
     "blinds-motor": _blinds_motor,
     "blinds-pinion": _blinds_pinion,
     "blinds-layshaft": _blinds_layshaft,
+    "gear-box-housing": _gearbox_housing,
+    "gear-box-lid": _gearbox_lid,
+    "gear-box-input-gear": _gearbox_input_gear,
+    "gear-box-output-gear": _gearbox_output_gear,
+    "gear-box-output-spacer": _gearbox_output_spacer,
 }
 
 FINGERPRINT_ONLY = {}

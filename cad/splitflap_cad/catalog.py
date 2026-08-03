@@ -132,6 +132,10 @@ MODELS = {
         "SIDE QUEST storage-box corner brace: 30mm three-plate corner",
         "boxcorner",
     ),
+    "gear-box": Model(
+        "SIDE QUEST 45mm right-angle bevel gearbox: gears, rods, 625ZZs + box",
+        "gearbox",
+    ),
     # --- blinds project (blinds_cad package, wayfinder #12) ---
     "blinds-unit": Model(
         "BLINDS full unit: shell ghost + motor + sprocket + chain + cells + plate",
@@ -189,6 +193,11 @@ PRINTABLE = {
     "lid-clip": Printable("lidclip", "lid_clip"),
     "lid-clip-post": Printable("lidclip", "lid_clip_post"),
     "box-corner": Printable("boxcorner", "box_corner"),
+    "gear-box-housing": Printable("gearbox", "housing"),
+    "gear-box-lid": Printable("gearbox", "lid"),
+    "gear-box-input-gear": Printable("gearbox", "input_gear"),
+    "gear-box-output-gear": Printable("gearbox", "output_gear"),
+    "gear-box-output-spacer": Printable("gearbox", "output_spacer"),
     "blinds-sprocket": Printable("blinds_cad.sprocket", "sprocket"),
     "blinds-shell": Printable("blinds_cad.enclosure", "shell"),
     "blinds-plate": Printable("blinds_cad.wallplate", "wallplate"),
