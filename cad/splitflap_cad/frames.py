@@ -32,7 +32,7 @@ NEMA_FACE_IN_UNIT = Pos(P.mount_x, P.byj_shaft_y, P.nema_face_z)
 
 # Right-angle gearbox: py_gearworks builds the vertical input at the
 # origin and places the horizontal gear on +X, with their pitch apex at
-# local (0, 0, pitch_r). Rotate +X to box +Y (the front), then put that
+# local (0, 0, output_pitch_r). Rotate +X to box +Y (the front), then put that
 # shared apex on the requested offset shaft axis.
 GEARBOX_PAIR_IN_BOX = Pos(P.gb_center_x, P.gb_input_y, P.gb_pair_z0) * Rot(0, 0, 90)
 GEARBOX_LID_IN_BOX = Pos(0, 0, P.gb_housing_h)

@@ -60,3 +60,9 @@ def test_bearing_contract_is_625zz_on_both_axes():
     assert P.gb_bearing_d == 16
     assert P.gb_bearing_w == 5
     assert P.gb_bearing_n == 2
+
+
+def test_bevel_pair_is_three_input_turns_to_two_output_turns():
+    assert P.gb_input_teeth == 16
+    assert P.gb_output_teeth == 24
+    assert P.gb_output_teeth / P.gb_input_teeth == pytest.approx(3 / 2)

@@ -133,7 +133,7 @@ MODELS = {
         "boxcorner",
     ),
     "gear-box": Model(
-        "SIDE QUEST 45mm right-angle bevel gearbox: gears, rods, 625ZZs + box",
+        "SIDE QUEST 45mm 3:2 right-angle gearbox: gears, rods, 625ZZs + box",
         "gearbox",
     ),
     # --- blinds project (blinds_cad package, wayfinder #12) ---

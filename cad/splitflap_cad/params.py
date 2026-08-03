@@ -917,7 +917,7 @@ class Params:
     # height stays below that envelope.
     gb_outer_w: float = 45.0
     gb_outer_d: float = 45.0
-    gb_outer_h: float = 36.0
+    gb_outer_h: float = 43.0
     gb_wall: float = 2.4
     gb_lid_t: float = 3.0
     gb_lid_plug: float = 1.2
@@ -938,11 +938,13 @@ class Params:
     gb_bearing_boss_d: float = 20.0
     gb_running_gap: float = 0.2
 
-    # Equal 1:1, 90-degree miter pair. Module 1 leaves 0.9mm tooth-to-wall
+    # 3:2 reduction: 16T bottom input drives a 24T front output. The unequal
+    # pitch cones still sum to 90 degrees. Module 1 leaves 1.3mm tooth-to-wall
     # clearance behind the offset input shaft while remaining FDM printable.
-    gb_axis_z: float = 22.0
+    gb_axis_z: float = 25.0
     gb_gear_module: float = 1.0
-    gb_gear_teeth: int = 16
+    gb_input_teeth: int = 16
+    gb_output_teeth: int = 24
     gb_gear_face: float = 4.0
     gb_gear_backlash: float = 0.08  # coefficient of module in py_gearworks
     gb_gear_hub_d: float = 10.0
@@ -981,13 +983,17 @@ class Params:
         return self.gb_shaft_far_from_back - self.gb_shaft_d / 2
 
     @property
-    def gb_pitch_r(self) -> float:
-        return self.gb_gear_module * self.gb_gear_teeth / 2
+    def gb_input_pitch_r(self) -> float:
+        return self.gb_gear_module * self.gb_input_teeth / 2
+
+    @property
+    def gb_output_pitch_r(self) -> float:
+        return self.gb_gear_module * self.gb_output_teeth / 2
 
     @property
     def gb_pair_z0(self) -> float:
         """py_gearworks input-gear origin below the shared pitch apex."""
-        return self.gb_axis_z - self.gb_pitch_r
+        return self.gb_axis_z - self.gb_output_pitch_r
 
     @property
     def gb_housing_h(self) -> float:

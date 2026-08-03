@@ -1,11 +1,11 @@
-"""Compact 1:1 right-angle bevel gearbox, complete with housing.
+"""Compact 3:2 right-angle bevel gearbox, complete with housing.
 
-The closed box is 45 x 45 x 36mm. Box coordinates start at the outer
+The closed box is 45 x 45 x 43mm. Box coordinates start at the outer
 back-left-bottom corner: +X right, +Y front, +Z up. A 5mm steel input
 rod rises through the bottom at y=12.5, so its front-most edge is the
-requested 15mm from the back. An equal bevel pair turns that axis 90
-degrees and sends a second 5mm rod through the front face. Both rods
-project 10mm beyond the box.
+requested 15mm from the back. A 16T input and 24T output bevel pair turn
+that axis 90 degrees with a 3:2 reduction: three input turns produce two
+output turns. Both rods project 10mm beyond the box.
 
 Four 625ZZ bearings (5 x 16 x 5mm) run as two-bearing stacks in pockets
 that load from inside before the gears go on. The two gears have 5.2mm
@@ -18,7 +18,7 @@ View: `just cad view gear-box`.
 """
 
 from functools import lru_cache
-from math import pi
+from math import atan2, pi
 import warnings
 
 from build123d import Align, Box, Cylinder, Pos, Rot
@@ -42,15 +42,23 @@ def _cylinder(radius: float, height: float):
 @lru_cache(maxsize=1)
 def _pair_parts():
     """The meshed pair in py_gearworks coordinates, built only once."""
-    kwargs = dict(
-        number_of_teeth=P.gb_gear_teeth,
+    input_angle = atan2(P.gb_input_teeth, P.gb_output_teeth)
+    output_angle = pi / 2 - input_angle
+    common = dict(
         module=P.gb_gear_module,
         height=P.gb_gear_face,
-        cone_angle=pi / 2,
         backlash=P.gb_gear_backlash,
     )
-    input_definition = BevelGear(**kwargs)
-    output_definition = BevelGear(**kwargs)
+    input_definition = BevelGear(
+        number_of_teeth=P.gb_input_teeth,
+        cone_angle=2 * input_angle,
+        **common,
+    )
+    output_definition = BevelGear(
+        number_of_teeth=P.gb_output_teeth,
+        cone_angle=2 * output_angle,
+        **common,
+    )
     output_definition.mesh_to(input_definition, target_dir=RIGHT)
 
     # scipy warns about a harmless Euler-angle ambiguity when a right-angle
@@ -66,16 +74,28 @@ def _pair_parts():
 
     # Input gear: axis +Z, nominal heel at z=0. The hub reaches down to
     # the upper input bearing once the pair is posed in the box.
-    input_part += Pos(0, 0, -3) * _cylinder(hub_r, 4)
-    input_part -= Pos(0, 0, -4) * _cylinder(bore_r, 9)
-    input_part -= Pos(-6, 0, -1) * Rot(0, 90, 0) * _cylinder(pin_r, 12)
+    input_hub_z0 = (
+        P.gb_input_bearing_z1 + P.gb_running_gap - P.gb_pair_z0
+    )
+    input_part += Pos(0, 0, input_hub_z0) * _cylinder(
+        hub_r, 1 - input_hub_z0
+    )
+    input_part -= Pos(0, 0, input_hub_z0 - 1) * _cylinder(
+        bore_r, 6 - input_hub_z0
+    )
+    input_part -= (
+        Pos(-6, 0, (input_hub_z0 + 1) / 2)
+        * Rot(0, 90, 0)
+        * _cylinder(pin_r, 12)
+    )
 
-    # Output gear is already meshed: its axis is +X through (0, 0, pitch_r)
-    # and its heel is x=pitch_r. Give it the same short hub and pin guide.
-    r = P.gb_pitch_r
-    output_part += Pos(r, 0, r) * Rot(0, 90, 0) * _cylinder(hub_r, 4)
-    output_part -= Pos(r - 4, 0, r) * Rot(0, 90, 0) * _cylinder(bore_r, 9)
-    output_part -= Pos(r + 2, 6, r) * Rot(90, 0, 0) * _cylinder(pin_r, 12)
+    # Output gear is already meshed: its axis is +X through
+    # (0, 0, output_pitch_r), and its heel is x=input_pitch_r. Give it
+    # the same short hub and pin guide.
+    ri, ro = P.gb_input_pitch_r, P.gb_output_pitch_r
+    output_part += Pos(ri, 0, ro) * Rot(0, 90, 0) * _cylinder(hub_r, 4)
+    output_part -= Pos(ri - 4, 0, ro) * Rot(0, 90, 0) * _cylinder(bore_r, 9)
+    output_part -= Pos(ri + 2, 6, ro) * Rot(90, 0, 0) * _cylinder(pin_r, 12)
     return input_part, output_part
 
 
@@ -86,14 +106,15 @@ def input_gear():
 
 def output_gear():
     """Printable output gear, normalized upright onto a Z-axis."""
-    r = P.gb_pitch_r
-    to_print = Rot(0, -90, 0) * Pos(-r, 0, -r)
+    to_print = Rot(0, -90, 0) * Pos(
+        -P.gb_input_pitch_r, 0, -P.gb_output_pitch_r
+    )
     return to_print * _pair_parts()[1]
 
 
 def output_spacer():
     """Printed tube between the output hub and inner bearing race."""
-    gear_hub_front = P.gb_input_y + P.gb_pitch_r + 4
+    gear_hub_front = P.gb_input_y + P.gb_input_pitch_r + 4
     length = P.gb_output_bearing_y0 - P.gb_running_gap - gear_hub_front
     return _cylinder(4, length) - Pos(0, 0, -0.5) * _cylinder(
         P.gb_gear_bore_d / 2, length + 1
@@ -191,7 +212,7 @@ def _input_rod():
 
 
 def _output_rod():
-    y0 = P.gb_input_y + P.gb_pitch_r - 4
+    y0 = P.gb_input_y + P.gb_input_pitch_r - 4
     y1 = P.gb_outer_d + P.gb_shaft_exposed
     return (
         Pos(P.gb_center_x, y0, P.gb_axis_z)
@@ -201,7 +222,7 @@ def _output_rod():
 
 
 def _posed_spacer():
-    gear_hub_front = P.gb_input_y + P.gb_pitch_r + 4
+    gear_hub_front = P.gb_input_y + P.gb_input_pitch_r + 4
     return (
         Pos(P.gb_center_x, gear_hub_front, P.gb_axis_z)
         * Rot(-90, 0, 0)
