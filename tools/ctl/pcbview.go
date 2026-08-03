@@ -15,14 +15,28 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
+// pcbViewerAssetsDir returns board-local web assets when present, otherwise
+// the original driver's shared viewer. The GLB itself is session-local.
+func pcbViewerAssetsDir(root, board string) (string, error) {
+	viewerDir := filepath.Join(pcbDir(root, board), "tools", "viewer")
+	if _, err := os.Stat(filepath.Join(viewerDir, "index.html")); err == nil {
+		return viewerDir, nil
+	}
+	viewerDir = filepath.Join(pcbDir(root, "driver-board"), "tools", "viewer")
+	if _, err := os.Stat(filepath.Join(viewerDir, "index.html")); err != nil {
+		return "", fmt.Errorf("viewer assets missing at %s", viewerDir)
+	}
+	return viewerDir, nil
+}
+
 // runPcbView is the CLI entrypoint: pcbViewJob with stdout logging and Ctrl-C
 // as the stop signal.
-func runPcbView() error {
+func runPcbView(board string) error {
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 	stop := make(chan struct{})
 	go func() { <-sig; close(stop) }()
-	return pcbViewJob(func(s string) { fmt.Println(s) }, stop)
+	return pcbViewJob(board, func(s string) { fmt.Println(s) }, stop)
 }
 
 // pcbViewJob turns the current pane into a live 3D board viewer: a static
@@ -33,7 +47,7 @@ func runPcbView() error {
 //
 // Mirrors viewJob (the CAD viewer) deliberately — same port/tab/teardown
 // shape, so both viewers behave identically from the user's side.
-func pcbViewJob(emit func(string), stop <-chan struct{}) error {
+func pcbViewJob(board string, emit func(string), stop <-chan struct{}) error {
 	logf := func(format string, a ...any) {
 		emit(fmt.Sprintf("[%s] "+format, append([]any{time.Now().Format("15:04:05")}, a...)...))
 	}
@@ -46,14 +60,20 @@ func pcbViewJob(emit func(string), stop <-chan struct{}) error {
 		return err
 	}
 
-	viewerDir := filepath.Join(pcbDir(root), "tools", "viewer")
-	if _, err := os.Stat(filepath.Join(viewerDir, "index.html")); err != nil {
-		return fmt.Errorf("viewer assets missing at %s", viewerDir)
+	viewerDir, err := pcbViewerAssetsDir(root, board)
+	if err != nil {
+		return err
 	}
-	glbPath := filepath.Join(viewerDir, "board.glb")
+	glb, err := os.CreateTemp("", "benchtop-pcb-*.glb")
+	if err != nil {
+		return fmt.Errorf("create temporary board GLB: %w", err)
+	}
+	glbPath := glb.Name()
+	glb.Close()
+	defer os.Remove(glbPath)
 
-	logf("exporting board.glb…")
-	if err := exportGLB(root, glbPath); err != nil {
+	logf("exporting %s board.glb…", board)
+	if err := exportGLB(root, board, glbPath); err != nil {
 		return err
 	}
 
@@ -69,6 +89,10 @@ func pcbViewJob(emit func(string), stop <-chan struct{}) error {
 	mux.HandleFunc("/rev", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-store")
 		fmt.Fprint(w, rev.Load())
+	})
+	mux.HandleFunc("/board.glb", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store")
+		http.ServeFile(w, r, glbPath)
 	})
 	mux.Handle("/", noCache(http.FileServer(http.Dir(viewerDir))))
 	srv := &http.Server{Addr: fmt.Sprintf("127.0.0.1:%d", port), Handler: mux}
@@ -107,7 +131,7 @@ func pcbViewJob(emit func(string), stop <-chan struct{}) error {
 	// model on screen, same as the CAD viewer.
 	rebuild := func(trigger string) {
 		logf("--- %s", trigger)
-		out, err := pcbPlace(root).CombinedOutput()
+		out, err := pcbPlace(root, board).CombinedOutput()
 		for _, line := range strings.Split(strings.TrimRight(string(out), "\n"), "\n") {
 			if line != "" {
 				logf("%s", line)
@@ -118,7 +142,7 @@ func pcbViewJob(emit func(string), stop <-chan struct{}) error {
 			cmuxNotify("PCB place failed", "see view pane log")
 			return
 		}
-		if err := exportGLB(root, glbPath); err != nil {
+		if err := exportGLB(root, board, glbPath); err != nil {
 			logf("%v", err)
 			logf("GLB EXPORT FAILED — viewer keeps last good model")
 			cmuxNotify("PCB glb export failed", "see view pane log")
@@ -135,7 +159,7 @@ func pcbViewJob(emit func(string), stop <-chan struct{}) error {
 	defer w.Close()
 	// watch the SOURCES, not the .kicad_pcb — placement rewrites that file, so
 	// watching it would retrigger this loop forever
-	watched := []string{filepath.Join(pcbDir(root), "tools"), pcbDir(root)}
+	watched := []string{filepath.Join(pcbDir(root, board), "tools"), pcbDir(root, board)}
 	for _, d := range watched {
 		if err := w.Add(d); err != nil {
 			return err

@@ -551,15 +551,22 @@ func (m *appModel) select_() (tea.Model, tea.Cmd) {
 			return m.startRun("golden test", startGoldenTest(m.root))
 		}
 	case "pcb":
-		switch s.cursor {
-		case 0:
-			return m.startRun("pcb view", startPcbView())
-		case 1:
-			return m.startRun("pcb drc", streamCmd(pcbBuild(m.root, true)))
-		case 2:
-			return m.startRun("pcb build", streamCmd(pcbBuild(m.root, false)))
-		case 3:
-			return m.startRun("pcb place", streamCmd(pcbPlace(m.root)))
+		actions := []string{"view", "drc", "build", "place"}
+		m.stack = append(m.stack, pcbProjectScreen(actions[s.cursor], m.catalog()))
+	case "pcb-project":
+		m.stack = append(m.stack, pcbBoardScreen(s.action, s.names[s.cursor]))
+	case "pcb-board":
+		board := s.names[s.cursor]
+		title := fmt.Sprintf("pcb %s · %s", s.action, board)
+		switch s.action {
+		case "view":
+			return m.startRun(title, startPcbView(board))
+		case "drc":
+			return m.startRun(title, streamCmd(pcbBuild(m.root, board, true)))
+		case "build":
+			return m.startRun(title, streamCmd(pcbBuild(m.root, board, false)))
+		case "place":
+			return m.startRun(title, streamCmd(pcbPlace(m.root, board)))
 		}
 	case "bench-menu":
 		switch s.cursor {
@@ -925,6 +932,42 @@ func pcbScreen() screen {
 		{label: "build", help: "everything: place, DRC, 5 renders, gerbers + zip"},
 		{label: "place", help: "placement & routing only, no kicad"},
 	}}
+}
+
+func pcbProjectScreen(action string, cat catalog) screen {
+	present := map[string]bool{}
+	for _, board := range pcbBoards {
+		present[board.Project] = true
+	}
+	names := make([]string, 0, len(present))
+	for project := range present {
+		names = append(names, project)
+	}
+	sort.Strings(names)
+	items := make([]menuItem, len(names))
+	for i, project := range names {
+		items[i] = menuItem{label: project, help: cat.Projects[project]}
+	}
+	return screen{id: "pcb-project", title: action + " › pick a project", action: action,
+		items: items, names: names, canFilter: true, allItems: items, allNames: names}
+}
+
+func pcbBoardScreen(action, project string) screen {
+	var boards []pcbBoardDef
+	for _, board := range pcbBoards {
+		if board.Project == project {
+			boards = append(boards, board)
+		}
+	}
+	sort.Slice(boards, func(i, j int) bool { return boards[i].Name < boards[j].Name })
+	names := make([]string, len(boards))
+	items := make([]menuItem, len(boards))
+	for i, board := range boards {
+		names[i] = board.Name
+		items[i] = menuItem{label: board.Name, help: board.Help}
+	}
+	return screen{id: "pcb-board", title: project + " boards", action: action, project: project,
+		items: items, names: names, canFilter: true, allItems: items, allNames: names}
 }
 
 func viewScreen() screen {
