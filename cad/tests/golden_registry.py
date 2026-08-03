@@ -236,6 +236,12 @@ def _gearbox_test_bushings():
     return test_bushings()
 
 
+def _gearbox_mesh_jig():
+    from splitflap_cad.gearbox import mesh_jig
+
+    return mesh_jig()
+
+
 # name -> builder. All in their own local frames.
 BREP_PARTS = {
     "flap": _flap,
@@ -274,6 +280,7 @@ BREP_PARTS = {
     "gear-box-input-spacer": _gearbox_input_spacer,
     "gear-box-output-spacer": _gearbox_output_spacer,
     "gear-box-test-bushings": _gearbox_test_bushings,
+    "gear-box-mesh-jig": _gearbox_mesh_jig,
 }
 
 FINGERPRINT_ONLY = {}

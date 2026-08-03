@@ -923,11 +923,13 @@ class Params:
     gb_lid_plug: float = 1.2
     gb_lid_clear: float = 0.25     # gap per side on the press-fit plug
 
-    # User-owned running hardware. First pass assumes the 625ZZ bearings
-    # already researched for the split-flap: 5 x 16 x 5mm. Two adjacent
-    # bearings per axis resist the bevel pair's cantilever and thrust loads.
-    gb_shaft_d: float = 5.0
+    # The motor supports its own 6mm D-shaft. Two adjacent 625ZZ bearings
+    # (5 x 16 x 5mm) support the separate 5mm output rod.
+    gb_shaft_d: float = 5.0       # output rod
     gb_shaft_clear: float = 0.2    # diametral running clearance in printed bores
+    gb_motor_shaft_d: float = 6.0
+    gb_motor_shaft_flat: float = 5.4  # flat-to-opposite-side measurement
+    gb_motor_shaft_clear: float = 0.2
     gb_shaft_exposed: float = 10.0  # maximum rod beyond each box face
     gb_shaft_far_from_back: float = 15.0
     gb_bearing_d: float = 16.0
@@ -937,6 +939,8 @@ class Params:
     gb_bearing_shoulder: float = 0.8
     gb_bearing_boss_d: float = 20.0
     gb_running_gap: float = 0.2
+    gb_input_journal_d: float = 14.0
+    gb_input_journal_h: float = 10.8
 
     # 3:2 reduction: 16T bottom input drives a 24T front output. The unequal
     # pitch cones still sum to 90 degrees. Module 1 leaves 1.3mm tooth-to-wall
@@ -951,7 +955,11 @@ class Params:
     gb_gear_hub_len: float = 4.0
     gb_pin_guide_d: float = 2.2
     gb_test_bushing_bore_d: float = 5.4
-
+    gb_jig_w: float = 32.0
+    gb_jig_h: float = 33.0
+    gb_jig_base_t: float = 3.0
+    gb_jig_post_w: float = 18.0
+    gb_jig_output_bore_d: float = 5.6
 
     @property
     def unit_back_rise(self) -> float:
@@ -983,7 +991,7 @@ class Params:
     @property
     def gb_input_y(self) -> float:
         """Rod axis that keeps its front-most edge 15mm from the back."""
-        return self.gb_shaft_far_from_back - self.gb_shaft_d / 2
+        return self.gb_shaft_far_from_back - self.gb_motor_shaft_d / 2
 
     @property
     def gb_input_pitch_r(self) -> float:
@@ -1012,15 +1020,16 @@ class Params:
 
     @property
     def gb_gear_bore_d(self) -> float:
+        """Round output-gear bore for the 5mm rod."""
         return self.gb_shaft_d + self.gb_shaft_clear
 
     @property
-    def gb_input_bearing_z0(self) -> float:
-        return self.gb_bearing_shoulder
+    def gb_input_bore_d(self) -> float:
+        return self.gb_motor_shaft_d + self.gb_motor_shaft_clear
 
     @property
-    def gb_input_bearing_z1(self) -> float:
-        return self.gb_input_bearing_z0 + self.gb_bearing_stack
+    def gb_input_bore_flat(self) -> float:
+        return self.gb_motor_shaft_flat + self.gb_motor_shaft_clear
 
     @property
     def gb_output_bearing_y1(self) -> float:

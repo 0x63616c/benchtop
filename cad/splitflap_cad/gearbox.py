@@ -1,24 +1,26 @@
 """Compact 3:2 right-angle bevel gearbox, complete with housing.
 
 The closed box is 45 x 36 x 43mm. Box coordinates start at the outer
-back-left-bottom corner: +X right, +Y front, +Z up. A 5mm steel input
-rod rises through the bottom at y=12.5, so its front-most edge is the
+back-left-bottom corner: +X right, +Y front, +Z up. A 6mm D-shaped motor
+shaft rises through the bottom at y=12, so its front-most edge is the
 requested 15mm from the back. A 16T input and 24T output bevel pair turn
 that axis 90 degrees with a 3:2 reduction: three input turns produce two
-output turns. Both rods project 10mm beyond the box.
+output turns. The output uses a 5mm round rod; both shafts project 10mm.
 
-Four 625ZZ bearings (5 x 16 x 5mm) run as two-bearing stacks in pockets
-that load from inside before the gears go on. A test-print variant swaps
-them for four printable 16 x 5mm bushings with 5.4mm running bores. The
-two gears have 5.2mm bores and round 2.2mm guides for 2mm cross pins;
-drill each rod after clocking the mesh and retain it with a 2mm pin.
+Two 625ZZ bearings (5 x 16 x 5mm) support the output rod and load from
+inside before the gear goes on. A test-print variant swaps them for two
+printable 16 x 5mm bushings with 5.4mm running bores. The input gear has a
+6.2 x 5.6mm D-bore for the measured 6 x 5.4mm motor shaft. The output
+gear keeps its 5.2mm round bore and 2.2mm cross-pin guide; drill that rod
+after clocking the mesh and retain it with a 2mm pin.
 Both gears print heel-down with their hubs on the narrowing apex side,
 so neither hub creates an umbrella overhang. The shallow 16T heel has a
 55-degree bed-facing relief so its tooth ends are also self-supporting.
 The top lid is a separate press-fit print, and printed spacers carry
 each gear's axial load to its inner bearing.
 
-Views: `just cad view gear-box` and `just cad view gear-box-test`.
+Views: `just cad view gear-box`, `just cad view gear-box-test`, and
+`just cad view gear-box-jig`.
 """
 
 from functools import lru_cache
@@ -41,6 +43,21 @@ def _box_at(x: float, y: float, z: float, w: float, d: float, h: float):
 def _cylinder(radius: float, height: float):
     """Axis +Z cylinder from z=0; build123d otherwise centres it."""
     return Cylinder(radius, height, align=(Align.CENTER, Align.CENTER, Align.MIN))
+
+
+def _d_prism(diameter: float, flat_span: float, height: float):
+    """D-profile prism; flat_span is flat to the opposite circle edge."""
+    radius = diameter / 2
+    flat_y = radius - flat_span
+    keep = _box_at(
+        -radius - 0.1,
+        flat_y,
+        -0.1,
+        diameter + 0.2,
+        flat_span + 0.2,
+        height + 0.2,
+    )
+    return _cylinder(radius, height) & keep
 
 
 def _self_supporting_heel(part):
@@ -95,7 +112,6 @@ def _pair_parts():
         output_part = output_definition.build_part(n_vert=4)
 
     hub_r = P.gb_gear_hub_d / 2
-    bore_r = P.gb_gear_bore_d / 2
     pin_r = P.gb_pin_guide_d / 2
 
     # Put each hub on the narrowing pitch-apex side. In the printable
@@ -106,11 +122,8 @@ def _pair_parts():
         hub_r, P.gb_gear_hub_len
     )
     input_part = _self_supporting_heel(input_part)
-    input_part -= Pos(0, 0, -2) * _cylinder(bore_r, 10)
-    input_part -= (
-        Pos(-6, 0, input_hub_z0 + P.gb_gear_hub_len / 2)
-        * Rot(0, 90, 0)
-        * _cylinder(pin_r, 12)
+    input_part -= Pos(0, 0, -2) * _d_prism(
+        P.gb_input_bore_d, P.gb_input_bore_flat, 10
     )
 
     # Output gear is already meshed: its axis is +X through
@@ -123,7 +136,9 @@ def _pair_parts():
         * _cylinder(hub_r, P.gb_gear_hub_len)
     )
     output_part -= (
-        Pos(ri + 2, 0, ro) * Rot(0, -90, 0) * _cylinder(bore_r, 10)
+        Pos(ri + 2, 0, ro)
+        * Rot(0, -90, 0)
+        * _cylinder(P.gb_gear_bore_d / 2, 10)
     )
     output_part -= (
         Pos(output_hub_x0 - P.gb_gear_hub_len / 2, 6, ro)
@@ -149,11 +164,11 @@ def output_gear():
 
 
 def input_spacer():
-    """Printed tube between the input gear heel and upper bearing."""
+    """Printed tube between the input gear heel and motor-shaft journal."""
     gear_heel_z = P.gb_pair_z0 + _pair_parts()[0].bounding_box().min.Z
-    length = gear_heel_z - P.gb_running_gap - P.gb_input_bearing_z1
+    length = gear_heel_z - P.gb_running_gap - P.gb_input_journal_h
     return _cylinder(4, length) - Pos(0, 0, -0.5) * _cylinder(
-        P.gb_gear_bore_d / 2, length + 1
+        P.gb_input_bore_d / 2, length + 1
     )
 
 
@@ -172,16 +187,14 @@ def housing():
     body = _box_at(0, 0, 0, w, d, h)
     body -= _box_at(wall, wall, wall, w - 2 * wall, d - 2 * wall, h + 1)
 
-    # The input stack loads from inside and stops on a bottom shoulder.
-    input_boss_h = P.gb_input_bearing_z1 + 0.7
+    # The motor supports its own shaft; this printed journal only locates
+    # the 6mm D-shaft at the gear mesh and replaces the old input bearings.
+    input_boss_h = P.gb_input_journal_h
     body += Pos(P.gb_center_x, P.gb_input_y, 0) * _cylinder(
-        P.gb_bearing_boss_d / 2, input_boss_h
-    )
-    body -= Pos(P.gb_center_x, P.gb_input_y, P.gb_input_bearing_z0) * _cylinder(
-        P.gb_bearing_pocket_d / 2, P.gb_bearing_stack + 0.8
+        P.gb_input_journal_d / 2, input_boss_h
     )
     body -= Pos(P.gb_center_x, P.gb_input_y, -0.5) * _cylinder(
-        P.gb_gear_bore_d / 2, P.gb_input_bearing_z0 + 1
+        P.gb_input_bore_d / 2, input_boss_h + 1
     )
 
     # The output stack loads from inside and stops on the front shoulder.
@@ -203,6 +216,38 @@ def housing():
         Pos(P.gb_center_x, P.gb_output_bearing_y1 - 0.2, P.gb_axis_z)
         * Rot(-90, 0, 0)
         * _cylinder(P.gb_gear_bore_d / 2, P.gb_bearing_shoulder + 0.7)
+    )
+    return body
+
+
+def mesh_jig():
+    """Open L-frame that holds both rods on the production gear axes."""
+    w = P.gb_jig_w
+    body = _box_at(0, 0, 0, w, P.gb_outer_d, P.gb_jig_base_t)
+
+    # The vertical journal matches the production input-journal height.
+    body += Pos(w / 2, P.gb_input_y, 0) * _cylinder(
+        P.gb_input_journal_d / 2, P.gb_input_journal_h
+    )
+    body -= Pos(w / 2, P.gb_input_y, -0.5) * _cylinder(
+        P.gb_input_bore_d / 2, P.gb_input_journal_h + 1
+    )
+
+    # One front post makes an L in side view. Its long direct journal
+    # replaces the complete output bearing stack for a hand-driven test.
+    post_y0 = P.gb_output_bearing_y0
+    body += _box_at(
+        (w - P.gb_jig_post_w) / 2,
+        post_y0,
+        0,
+        P.gb_jig_post_w,
+        P.gb_outer_d - post_y0,
+        P.gb_jig_h,
+    )
+    body -= (
+        Pos(w / 2, post_y0 - 0.5, P.gb_axis_z)
+        * Rot(-90, 0, 0)
+        * _cylinder(P.gb_jig_output_bore_d / 2, P.gb_outer_d - post_y0 + 1)
     )
     return body
 
@@ -236,27 +281,10 @@ def test_bushing():
 
 
 def test_bushings():
-    """Four printed test bushings arranged as one STL build plate."""
+    """Two output-rod test bushings arranged as one STL build plate."""
     bushing = test_bushing()
     pitch = P.gb_bearing_d + 2
-    return (
-        Pos(-pitch / 2, -pitch / 2, 0) * bushing
-        + Pos(pitch / 2, -pitch / 2, 0) * bushing
-        + Pos(-pitch / 2, pitch / 2, 0) * bushing
-        + Pos(pitch / 2, pitch / 2, 0) * bushing
-    )
-
-
-def _input_supports(support):
-    return (
-        Pos(P.gb_center_x, P.gb_input_y, P.gb_input_bearing_z0) * support
-        + Pos(
-            P.gb_center_x,
-            P.gb_input_y,
-            P.gb_input_bearing_z0 + P.gb_bearing_w,
-        )
-        * support
-    )
+    return Pos(-pitch / 2, 0, 0) * bushing + Pos(pitch / 2, 0, 0) * bushing
 
 
 def _output_supports(support):
@@ -270,7 +298,11 @@ def _output_supports(support):
 def _input_rod():
     z0 = -P.gb_shaft_exposed
     z1 = P.gb_pair_z0 + _pair_parts()[0].bounding_box().max.Z
-    return Pos(P.gb_center_x, P.gb_input_y, z0) * _cylinder(P.gb_shaft_d / 2, z1 - z0)
+    return (
+        Pos(P.gb_center_x, P.gb_input_y, z0)
+        * Rot(0, 0, 90)
+        * _d_prism(P.gb_motor_shaft_d, P.gb_motor_shaft_flat, z1 - z0)
+    )
 
 
 def _output_rod():
@@ -284,7 +316,7 @@ def _output_rod():
 
 
 def _posed_input_spacer():
-    return Pos(P.gb_center_x, P.gb_input_y, P.gb_input_bearing_z1) * input_spacer()
+    return Pos(P.gb_center_x, P.gb_input_y, P.gb_input_journal_h) * input_spacer()
 
 
 def _posed_output_spacer():
@@ -296,11 +328,8 @@ def _posed_output_spacer():
     )
 
 
-def _scene(test_print: bool) -> Scene:
+def _add_drivetrain(s: Scene) -> None:
     input_part, output_part = _pair_parts()
-    s = Scene()
-    s.add(housing(), "housing", color="lightblue", alpha=0.28)
-    s.add(lid(), "lid", color="lightskyblue", alpha=0.22, loc=F.GEARBOX_LID_IN_BOX)
     s.add(
         input_part,
         "input-bevel",
@@ -315,22 +344,35 @@ def _scene(test_print: bool) -> Scene:
     )
     s.add(_posed_input_spacer(), "input-spacer", color="darkorange")
     s.add(_posed_output_spacer(), "output-spacer", color="goldenrod")
-    if test_print:
-        s.add(_input_supports(test_bushing()), "input-bushings", color="coral")
-        s.add(_output_supports(test_bushing()), "output-bushings", color="coral")
-    else:
-        s.add(_input_supports(bearing_625zz()), "input-bearings", color="silver")
-        s.add(_output_supports(bearing_625zz()), "output-bearings", color="silver")
     s.add(_input_rod(), "input-rod", color="dimgray")
     s.add(_output_rod(), "output-rod", color="dimgray")
+
+
+def _scene(test_print: bool) -> Scene:
+    s = Scene()
+    s.add(housing(), "housing", color="lightblue", alpha=0.28)
+    s.add(lid(), "lid", color="lightskyblue", alpha=0.22, loc=F.GEARBOX_LID_IN_BOX)
+    _add_drivetrain(s)
+    if test_print:
+        s.add(_output_supports(test_bushing()), "output-bushings", color="coral")
+    else:
+        s.add(_output_supports(bearing_625zz()), "output-bearings", color="silver")
     return s
 
 
 def scene() -> Scene:
-    """Production assembly with four 625ZZ bearings."""
+    """Production assembly with direct motor shaft and two output bearings."""
     return _scene(test_print=False)
 
 
 def test_scene() -> Scene:
-    """Test-print assembly with four printed bushings instead of bearings."""
+    """Test-print assembly with two printed output bushings."""
     return _scene(test_print=True)
+
+
+def jig_scene() -> Scene:
+    """Open hand-driven gear-mesh jig with direct printed rod journals."""
+    s = Scene()
+    s.add(mesh_jig(), "mesh-jig", color="lightblue", loc=F.GEARBOX_JIG_IN_BOX)
+    _add_drivetrain(s)
+    return s

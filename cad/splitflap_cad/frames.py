@@ -36,3 +36,4 @@ NEMA_FACE_IN_UNIT = Pos(P.mount_x, P.byj_shaft_y, P.nema_face_z)
 # shared apex on the requested offset shaft axis.
 GEARBOX_PAIR_IN_BOX = Pos(P.gb_center_x, P.gb_input_y, P.gb_pair_z0) * Rot(0, 0, 90)
 GEARBOX_LID_IN_BOX = Pos(0, 0, P.gb_housing_h)
+GEARBOX_JIG_IN_BOX = Pos((P.gb_outer_w - P.gb_jig_w) / 2, 0, 0)

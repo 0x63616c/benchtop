@@ -180,9 +180,15 @@ MODELS = {
     ),
     "gear-box-test": Model(
         "gear-box",
-        "SIDE QUEST gearbox test print: printed bushings replace all four bearings",
+        "SIDE QUEST gearbox test print: printed bushings replace output bearings",
         "gearbox",
         "test_scene",
+    ),
+    "gear-box-jig": Model(
+        "gear-box",
+        "SIDE QUEST open L-frame for hand-testing the bevel gear mesh",
+        "gearbox",
+        "jig_scene",
     ),
     # --- blinds project (blinds_cad package, wayfinder #12) ---
     "blinds-unit": Model(
@@ -281,6 +287,7 @@ PRINTABLE = {
     "gear-box-input-spacer": Printable("gear-box", "gearbox", "input_spacer"),
     "gear-box-output-spacer": Printable("gear-box", "gearbox", "output_spacer"),
     "gear-box-test-bushings": Printable("gear-box", "gearbox", "test_bushings"),
+    "gear-box-mesh-jig": Printable("gear-box", "gearbox", "mesh_jig"),
     "blinds-sprocket": Printable("blinds", "blinds_cad.sprocket", "sprocket"),
     "blinds-frame": Printable("blinds", "blinds_cad.enclosure", "frame"),
     "blinds-axle-keeper": Printable(

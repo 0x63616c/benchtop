@@ -8,7 +8,9 @@ from splitflap_cad import frames as F
 from splitflap_cad.gearbox import (
     housing,
     input_gear,
+    jig_scene as gearbox_jig_scene,
     lid,
+    mesh_jig,
     output_gear,
     scene,
     test_bushing as gearbox_test_bushing,
@@ -75,34 +77,55 @@ def test_printable_gears_have_support_free_heel_down_geometry(gear):
         if normal_z < -0.71 and min(p0.Z, p1.Z, p2.Z) > 1e-4:
             unsupported_vertices.extend((p0, p1, p2))
 
-    # The bevel and hub exterior need no support. The only exception is
-    # the deliberately round Ø2.2 pin guide: a tiny bridge within the hub.
-    assert unsupported_vertices
-    assert max(sqrt(p.X * p.X + p.Y * p.Y) for p in unsupported_vertices) <= (
-        P.gb_gear_hub_d / 2 + 1e-5
-    )
-    assert any(
-        getattr(face, "radius", None) == pytest.approx(P.gb_pin_guide_d / 2)
-        for face in part.faces()
-    )
+    # The D-bore input has no bridge. The round-bore output retains one
+    # deliberately tiny Ø2.2 pin-guide bridge, entirely inside its hub.
+    if gear is input_gear:
+        assert unsupported_vertices == []
+    else:
+        assert unsupported_vertices
+        assert max(sqrt(p.X * p.X + p.Y * p.Y) for p in unsupported_vertices) <= (
+            P.gb_gear_hub_d / 2 + 1e-5
+        )
+        assert any(
+            getattr(face, "radius", None) == pytest.approx(P.gb_pin_guide_d / 2)
+            for face in part.faces()
+        )
 
 
-def test_test_print_variant_replaces_bearings_with_four_printed_bushings():
+def test_test_print_variant_replaces_output_bearings_with_two_printed_bushings():
     args = gearbox_test_scene().show_args()
     parts = dict(zip(args["names"], args["objects"]))
     bushing_plate = gearbox_test_bushings()
 
     assert "input-bearings" not in parts
     assert "output-bearings" not in parts
-    assert "input-bushings" in parts
     assert "output-bushings" in parts
-    assert len(bushing_plate.solids()) == 4
-    assert bushing_plate.volume == pytest.approx(4 * gearbox_test_bushing().volume)
-    assert tuple(bushing_plate.bounding_box().size) == pytest.approx((34, 34, 5))
-    for name in ("input-bushings", "output-bushings"):
-        assert (parts["housing"] & parts[name]).volume < 1e-6
-        assert (parts["input-rod"] & parts[name]).volume < 1e-6
-        assert (parts["output-rod"] & parts[name]).volume < 1e-6
+    assert len(bushing_plate.solids()) == 2
+    assert bushing_plate.volume == pytest.approx(2 * gearbox_test_bushing().volume)
+    assert tuple(bushing_plate.bounding_box().size) == pytest.approx((34, 16, 5))
+    assert (parts["housing"] & parts["output-bushings"]).volume < 1e-6
+    assert (parts["input-rod"] & parts["output-bushings"]).volume < 1e-6
+    assert (parts["output-rod"] & parts["output-bushings"]).volume < 1e-6
+
+
+def test_open_l_jig_holds_rods_on_the_mesh_axes_without_extra_hardware():
+    assert _bbox_tuple(mesh_jig()) == pytest.approx(
+        (0, 0, 0, P.gb_jig_w, P.gb_outer_d, P.gb_jig_h)
+    )
+
+    args = gearbox_jig_scene().show_args()
+    parts = dict(zip(args["names"], args["objects"]))
+    assert set(parts) == {
+        "mesh-jig",
+        "input-bevel",
+        "output-bevel",
+        "input-spacer",
+        "output-spacer",
+        "input-rod",
+        "output-rod",
+    }
+    for name in set(parts) - {"mesh-jig"}:
+        assert (parts["mesh-jig"] & parts[name]).volume < 1e-6, name
 
 
 def test_input_rod_edge_is_15mm_from_back_and_projections_are_10mm():
@@ -114,7 +137,8 @@ def test_input_rod_edge_is_15mm_from_back_and_projections_are_10mm():
     assert input_bb.max.Y == pytest.approx(P.gb_shaft_far_from_back)
     assert input_bb.min.Z == pytest.approx(-P.gb_shaft_exposed)
     assert output_bb.max.Y == pytest.approx(P.gb_outer_d + P.gb_shaft_exposed)
-    assert input_bb.max.X - input_bb.min.X == pytest.approx(P.gb_shaft_d)
+    assert input_bb.max.X - input_bb.min.X == pytest.approx(P.gb_motor_shaft_flat)
+    assert input_bb.max.Y - input_bb.min.Y == pytest.approx(P.gb_motor_shaft_d)
     assert output_bb.max.Z - output_bb.min.Z == pytest.approx(P.gb_shaft_d)
 
 
@@ -128,15 +152,18 @@ def test_gears_mesh_without_solid_overlap_and_running_parts_clear_box():
         "output-bevel",
         "input-spacer",
         "output-spacer",
-        "input-bearings",
         "output-bearings",
         "input-rod",
         "output-rod",
     ):
         assert (parts["housing"] & parts[name]).volume < 1e-6, name
+    assert (parts["input-bevel"] & parts["input-rod"]).volume < 1e-6
+    assert (parts["output-bevel"] & parts["output-rod"]).volume < 1e-6
 
 
-def test_bearing_contract_is_625zz_on_both_axes():
+def test_input_motor_shaft_and_output_bearing_contracts():
+    assert P.gb_motor_shaft_d == 6
+    assert P.gb_motor_shaft_flat == 5.4
     assert P.gb_shaft_d == 5
     assert P.gb_bearing_d == 16
     assert P.gb_bearing_w == 5
