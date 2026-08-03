@@ -977,6 +977,7 @@ class Params:
     gba_motor_shaft_len: float = 15.0
     gba_motor_screw_bcd: float = 32.0
     gba_motor_screw_n: int = 6
+    gba_mount_screw_indices: tuple[int, ...] = (0, 3, 4, 5)
     gba_motor_screw_d: float = 3.0
     gba_motor_screw_depth: float = 5.0
 

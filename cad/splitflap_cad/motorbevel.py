@@ -117,7 +117,7 @@ def _split_boss_half(axis_z: float, upper: bool):
 
 
 def _cut_screw_windows(part, z0: float, height: float):
-    for index in range(P.gba_motor_screw_n):
+    for index in P.gba_mount_screw_indices:
         angle = index * 360 / P.gba_motor_screw_n
         window = Rot(0, 0, angle) * _box_at(
             P.gba_motor_screw_bcd / 2 - P.gba_screw_window_w / 2,
@@ -129,6 +129,20 @@ def _cut_screw_windows(part, z0: float, height: float):
         )
         part -= window
     return part
+
+
+def _bearing_pedestal():
+    """Solid print support from the motor deck to the lower bearing cradle."""
+    y0 = P.gba_output_bearing_y0 - 0.5
+    pedestal = _box_at(
+        -P.gba_output_boss_d / 2,
+        y0,
+        0,
+        P.gba_output_boss_d,
+        P.gba_inner_r - y0 + 0.5,
+        P.gba_axis_z,
+    )
+    return pedestal & _cylinder(P.gba_outer_r, P.gba_axis_z)
 
 
 def housing():
@@ -152,7 +166,7 @@ def housing():
     )
 
     # Six top-installed M3 screws remain reachable through both halves.
-    for index in range(P.gba_motor_screw_n):
+    for index in P.gba_mount_screw_indices:
         hole = _polar(
             P.gba_motor_screw_bcd / 2,
             index * 360 / P.gba_motor_screw_n,
@@ -163,6 +177,7 @@ def housing():
     body = _cut_screw_windows(
         body, P.gba_base_t, P.gba_axis_z - P.gba_base_t + 0.5
     )
+    body += _bearing_pedestal()
     body += _split_boss_half(P.gba_axis_z, upper=False)
     body -= seam_rebate
     body -= _bearing_pocket(P.gba_axis_z)

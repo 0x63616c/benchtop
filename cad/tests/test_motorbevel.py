@@ -1,5 +1,7 @@
 """Fit contract for the circular JGB37 bevel attachment."""
 
+from math import cos, radians, sin
+
 import pytest
 from build123d import Pos
 
@@ -57,6 +59,30 @@ def test_m3_head_windows_have_square_corners():
     )
 
     assert (body & square_corner).volume < 1e-6
+
+
+def test_front_two_motor_holes_are_replaced_by_solid_bearing_support():
+    body = housing()
+    retained_hole = Pos(P.gba_motor_screw_bcd / 2, 0, 0) * _cylinder(
+        0.5, P.gba_base_t
+    )
+
+    assert P.gba_mount_screw_indices == (0, 3, 4, 5)
+    assert (body & retained_hole).volume < 1e-6
+    for index in (1, 2):
+        angle = radians(index * 360 / P.gba_motor_screw_n)
+        x = P.gba_motor_screw_bcd / 2 * cos(angle)
+        y = P.gba_motor_screw_bcd / 2 * sin(angle)
+        removed_hole = Pos(x, y, 0) * _cylinder(0.5, P.gba_base_t)
+        assert (body & removed_hole).volume > 0
+
+
+def test_lower_bearing_cradle_is_solid_to_the_motor_deck():
+    body = housing()
+    pocket_bottom = P.gba_axis_z - P.gb_bearing_pocket_d / 2
+    support_probe = Pos(0, 10, 0) * _cylinder(0.2, pocket_bottom)
+
+    assert (body & support_probe).volume == pytest.approx(support_probe.volume)
 
 
 def test_input_gear_hub_remains_fully_engaged_on_the_motor_shaft():
