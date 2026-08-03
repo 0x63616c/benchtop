@@ -9,10 +9,13 @@ output turns. Both rods project 10mm beyond the box.
 
 Four 625ZZ bearings (5 x 16 x 5mm) run as two-bearing stacks in pockets
 that load from inside before the gears go on. The two gears have 5.2mm
-bores and 2.2mm cross-pin drill guides; drill each rod after clocking the
-mesh and retain it with a 2mm pin. The top lid is a separate press-fit
-print, and a short printed spacer carries the output gear's axial load
-to its inner bearing.
+bores and self-supporting diamond guides for 2mm cross pins; drill each
+rod after clocking the mesh and retain it with a 2mm pin. Both gears
+print heel-down with their hubs on the narrowing apex side, so neither
+hub creates an umbrella overhang. The shallow 16T heel has a 55-degree
+bed-facing relief so its tooth ends are also self-supporting. The top
+lid is a separate press-fit print, and printed spacers carry each gear's
+axial load to its inner bearing.
 
 View: `just cad view gear-box`.
 """
@@ -21,7 +24,7 @@ from functools import lru_cache
 from math import atan2, pi
 import warnings
 
-from build123d import Align, Box, Cylinder, Pos, Rot
+from build123d import Align, Box, Cone, Cylinder, Pos, Rot
 from py_gearworks import BevelGear, RIGHT
 
 from . import frames as F
@@ -37,6 +40,28 @@ def _box_at(x: float, y: float, z: float, w: float, d: float, h: float):
 def _cylinder(radius: float, height: float):
     """Axis +Z cylinder from z=0; build123d otherwise centres it."""
     return Cylinder(radius, height, align=(Align.CENTER, Align.CENTER, Align.MIN))
+
+
+def _self_supporting_heel(part):
+    """Trim a shallow bevel heel to a support-free printable envelope."""
+    heel_z = part.bounding_box().min.Z
+    heel_faces = [
+        face
+        for face in part.faces()
+        if abs(face.bounding_box().min.Z - heel_z) < 1e-6
+        and abs(face.bounding_box().max.Z - heel_z) < 1e-6
+    ]
+    heel_bb = max(heel_faces, key=lambda face: face.area).bounding_box()
+    heel_r = max(abs(heel_bb.min.X), abs(heel_bb.max.X))
+    height = part.bounding_box().max.Z - heel_z + 0.1
+    radial_growth = 0.7  # 55 degrees from the bed, safely above 45
+    envelope = Pos(0, 0, heel_z) * Cone(
+        heel_r,
+        heel_r + radial_growth * height,
+        height,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
+    return part & envelope
 
 
 @lru_cache(maxsize=1)
@@ -70,52 +95,71 @@ def _pair_parts():
 
     hub_r = P.gb_gear_hub_d / 2
     bore_r = P.gb_gear_bore_d / 2
-    pin_r = 1.1  # Ø2.2 drill guide for a Ø2 cross pin
+    pin_guide = 2.2  # diamond side; clears a Ø2 cross pin
 
-    # Input gear: axis +Z, nominal heel at z=0. The hub reaches down to
-    # the upper input bearing once the pair is posed in the box.
-    input_hub_z0 = (
-        P.gb_input_bearing_z1 + P.gb_running_gap - P.gb_pair_z0
-    )
+    # Put each hub on the narrowing pitch-apex side. In the printable
+    # orientations below that means the wide heel face sits on the bed
+    # and the hub grows upward, rather than supporting an umbrella.
+    input_hub_z0 = 2.0
     input_part += Pos(0, 0, input_hub_z0) * _cylinder(
-        hub_r, 1 - input_hub_z0
+        hub_r, P.gb_gear_hub_len
     )
-    input_part -= Pos(0, 0, input_hub_z0 - 1) * _cylinder(
-        bore_r, 6 - input_hub_z0
-    )
+    input_part = _self_supporting_heel(input_part)
+    input_part -= Pos(0, 0, -2) * _cylinder(bore_r, 10)
     input_part -= (
-        Pos(-6, 0, (input_hub_z0 + 1) / 2)
-        * Rot(0, 90, 0)
-        * _cylinder(pin_r, 12)
+        Pos(0, 0, input_hub_z0 + P.gb_gear_hub_len / 2)
+        * Rot(45, 0, 0)
+        * Box(12, pin_guide, pin_guide)
     )
 
     # Output gear is already meshed: its axis is +X through
-    # (0, 0, output_pitch_r), and its heel is x=input_pitch_r. Give it
-    # the same short hub and pin guide.
+    # (0, 0, output_pitch_r), and its apex points toward -X.
     ri, ro = P.gb_input_pitch_r, P.gb_output_pitch_r
-    output_part += Pos(ri, 0, ro) * Rot(0, 90, 0) * _cylinder(hub_r, 4)
-    output_part -= Pos(ri - 4, 0, ro) * Rot(0, 90, 0) * _cylinder(bore_r, 9)
-    output_part -= Pos(ri + 2, 6, ro) * Rot(90, 0, 0) * _cylinder(pin_r, 12)
+    output_hub_x0 = ri - 0.5
+    output_part += (
+        Pos(output_hub_x0, 0, ro)
+        * Rot(0, -90, 0)
+        * _cylinder(hub_r, P.gb_gear_hub_len)
+    )
+    output_part -= (
+        Pos(ri + 2, 0, ro) * Rot(0, -90, 0) * _cylinder(bore_r, 10)
+    )
+    output_part -= (
+        Pos(output_hub_x0 - P.gb_gear_hub_len / 2, 0, ro)
+        * Rot(0, 45, 0)
+        * Box(pin_guide, 12, pin_guide)
+    )
     return input_part, output_part
 
 
 def input_gear():
-    """Printable input miter gear in its native heel-at-z=0 frame."""
-    return _pair_parts()[0]
+    """Printable input gear, wide heel face down and apex hub up."""
+    part = _pair_parts()[0]
+    return Pos(0, 0, -part.bounding_box().min.Z) * part
 
 
 def output_gear():
-    """Printable output gear, normalized upright onto a Z-axis."""
-    to_print = Rot(0, -90, 0) * Pos(
+    """Printable output gear, wide heel face down and apex hub up."""
+    to_print = Rot(0, 90, 0) * Pos(
         -P.gb_input_pitch_r, 0, -P.gb_output_pitch_r
     )
-    return to_print * _pair_parts()[1]
+    part = to_print * _pair_parts()[1]
+    return Pos(0, 0, -part.bounding_box().min.Z) * part
+
+
+def input_spacer():
+    """Printed tube between the input gear heel and upper bearing."""
+    gear_heel_z = P.gb_pair_z0 + _pair_parts()[0].bounding_box().min.Z
+    length = gear_heel_z - P.gb_running_gap - P.gb_input_bearing_z1
+    return _cylinder(4, length) - Pos(0, 0, -0.5) * _cylinder(
+        P.gb_gear_bore_d / 2, length + 1
+    )
 
 
 def output_spacer():
-    """Printed tube between the output hub and inner bearing race."""
-    gear_hub_front = P.gb_input_y + P.gb_input_pitch_r + 4
-    length = P.gb_output_bearing_y0 - P.gb_running_gap - gear_hub_front
+    """Printed tube between the output gear heel and inner bearing."""
+    gear_heel_front = P.gb_input_y + _pair_parts()[1].bounding_box().max.X
+    length = P.gb_output_bearing_y0 - P.gb_running_gap - gear_heel_front
     return _cylinder(4, length) - Pos(0, 0, -0.5) * _cylinder(
         P.gb_gear_bore_d / 2, length + 1
     )
@@ -207,12 +251,12 @@ def _output_bearings():
 
 def _input_rod():
     z0 = -P.gb_shaft_exposed
-    z1 = P.gb_pair_z0 + 4
+    z1 = P.gb_pair_z0 + _pair_parts()[0].bounding_box().max.Z
     return Pos(P.gb_center_x, P.gb_input_y, z0) * _cylinder(P.gb_shaft_d / 2, z1 - z0)
 
 
 def _output_rod():
-    y0 = P.gb_input_y + P.gb_input_pitch_r - 4
+    y0 = P.gb_input_y + _pair_parts()[1].bounding_box().min.X
     y1 = P.gb_outer_d + P.gb_shaft_exposed
     return (
         Pos(P.gb_center_x, y0, P.gb_axis_z)
@@ -221,10 +265,14 @@ def _output_rod():
     )
 
 
-def _posed_spacer():
-    gear_hub_front = P.gb_input_y + P.gb_input_pitch_r + 4
+def _posed_input_spacer():
+    return Pos(P.gb_center_x, P.gb_input_y, P.gb_input_bearing_z1) * input_spacer()
+
+
+def _posed_output_spacer():
+    gear_heel_front = P.gb_input_y + _pair_parts()[1].bounding_box().max.X
     return (
-        Pos(P.gb_center_x, gear_hub_front, P.gb_axis_z)
+        Pos(P.gb_center_x, gear_heel_front, P.gb_axis_z)
         * Rot(-90, 0, 0)
         * output_spacer()
     )
@@ -247,7 +295,8 @@ def scene() -> Scene:
         color="gold",
         loc=F.GEARBOX_PAIR_IN_BOX,
     )
-    s.add(_posed_spacer(), "output-spacer", color="goldenrod")
+    s.add(_posed_input_spacer(), "input-spacer", color="darkorange")
+    s.add(_posed_output_spacer(), "output-spacer", color="goldenrod")
     s.add(_input_bearings(), "input-bearings", color="silver")
     s.add(_output_bearings(), "output-bearings", color="silver")
     s.add(_input_rod(), "input-rod", color="dimgray")

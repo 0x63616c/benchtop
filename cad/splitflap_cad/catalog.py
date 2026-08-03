@@ -133,7 +133,7 @@ MODELS = {
         "boxcorner",
     ),
     "gear-box": Model(
-        "SIDE QUEST 45mm 3:2 right-angle gearbox: gears, rods, 625ZZs + box",
+        "SIDE QUEST 45x36mm 3:2 right-angle gearbox: gears, rods, 625ZZs + box",
         "gearbox",
     ),
     # --- blinds project (blinds_cad package, wayfinder #12) ---
@@ -213,6 +213,7 @@ PRINTABLE = {
     "gear-box-lid": Printable("gearbox", "lid"),
     "gear-box-input-gear": Printable("gearbox", "input_gear"),
     "gear-box-output-gear": Printable("gearbox", "output_gear"),
+    "gear-box-input-spacer": Printable("gearbox", "input_spacer"),
     "gear-box-output-spacer": Printable("gearbox", "output_spacer"),
     "blinds-sprocket": Printable("blinds_cad.sprocket", "sprocket"),
     "blinds-frame": Printable("blinds_cad.enclosure", "frame"),

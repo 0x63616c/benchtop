@@ -59,6 +59,7 @@ def test_printable_builders_exist():
         "gear-box-lid",
         "gear-box-input-gear",
         "gear-box-output-gear",
+        "gear-box-input-spacer",
         "gear-box-output-spacer",
         "blinds-sprocket",
         "blinds-frame",

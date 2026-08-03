@@ -218,6 +218,12 @@ def _gearbox_output_gear():
     return output_gear()
 
 
+def _gearbox_input_spacer():
+    from splitflap_cad.gearbox import input_spacer
+
+    return input_spacer()
+
+
 def _gearbox_output_spacer():
     from splitflap_cad.gearbox import output_spacer
 
@@ -259,6 +265,7 @@ BREP_PARTS = {
     "gear-box-lid": _gearbox_lid,
     "gear-box-input-gear": _gearbox_input_gear,
     "gear-box-output-gear": _gearbox_output_gear,
+    "gear-box-input-spacer": _gearbox_input_spacer,
     "gear-box-output-spacer": _gearbox_output_spacer,
 }
 

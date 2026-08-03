@@ -1,9 +1,11 @@
 """Fit contract for the compact right-angle gearbox."""
 
+from math import sqrt
+
 import pytest
 
 from splitflap_cad import frames as F
-from splitflap_cad.gearbox import housing, lid, scene
+from splitflap_cad.gearbox import housing, input_gear, lid, output_gear, scene
 from splitflap_cad.params import P
 
 
@@ -34,6 +36,39 @@ def test_output_stack_retains_running_clearance_at_compact_depth():
     assert bearing_back - gear_front >= P.gb_running_gap
 
 
+@pytest.mark.parametrize("gear", [input_gear, output_gear])
+def test_printable_gears_have_support_free_heel_down_geometry(gear):
+    part = gear()
+    bb = part.bounding_box()
+    bed_faces = [
+        face
+        for face in part.faces()
+        if face.bounding_box().min.Z == pytest.approx(0, abs=1e-6)
+        and face.bounding_box().max.Z == pytest.approx(0, abs=1e-6)
+        and face.normal_at().Z < -0.99
+    ]
+
+    assert bb.min.Z == pytest.approx(0, abs=1e-6)
+    assert bed_faces
+    assert max(face.bounding_box().size.X for face in bed_faces) > P.gb_gear_hub_d
+
+    vertices, triangles = part.tessellate(0.1, 0.1)
+    unsupported_triangles = []
+    for a, b, c in triangles:
+        p0, p1, p2 = vertices[a], vertices[b], vertices[c]
+        ux, uy, uz = p1.X - p0.X, p1.Y - p0.Y, p1.Z - p0.Z
+        vx, vy, vz = p2.X - p0.X, p2.Y - p0.Y, p2.Z - p0.Z
+        nx = uy * vz - uz * vy
+        ny = uz * vx - ux * vz
+        nz = ux * vy - uy * vx
+        magnitude = sqrt(nx * nx + ny * ny + nz * nz)
+        normal_z = nz / magnitude if magnitude else 0
+        if normal_z < -0.71 and min(p0.Z, p1.Z, p2.Z) > 1e-4:
+            unsupported_triangles.append((a, b, c))
+
+    assert unsupported_triangles == []
+
+
 def test_input_rod_edge_is_15mm_from_back_and_projections_are_10mm():
     args = scene().show_args()
     parts = dict(zip(args["names"], args["objects"]))
@@ -55,6 +90,7 @@ def test_gears_mesh_without_solid_overlap_and_running_parts_clear_box():
     for name in (
         "input-bevel",
         "output-bevel",
+        "input-spacer",
         "output-spacer",
         "input-bearings",
         "output-bearings",

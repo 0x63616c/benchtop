@@ -948,6 +948,7 @@ class Params:
     gb_gear_face: float = 4.0
     gb_gear_backlash: float = 0.08  # coefficient of module in py_gearworks
     gb_gear_hub_d: float = 10.0
+    gb_gear_hub_len: float = 4.0
 
 
     @property
