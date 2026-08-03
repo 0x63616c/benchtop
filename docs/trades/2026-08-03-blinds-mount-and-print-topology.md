@@ -62,33 +62,48 @@ joint. Print a flat wall adapter and a flat chassis adapter around it. This is
 the most creep-resistant option and easiest to validate mechanically, but adds
 a purchased part and loses the all-printed mounting goal.
 
+### Option E: Wall-mounted exoskeleton with sliding sleeve
+
+Move every load-bearing feature into a wall-mounted frame: the motor bulkhead,
+layshaft saddles, sprocket axle, battery carrier supports, PCB shelf, and wall
+anchors. The enclosure becomes a thin cosmetic sleeve with front, sides, top,
+and bottom but no back. It slides over the assembled frame from the room toward
+the wall and is retained by small lower tabs or two accessible M3 fasteners.
+
+The two top chain openings are front-edge slots that terminate in round or
+keyhole pockets at the final chain positions. The sleeve can therefore pass
+over an already-installed chain without feeding the beads through a closed
+hole. The sleeve is a one-wall shell with no infill; literal vase mode is only
+possible if the slicer accepts the open-back path, so the safe default is
+single-wall, zero-infill printing.
+
 ## 3. Comparison Table
 
-| Criteria | A: Receiver blocks | B: Rear service cover | C: Keyhole wall plate | D: Metal cleat |
-|---|---|---|---|---|
-| Support-free printing | Strong: all four prints have a deliberate flat orientation; the two sockets print on end. | Mixed: chassis and cover are flat, but an integral female socket needs support unless split again. | Strong: only flat plates and vertical keyholes. | Strong: both adapters are flat prints. |
-| Load path | Strong with two blocks, four M3 fasteners, and a chassis hardpoint/load spreader. | Strongest once a separate hook cassette is added; the cover can spread load across the rim. | Adequate for the expected unit mass, but screw heads see the full shear and the lower spacer must resist the moment. | Strongest and least sensitive to polymer creep. |
-| Fit in existing drive clearance | Strong: a 6 x 6 mm wedge fits in y=0..7 ahead of the ring at y=8.5. | Mixed: the cover consumes rear volume and still needs a shallow, separate receiver. | Strong: no rail needs to occupy the ring clearance. | Strong: hardware profile can be selected to fit the 8.5 mm corridor. |
-| Serviceability | Strong: back stays open and blocks can be removed independently. | Strong: cover becomes the intended rear service panel. | Moderate: removal requires lifting from the screw heads and managing a lock screw. | Moderate: depends on the clip chosen. |
-| Code and part-count change | Moderate: remove one feature, add a small module, four hardpoints, and two pads. | Highest: adds a cover, rim joint, fastener pattern, and likely a cassette. | Lowest: replace rail and hook with keyholes and pads. | Moderate: requires physical hardware selection and adapter dimensions. |
-| Risk at a warm window | Moderate: use PETG or ASA, and inspect the printed receiver periodically. | Moderate: same polymer risk, but a larger load-spreading cover helps. | Moderate: slots can creep at the load edge unless generously reinforced. | Low: the primary load path is metal. |
+| Criteria | A: Receiver blocks | B: Rear service cover | C: Keyhole wall plate | D: Metal cleat | E: Exoskeleton sleeve |
+|---|---|---|---|---|---|
+| Support-free printing | Strong: all four prints have a deliberate flat orientation; the two sockets print on end. | Mixed: chassis and cover are flat, but an integral female socket needs support unless split again. | Strong: only flat plates and vertical keyholes. | Strong: both adapters are flat prints. | Strong: frame pieces are flat prints; sleeve is single-wall and non-structural. |
+| Load path | Strong with two blocks, four M3 fasteners, and a chassis hardpoint/load spreader. | Strongest once a separate hook cassette is added; the cover can spread load across the rim. | Adequate for the expected unit mass, but screw heads see the full shear and the lower spacer must resist the moment. | Strongest and least sensitive to polymer creep. | Strongest all-printed path because the sleeve carries no load. |
+| Fit in existing drive clearance | Strong: a 6 x 6 mm wedge fits in y=0..7 ahead of the ring at y=8.5. | Mixed: the cover consumes rear volume and still needs a shallow, separate receiver. | Strong: no rail needs to occupy the ring clearance. | Strong: hardware profile can be selected to fit the 8.5 mm corridor. | Strong: chain clearance is solved in the sleeve's front-edge slots, not the wall joint. |
+| Serviceability | Strong: back stays open and blocks can be removed independently. | Strong: cover becomes the intended rear service panel. | Moderate: removal requires lifting from the screw heads and managing a lock screw. | Moderate: depends on the clip chosen. | Strong: remove the sleeve without disturbing the chain, then service the exposed frame. |
+| Code and part-count change | Moderate: remove one feature, add a small module, four hardpoints, and two pads. | Highest: adds a cover, rim joint, fastener pattern, and likely a cassette. | Lowest: replace rail and hook with keyholes and pads. | Moderate: requires physical hardware selection and adapter dimensions. | Highest: frame decomposition, sleeve, slide guides, and top chain slots all change. |
+| Risk at a warm window | Moderate: use PETG or ASA, and inspect the printed receiver periodically. | Moderate: same polymer risk, but a larger load-spreading cover helps. | Moderate: slots can creep at the load edge unless generously reinforced. | Low: the primary load path is metal. | Moderate: use PETG or ASA for the frame; the thin sleeve can remain PLA if kept cosmetic. |
 
 ## 4. Recommendation
 
-- **Rationale:** Start with Option A. It preserves the quick hang/remove
-  behaviour of a French cleat, keeps the chassis and wall plate support-free,
-  and confines the difficult female geometry to two small parts that have an
-  unambiguous print orientation. A true 6 x 6 mm 45-degree wedge fits the
-  existing clearance without moving the gear train. Model the blocks as
-  mechanical parts, not decorative add-ons: two M3 fasteners per block,
-  reinforced chassis hardpoints, and separate lower anti-rattle pads are
-  required.
-- **What we're giving up:** The mount gains two printed parts and four M3
-  fasteners. It is less elegant than an integral hook and less creep-resistant
-  than a metal cleat. PETG or ASA becomes the required material for these
-  parts.
-- **When to revisit:** Choose Option B if a removable rear service cover is
-  wanted for assembly or wiring. Choose Option C if fast removal is not useful
-  and the least-complex print is more valuable than a cleat. Choose Option D
-  if the unit proves heavier than expected, is installed in sustained sun, or
-  a long-term no-creep load path matters more than an all-printed solution.
+- **Rationale:** Option E is now the preferred architecture if the goal is a
+  genuinely easy print and easy service. The exoskeleton owns the motor,
+  gears, axle, batteries, and wall loads; the sleeve only hides them. Its
+  front-edge top slots solve the chain-installation problem without asking the
+  user to thread beads through a closed cover. Option A remains the smaller,
+  lower-risk first implementation if the full frame decomposition is too much
+  change at once.
+- **What we're giving up:** Option E creates more frame pieces and needs a
+  deliberate slide-guide and retention design. The thin sleeve is cosmetic,
+  not a structural enclosure, and the exoskeleton remains visible whenever
+  the sleeve is removed. PETG or ASA is still required for the load-bearing
+  frame.
+- **When to revisit:** Choose Option A if the frame decomposition makes the
+  first prototype too large. Choose Option B if a rear service panel matters
+  more than a cosmetic sleeve. Choose Option C if the least-complex print is
+  more valuable than a cleat. Choose Option D if sustained sun or long-term
+  no-creep loading makes printed anchors unacceptable.
