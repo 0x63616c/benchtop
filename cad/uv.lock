@@ -870,6 +870,16 @@ wheels = [
 ]
 
 [[package]]
+name = "py-gearworks"
+version = "0.0.18"
+source = { git = "https://github.com/GarryBGoode/py_gearworks?rev=v0.0.18#2fc2a13d82a9997a65f30c870498f0bb3be62318" }
+dependencies = [
+    { name = "build123d" },
+    { name = "numpy" },
+    { name = "scipy" },
+]
+
+[[package]]
 name = "py-lib3mf"
 version = "2.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1099,6 +1109,7 @@ source = { editable = "." }
 dependencies = [
     { name = "build123d" },
     { name = "ocp-vscode" },
+    { name = "py-gearworks" },
 ]
 
 [package.dev-dependencies]
@@ -1111,6 +1122,7 @@ dev = [
 requires-dist = [
     { name = "build123d", specifier = "==0.11.1" },
     { name = "ocp-vscode", specifier = ">=2.8.0" },
+    { name = "py-gearworks", git = "https://github.com/GarryBGoode/py_gearworks?rev=v0.0.18" },
 ]
 
 [package.metadata.requires-dev]

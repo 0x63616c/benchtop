@@ -5,6 +5,9 @@ description = "Code-first CAD for the modular split-flap (build123d)."
 requires-python = ">=3.12,<3.13"   # cadquery-ocp wheels lag newest Python; pin 3.12
 dependencies = [
     "build123d==0.11.1",  # pre-1.0 API churn — pin exact, bump deliberately
+    # Proper involute bevel pairs; Git tag because py_gearworks is not
+    # published on PyPI yet. Pin it just as tightly as build123d.
+    "py-gearworks @ git+https://github.com/GarryBGoode/py_gearworks@v0.0.18",
     "ocp-vscode>=2.8.0",  # browser/VS Code live viewer (port 3939)
 ]
 
