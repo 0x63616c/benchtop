@@ -3,7 +3,7 @@ geometry (builders are lazy; nothing here should touch build123d)."""
 
 from pathlib import Path
 
-from splitflap_cad.catalog import MODELS, PRINTABLE, RENDERS, SRC_TO_MODEL
+from splitflap_cad.catalog import MODELS, PRINTABLE, PROJECTS, RENDERS, SRC_TO_MODEL
 
 CAD = Path(__file__).parent.parent
 SRC = CAD / "splitflap_cad"
@@ -19,6 +19,15 @@ def _module_path(src: str) -> Path:
 def test_every_model_documented():
     for name, m in MODELS.items():
         assert m.help.strip(), f"{name} needs a help line"
+
+
+def test_every_catalog_entry_belongs_to_a_project():
+    entries = {**MODELS, **PRINTABLE, **RENDERS}
+    for name, entry in entries.items():
+        assert entry.project in PROJECTS, f"{name}: unknown project {entry.project!r}"
+
+    used = {entry.project for entry in entries.values()}
+    assert used == set(PROJECTS), "remove empty projects or add their first catalog entry"
 
 
 def test_every_src_is_a_real_module():

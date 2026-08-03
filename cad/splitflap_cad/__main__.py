@@ -17,7 +17,7 @@ import sys
 import time
 from pathlib import Path
 
-from .catalog import MODELS, PRINTABLE, RENDERS, SRC_TO_MODEL
+from .catalog import MODELS, PRINTABLE, PROJECTS, RENDERS, SRC_TO_MODEL
 
 FOCUS_PORT = 3940
 EXPORT_DIR = Path(__file__).parent.parent / "export"
@@ -46,22 +46,41 @@ def cmd_list(args):
         print(
             json.dumps(
                 {
+                    "projects": PROJECTS,
                     "models": {name: m.help for name, m in MODELS.items()},
+                    "model_projects": {name: m.project for name, m in MODELS.items()},
                     "printable": list(PRINTABLE),
+                    "printable_projects": {
+                        name: part.project for name, part in PRINTABLE.items()
+                    },
+                    "render_projects": {
+                        name: render.project for name, render in RENDERS.items()
+                    },
                     "src_to_model": SRC_TO_MODEL,
                 }
             )
         )
         return
-    print("models (just cad view NAME):")
-    for name, m in MODELS.items():
-        print(f"  {name:<12} {m.help}")
-    print("printable (just cad export NAME):")
-    for name in PRINTABLE:
-        print(f"  {name}")
-    print("renders (python -m splitflap_cad render NAME):")
-    for name in RENDERS:
-        print(f"  {name}")
+    print("projects:")
+    for project, help_text in PROJECTS.items():
+        models = [(name, m) for name, m in MODELS.items() if m.project == project]
+        printable = [name for name, part in PRINTABLE.items() if part.project == project]
+        renders = [name for name, render in RENDERS.items() if render.project == project]
+        if not (models or printable or renders):
+            continue
+        print(f"  {project} — {help_text}")
+        if models:
+            print("    models (just cad view NAME):")
+            for name, model in models:
+                print(f"      {name:<20} {model.help}")
+        if printable:
+            print("    printable (just cad export NAME):")
+            for name in printable:
+                print(f"      {name}")
+        if renders:
+            print("    drawings (just cad render NAME):")
+            for name in renders:
+                print(f"      {name}")
 
 
 def cmd_show(args):
