@@ -242,6 +242,36 @@ def _gearbox_mesh_jig():
     return mesh_jig()
 
 
+def _gearbox_motor_housing():
+    from splitflap_cad.motorbevel import housing
+
+    return housing()
+
+
+def _gearbox_motor_lid():
+    from splitflap_cad.motorbevel import lid
+
+    return lid()
+
+
+def _gearbox_motor_input_spacer():
+    from splitflap_cad.motorbevel import input_spacer
+
+    return input_spacer()
+
+
+def _gearbox_motor_output_spacer():
+    from splitflap_cad.motorbevel import output_spacer
+
+    return output_spacer()
+
+
+def _gearbox_motor_bearing_cartridge():
+    from splitflap_cad.motorbevel import bearing_cartridge
+
+    return bearing_cartridge()
+
+
 # name -> builder. All in their own local frames.
 BREP_PARTS = {
     "flap": _flap,
@@ -281,6 +311,11 @@ BREP_PARTS = {
     "gear-box-output-spacer": _gearbox_output_spacer,
     "gear-box-test-bushings": _gearbox_test_bushings,
     "gear-box-mesh-jig": _gearbox_mesh_jig,
+    "gear-box-motor-housing": _gearbox_motor_housing,
+    "gear-box-motor-lid": _gearbox_motor_lid,
+    "gear-box-motor-input-spacer": _gearbox_motor_input_spacer,
+    "gear-box-motor-output-spacer": _gearbox_motor_output_spacer,
+    "gear-box-motor-bearing-cartridge": _gearbox_motor_bearing_cartridge,
 }
 
 FINGERPRINT_ONLY = {}

@@ -190,6 +190,11 @@ MODELS = {
         "gearbox",
         "jig_scene",
     ),
+    "gear-box-motor": Model(
+        "gear-box",
+        "SIDE QUEST circular JGB37 right-angle bevel attachment",
+        "motorbevel",
+    ),
     # --- blinds project (blinds_cad package, wayfinder #12) ---
     "blinds-unit": Model(
         "blinds",
@@ -288,6 +293,17 @@ PRINTABLE = {
     "gear-box-output-spacer": Printable("gear-box", "gearbox", "output_spacer"),
     "gear-box-test-bushings": Printable("gear-box", "gearbox", "test_bushings"),
     "gear-box-mesh-jig": Printable("gear-box", "gearbox", "mesh_jig"),
+    "gear-box-motor-housing": Printable("gear-box", "motorbevel", "housing"),
+    "gear-box-motor-lid": Printable("gear-box", "motorbevel", "lid"),
+    "gear-box-motor-input-spacer": Printable(
+        "gear-box", "motorbevel", "input_spacer"
+    ),
+    "gear-box-motor-output-spacer": Printable(
+        "gear-box", "motorbevel", "output_spacer"
+    ),
+    "gear-box-motor-bearing-cartridge": Printable(
+        "gear-box", "motorbevel", "bearing_cartridge"
+    ),
     "blinds-sprocket": Printable("blinds", "blinds_cad.sprocket", "sprocket"),
     "blinds-frame": Printable("blinds", "blinds_cad.enclosure", "frame"),
     "blinds-axle-keeper": Printable(

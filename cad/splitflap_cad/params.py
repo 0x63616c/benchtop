@@ -961,6 +961,43 @@ class Params:
     gb_jig_post_w: float = 18.0
     gb_jig_output_bore_d: float = 5.6
 
+    # --- circular JGB37 right-angle attachment ---
+    # Measured motor face, intentionally separate from the blinds model
+    # until the 31-vs-32mm bolt-circle discrepancy is re-measured.
+    gba_motor_d: float = 37.0
+    gba_motor_gear_len: float = 24.0
+    gba_motor_can_d: float = 33.0
+    gba_motor_can_len: float = 26.2
+    gba_motor_encoder_len: float = 12.0
+    gba_motor_ecc: float = 7.0
+    gba_motor_boss_d: float = 12.0
+    gba_motor_boss_h: float = 6.0
+    gba_motor_shaft_d: float = 6.0
+    gba_motor_shaft_flat: float = 5.4
+    gba_motor_shaft_len: float = 15.0
+    gba_motor_screw_bcd: float = 32.0
+    gba_motor_screw_n: int = 6
+    gba_motor_screw_d: float = 3.0
+    gba_motor_screw_depth: float = 5.0
+
+    gba_outer_d: float = 37.0
+    gba_wall: float = 2.0
+    gba_base_t: float = 3.0
+    gba_body_h: float = 42.0
+    gba_lid_t: float = 3.0
+    gba_lid_plug: float = 1.2
+    gba_lid_clear: float = 0.25
+    gba_mount_clear_d: float = 3.4
+    gba_screw_head_d: float = 6.2
+    gba_screw_access_h: float = 9.0
+    gba_boss_clear_d: float = 12.4
+    gba_bearing_cartridge_d: float = 20.0
+    gba_bearing_flange_d: float = 23.0
+    gba_bearing_flange_t: float = 2.0
+    gba_cartridge_clear: float = 0.25
+    gba_lid_capture_gap: float = 0.3
+    gba_pair_z0: float = 15.0
+
     @property
     def unit_back_rise(self) -> float:
         """Back wall height above the plate top. Derived, not raw."""
@@ -1030,6 +1067,43 @@ class Params:
     @property
     def gb_input_bore_flat(self) -> float:
         return self.gb_motor_shaft_flat + self.gb_motor_shaft_clear
+
+    @property
+    def gba_outer_r(self) -> float:
+        return self.gba_outer_d / 2
+
+    @property
+    def gba_inner_r(self) -> float:
+        return self.gba_outer_r - self.gba_wall
+
+    @property
+    def gba_lid_plug_r(self) -> float:
+        return self.gba_inner_r - self.gba_lid_clear
+
+    @property
+    def gba_input_y(self) -> float:
+        """Eccentric motor shaft, with output directed inward along +Y."""
+        return -self.gba_motor_ecc
+
+    @property
+    def gba_axis_z(self) -> float:
+        return self.gba_pair_z0 + self.gb_output_pitch_r
+
+    @property
+    def gba_output_bearing_y1(self) -> float:
+        return self.gba_outer_r - self.gb_bearing_shoulder
+
+    @property
+    def gba_output_bearing_y0(self) -> float:
+        return self.gba_output_bearing_y1 - self.gb_bearing_stack
+
+    @property
+    def gba_motor_body_len(self) -> float:
+        return (
+            self.gba_motor_gear_len
+            + self.gba_motor_can_len
+            + self.gba_motor_encoder_len
+        )
 
     @property
     def gb_output_bearing_y1(self) -> float:
