@@ -1,7 +1,9 @@
 """Fit contract for the circular JGB37 bevel attachment."""
 
 import pytest
+from build123d import Pos
 
+from splitflap_cad.gearbox import _cylinder
 from splitflap_cad.motorbevel import bearing_cartridge, housing, motor_reference, scene
 from splitflap_cad.params import P
 
@@ -36,6 +38,18 @@ def test_main_body_is_37mm_and_cartridge_is_the_only_output_nose():
     assert bb.max.Y == pytest.approx(P.gba_outer_r)
     assert cartridge_bb.max.Y == pytest.approx(P.gba_outer_r + 1)
     assert P.gba_motor_screw_bcd / 2 + P.gba_mount_clear_d / 2 < P.gba_outer_r
+
+
+def test_m3_head_windows_run_from_the_base_deck_to_the_open_top():
+    body = housing()
+    radial_probe = P.gba_motor_screw_bcd / 2 + 2
+    lower_wall = Pos(radial_probe, 0, 0) * _cylinder(0.1, P.gba_base_t)
+    upper_window = Pos(radial_probe, 0, P.gba_base_t) * _cylinder(
+        0.1, P.gba_body_h - P.gba_base_t
+    )
+
+    assert (body & lower_wall).volume > 0
+    assert (body & upper_window).volume < 1e-6
 
 
 def test_motor_shaft_tip_and_input_gear_hub_finish_flush():

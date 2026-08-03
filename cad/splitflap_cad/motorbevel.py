@@ -77,8 +77,9 @@ def housing():
         P.gba_boss_clear_d / 2, P.gba_base_t + 1
     )
 
-    # Six top-installed M3 screws. The access pockets intentionally open
-    # through the Ø37 rim because a 6.2mm head cannot fit inside a 32mm BCD.
+    # Six top-installed M3 screws. Full-height channels intentionally open
+    # through the Ø37 rim, keeping every screw visible and reachable from
+    # the open top despite the tight 32mm bolt circle.
     for index in range(P.gba_motor_screw_n):
         hole = _polar(
             P.gba_motor_screw_bcd / 2,
@@ -89,7 +90,7 @@ def housing():
         )
         body -= hole * Pos(0, 0, P.gba_base_t) * _cylinder(
             P.gba_screw_head_d / 2,
-            P.gba_screw_access_h - P.gba_base_t,
+            P.gba_body_h - P.gba_base_t + 0.5,
         )
 
     # A top-open keyed saddle receives the separately printed bearing

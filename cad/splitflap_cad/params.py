@@ -989,7 +989,6 @@ class Params:
     gba_lid_clear: float = 0.25
     gba_mount_clear_d: float = 3.4
     gba_screw_head_d: float = 6.2
-    gba_screw_access_h: float = 9.0
     gba_boss_clear_d: float = 12.4
     gba_bearing_cartridge_d: float = 20.0
     gba_bearing_flange_d: float = 23.0
