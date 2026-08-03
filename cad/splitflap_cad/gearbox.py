@@ -8,16 +8,17 @@ that axis 90 degrees with a 3:2 reduction: three input turns produce two
 output turns. Both rods project 10mm beyond the box.
 
 Four 625ZZ bearings (5 x 16 x 5mm) run as two-bearing stacks in pockets
-that load from inside before the gears go on. The two gears have 5.2mm
-bores and self-supporting diamond guides for 2mm cross pins; drill each
-rod after clocking the mesh and retain it with a 2mm pin. Both gears
-print heel-down with their hubs on the narrowing apex side, so neither
-hub creates an umbrella overhang. The shallow 16T heel has a 55-degree
-bed-facing relief so its tooth ends are also self-supporting. The top
-lid is a separate press-fit print, and printed spacers carry each gear's
-axial load to its inner bearing.
+that load from inside before the gears go on. A test-print variant swaps
+them for four printable 16 x 5mm bushings with 5.4mm running bores. The
+two gears have 5.2mm bores and round 2.2mm guides for 2mm cross pins;
+drill each rod after clocking the mesh and retain it with a 2mm pin.
+Both gears print heel-down with their hubs on the narrowing apex side,
+so neither hub creates an umbrella overhang. The shallow 16T heel has a
+55-degree bed-facing relief so its tooth ends are also self-supporting.
+The top lid is a separate press-fit print, and printed spacers carry
+each gear's axial load to its inner bearing.
 
-View: `just cad view gear-box`.
+Views: `just cad view gear-box` and `just cad view gear-box-test`.
 """
 
 from functools import lru_cache
@@ -95,7 +96,7 @@ def _pair_parts():
 
     hub_r = P.gb_gear_hub_d / 2
     bore_r = P.gb_gear_bore_d / 2
-    pin_guide = 2.2  # diamond side; clears a Ø2 cross pin
+    pin_r = P.gb_pin_guide_d / 2
 
     # Put each hub on the narrowing pitch-apex side. In the printable
     # orientations below that means the wide heel face sits on the bed
@@ -107,9 +108,9 @@ def _pair_parts():
     input_part = _self_supporting_heel(input_part)
     input_part -= Pos(0, 0, -2) * _cylinder(bore_r, 10)
     input_part -= (
-        Pos(0, 0, input_hub_z0 + P.gb_gear_hub_len / 2)
-        * Rot(45, 0, 0)
-        * Box(12, pin_guide, pin_guide)
+        Pos(-6, 0, input_hub_z0 + P.gb_gear_hub_len / 2)
+        * Rot(0, 90, 0)
+        * _cylinder(pin_r, 12)
     )
 
     # Output gear is already meshed: its axis is +X through
@@ -125,9 +126,9 @@ def _pair_parts():
         Pos(ri + 2, 0, ro) * Rot(0, -90, 0) * _cylinder(bore_r, 10)
     )
     output_part -= (
-        Pos(output_hub_x0 - P.gb_gear_hub_len / 2, 0, ro)
-        * Rot(0, 45, 0)
-        * Box(pin_guide, 12, pin_guide)
+        Pos(output_hub_x0 - P.gb_gear_hub_len / 2, 6, ro)
+        * Rot(90, 0, 0)
+        * _cylinder(pin_r, 12)
     )
     return input_part, output_part
 
@@ -227,26 +228,43 @@ def bearing_625zz():
     )
 
 
-def _input_bearings():
-    b = bearing_625zz()
+def test_bushing():
+    """Printed 625ZZ substitute for low-load test assembly."""
+    return _cylinder(P.gb_bearing_d / 2, P.gb_bearing_w) - Pos(0, 0, -0.5) * _cylinder(
+        P.gb_test_bushing_bore_d / 2, P.gb_bearing_w + 1
+    )
+
+
+def test_bushings():
+    """Four printed test bushings arranged as one STL build plate."""
+    bushing = test_bushing()
+    pitch = P.gb_bearing_d + 2
     return (
-        Pos(P.gb_center_x, P.gb_input_y, P.gb_input_bearing_z0) * b
+        Pos(-pitch / 2, -pitch / 2, 0) * bushing
+        + Pos(pitch / 2, -pitch / 2, 0) * bushing
+        + Pos(-pitch / 2, pitch / 2, 0) * bushing
+        + Pos(pitch / 2, pitch / 2, 0) * bushing
+    )
+
+
+def _input_supports(support):
+    return (
+        Pos(P.gb_center_x, P.gb_input_y, P.gb_input_bearing_z0) * support
         + Pos(
             P.gb_center_x,
             P.gb_input_y,
             P.gb_input_bearing_z0 + P.gb_bearing_w,
         )
-        * b
+        * support
     )
 
 
-def _output_bearings():
-    b = bearing_625zz()
+def _output_supports(support):
     outer = Pos(P.gb_center_x, P.gb_output_bearing_y1, P.gb_axis_z) * Rot(90, 0, 0)
     inner = Pos(
         P.gb_center_x, P.gb_output_bearing_y1 - P.gb_bearing_w, P.gb_axis_z
     ) * Rot(90, 0, 0)
-    return outer * b + inner * b
+    return outer * support + inner * support
 
 
 def _input_rod():
@@ -278,7 +296,7 @@ def _posed_output_spacer():
     )
 
 
-def scene() -> Scene:
+def _scene(test_print: bool) -> Scene:
     input_part, output_part = _pair_parts()
     s = Scene()
     s.add(housing(), "housing", color="lightblue", alpha=0.28)
@@ -297,8 +315,22 @@ def scene() -> Scene:
     )
     s.add(_posed_input_spacer(), "input-spacer", color="darkorange")
     s.add(_posed_output_spacer(), "output-spacer", color="goldenrod")
-    s.add(_input_bearings(), "input-bearings", color="silver")
-    s.add(_output_bearings(), "output-bearings", color="silver")
+    if test_print:
+        s.add(_input_supports(test_bushing()), "input-bushings", color="coral")
+        s.add(_output_supports(test_bushing()), "output-bushings", color="coral")
+    else:
+        s.add(_input_supports(bearing_625zz()), "input-bearings", color="silver")
+        s.add(_output_supports(bearing_625zz()), "output-bearings", color="silver")
     s.add(_input_rod(), "input-rod", color="dimgray")
     s.add(_output_rod(), "output-rod", color="dimgray")
     return s
+
+
+def scene() -> Scene:
+    """Production assembly with four 625ZZ bearings."""
+    return _scene(test_print=False)
+
+
+def test_scene() -> Scene:
+    """Test-print assembly with four printed bushings instead of bearings."""
+    return _scene(test_print=True)

@@ -61,6 +61,7 @@ def test_printable_builders_exist():
         "gear-box-output-gear",
         "gear-box-input-spacer",
         "gear-box-output-spacer",
+        "gear-box-test-bushings",
         "blinds-sprocket",
         "blinds-frame",
         "blinds-axle-keeper",

@@ -5,7 +5,16 @@ from math import sqrt
 import pytest
 
 from splitflap_cad import frames as F
-from splitflap_cad.gearbox import housing, input_gear, lid, output_gear, scene
+from splitflap_cad.gearbox import (
+    housing,
+    input_gear,
+    lid,
+    output_gear,
+    scene,
+    test_bushing as gearbox_test_bushing,
+    test_bushings as gearbox_test_bushings,
+    test_scene as gearbox_test_scene,
+)
 from splitflap_cad.params import P
 
 
@@ -53,7 +62,7 @@ def test_printable_gears_have_support_free_heel_down_geometry(gear):
     assert max(face.bounding_box().size.X for face in bed_faces) > P.gb_gear_hub_d
 
     vertices, triangles = part.tessellate(0.1, 0.1)
-    unsupported_triangles = []
+    unsupported_vertices = []
     for a, b, c in triangles:
         p0, p1, p2 = vertices[a], vertices[b], vertices[c]
         ux, uy, uz = p1.X - p0.X, p1.Y - p0.Y, p1.Z - p0.Z
@@ -64,9 +73,36 @@ def test_printable_gears_have_support_free_heel_down_geometry(gear):
         magnitude = sqrt(nx * nx + ny * ny + nz * nz)
         normal_z = nz / magnitude if magnitude else 0
         if normal_z < -0.71 and min(p0.Z, p1.Z, p2.Z) > 1e-4:
-            unsupported_triangles.append((a, b, c))
+            unsupported_vertices.extend((p0, p1, p2))
 
-    assert unsupported_triangles == []
+    # The bevel and hub exterior need no support. The only exception is
+    # the deliberately round Ø2.2 pin guide: a tiny bridge within the hub.
+    assert unsupported_vertices
+    assert max(sqrt(p.X * p.X + p.Y * p.Y) for p in unsupported_vertices) <= (
+        P.gb_gear_hub_d / 2 + 1e-5
+    )
+    assert any(
+        getattr(face, "radius", None) == pytest.approx(P.gb_pin_guide_d / 2)
+        for face in part.faces()
+    )
+
+
+def test_test_print_variant_replaces_bearings_with_four_printed_bushings():
+    args = gearbox_test_scene().show_args()
+    parts = dict(zip(args["names"], args["objects"]))
+    bushing_plate = gearbox_test_bushings()
+
+    assert "input-bearings" not in parts
+    assert "output-bearings" not in parts
+    assert "input-bushings" in parts
+    assert "output-bushings" in parts
+    assert len(bushing_plate.solids()) == 4
+    assert bushing_plate.volume == pytest.approx(4 * gearbox_test_bushing().volume)
+    assert tuple(bushing_plate.bounding_box().size) == pytest.approx((34, 34, 5))
+    for name in ("input-bushings", "output-bushings"):
+        assert (parts["housing"] & parts[name]).volume < 1e-6
+        assert (parts["input-rod"] & parts[name]).volume < 1e-6
+        assert (parts["output-rod"] & parts[name]).volume < 1e-6
 
 
 def test_input_rod_edge_is_15mm_from_back_and_projections_are_10mm():

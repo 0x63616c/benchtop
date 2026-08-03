@@ -230,6 +230,12 @@ def _gearbox_output_spacer():
     return output_spacer()
 
 
+def _gearbox_test_bushings():
+    from splitflap_cad.gearbox import test_bushings
+
+    return test_bushings()
+
+
 # name -> builder. All in their own local frames.
 BREP_PARTS = {
     "flap": _flap,
@@ -267,6 +273,7 @@ BREP_PARTS = {
     "gear-box-output-gear": _gearbox_output_gear,
     "gear-box-input-spacer": _gearbox_input_spacer,
     "gear-box-output-spacer": _gearbox_output_spacer,
+    "gear-box-test-bushings": _gearbox_test_bushings,
 }
 
 FINGERPRINT_ONLY = {}

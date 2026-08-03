@@ -136,6 +136,11 @@ MODELS = {
         "SIDE QUEST 45x36mm 3:2 right-angle gearbox: gears, rods, 625ZZs + box",
         "gearbox",
     ),
+    "gear-box-test": Model(
+        "SIDE QUEST gearbox test print: printed bushings replace all four bearings",
+        "gearbox",
+        "test_scene",
+    ),
     # --- blinds project (blinds_cad package, wayfinder #12) ---
     "blinds-unit": Model(
         "BLINDS full unit: wall frame + mechanism + slide-on sleeve + split cap",
@@ -215,6 +220,7 @@ PRINTABLE = {
     "gear-box-output-gear": Printable("gearbox", "output_gear"),
     "gear-box-input-spacer": Printable("gearbox", "input_spacer"),
     "gear-box-output-spacer": Printable("gearbox", "output_spacer"),
+    "gear-box-test-bushings": Printable("gearbox", "test_bushings"),
     "blinds-sprocket": Printable("blinds_cad.sprocket", "sprocket"),
     "blinds-frame": Printable("blinds_cad.enclosure", "frame"),
     "blinds-axle-keeper": Printable("blinds_cad.enclosure", "axle_keeper"),
