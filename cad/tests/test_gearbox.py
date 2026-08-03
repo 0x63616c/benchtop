@@ -12,7 +12,7 @@ def _bbox_tuple(part):
     return (bb.min.X, bb.min.Y, bb.min.Z, bb.max.X, bb.max.Y, bb.max.Z)
 
 
-def test_closed_box_fits_45mm_footprint_and_height_envelope():
+def test_closed_box_uses_compact_45_by_36mm_footprint():
     assert _bbox_tuple(housing()) == pytest.approx(
         (0, 0, 0, P.gb_outer_w, P.gb_outer_d, P.gb_housing_h)
     )
@@ -21,8 +21,17 @@ def test_closed_box_fits_45mm_footprint_and_height_envelope():
         (0, 0, P.gb_housing_h - P.gb_lid_plug, P.gb_outer_w, P.gb_outer_d, P.gb_outer_h)
     )
     assert P.gb_outer_w == 45
-    assert P.gb_outer_d == 45
+    assert P.gb_outer_d == 36
     assert P.gb_outer_h <= 45
+
+
+def test_output_stack_retains_running_clearance_at_compact_depth():
+    args = scene().show_args()
+    parts = dict(zip(args["names"], args["objects"]))
+    gear_front = parts["output-bevel"].bounding_box().max.Y
+    bearing_back = parts["output-bearings"].bounding_box().min.Y
+
+    assert bearing_back - gear_front >= P.gb_running_gap
 
 
 def test_input_rod_edge_is_15mm_from_back_and_projections_are_10mm():

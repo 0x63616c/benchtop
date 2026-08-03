@@ -913,10 +913,10 @@ class Params:
     # +Y front, +Z up. The bottom input shaft is vertical; its circle's
     # front-most point is exactly gb_shaft_far_from_back from y=0. The
     # output shaft shares its axis intersection and exits the y=depth
-    # front face. The 45 x 45 requirement is the top-down footprint;
-    # height stays below that envelope.
+    # front face. Width stays at the original 45mm envelope; depth is
+    # compacted around the output gear and two-bearing stack.
     gb_outer_w: float = 45.0
-    gb_outer_d: float = 45.0
+    gb_outer_d: float = 36.0
     gb_outer_h: float = 43.0
     gb_wall: float = 2.4
     gb_lid_t: float = 3.0

@@ -1,6 +1,6 @@
 """Compact 3:2 right-angle bevel gearbox, complete with housing.
 
-The closed box is 45 x 45 x 43mm. Box coordinates start at the outer
+The closed box is 45 x 36 x 43mm. Box coordinates start at the outer
 back-left-bottom corner: +X right, +Y front, +Z up. A 5mm steel input
 rod rises through the bottom at y=12.5, so its front-most edge is the
 requested 15mm from the back. A 16T input and 24T output bevel pair turn
