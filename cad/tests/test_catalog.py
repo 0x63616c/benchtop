@@ -61,8 +61,11 @@ def test_printable_builders_exist():
         "gear-box-output-gear",
         "gear-box-output-spacer",
         "blinds-sprocket",
-        "blinds-shell",
-        "blinds-plate",
+        "blinds-frame",
+        "blinds-axle-keeper",
+        "blinds-sleeve",
+        "blinds-cap-rear",
+        "blinds-cap-front",
         "blinds-pinion",
         "blinds-layshaft",
     }

@@ -1,5 +1,5 @@
-"""Blinds unit fit guard: every posed part stays inside the shell's
-cavity envelope and nothing interferes (fit-model rule — the assembly
+"""Blinds unit fit guard: every bought part fits the wall frame and
+removable cover without interference (fit-model rule — the assembly
 must PROVE the bought parts fit before anything prints).
 
 Marked slow: full boolean intersections. The fast fingerprint tier
@@ -27,16 +27,19 @@ def posed():
     from blinds_cad import frames as F
     from blinds_cad.blindsunit import button, pcb_ghost, usbc
     from blinds_cad.cells21700 import carrier, cell_stack, holder_stack
-    from blinds_cad.enclosure import shell
+    from blinds_cad.cover import cap_front, cap_rear, sleeve
+    from blinds_cad.enclosure import axle_keeper, frame
     from blinds_cad.gears import layshaft, pinion
     from blinds_cad.jgb37 import jgb37
     from blinds_cad.params import P
     from blinds_cad.sprocket import chain_ghost, sprocket
-    from blinds_cad.wallplate import wallplate
 
     return {
-        "shell": shell(),
-        "plate": F.PLATE_IN_UNIT * wallplate(),
+        "frame": frame(),
+        "axle-keeper": axle_keeper(),
+        "sleeve": sleeve(),
+        "cap-rear": cap_rear(),
+        "cap-front": cap_front(),
         "motor": F.MOTOR_IN_UNIT * jgb37(),
         "pinion": F.PINION_IN_UNIT * pinion(),
         "layshaft": F.LAYSHAFT_IN_UNIT * layshaft(),
@@ -63,12 +66,15 @@ def test_no_interference(posed):
 
 
 def test_envelope(posed):
-    """Owner constraints: <=100 wide, 44 deep; internals inside the shell."""
+    """Owner constraints: <=100 wide, 44 deep; internals inside cover."""
     from blinds_cad.params import P
 
-    bb = posed["shell"].bounding_box()
+    bb = posed["sleeve"].bounding_box()
     assert bb.max.X - bb.min.X <= 100.0
     assert abs((bb.max.Y - bb.min.Y) - P.enc_d) < 1e-6
+    assert posed["frame"].bounding_box().max.Y < P.enc_d
+    assert posed["cap-rear"].bounding_box().max.Z == pytest.approx(P.enc_h)
+    assert posed["cap-front"].bounding_box().max.Z == pytest.approx(P.enc_h)
     for name in (
         "motor", "pinion", "layshaft", "sprocket",
         "cells", "holders", "carrier", "pcb",

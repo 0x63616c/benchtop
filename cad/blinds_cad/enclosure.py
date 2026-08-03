@@ -1,180 +1,351 @@
-"""Enclosure shell — the flush wall unit body, v2 center-drop. Printable.
+"""Wall-mounted structural exoskeleton for the blinds unit.
 
-Built in UNIT frame (see frames.py): back-left-bottom corner at the
-origin. One print: outer skin + motor bulkhead rib + layshaft saddles
-+ tail collar + sprocket wrap-guide block + french-cleat hook bar +
-PCB floor bosses + carrier bosses. Back is open (rimmed) — it faces
-the wall plate.
+Built in the UNIT frame.  This one print owns the wall anchors, motor
+bulkhead, layshaft saddles, motor-tail cradle, enclosed sprocket guide,
+PCB tray, battery-carrier bosses, and cosmetic-sleeve retainers.  It
+prints wall-face down: X/Z are the 98 x 242 bed footprint and Y is only
+the 44 mm print height.
 
-Cutouts: 2 chain slots (top, centered at x=49±11.5), 2 button holes +
-USB-C slot (front wall, bottom), M5 axle bore (front wall -> cleat bar).
+The thin cosmetic sleeve and two-piece top live in cover.py. No
+load-bearing feature is fused into either cosmetic part.
 
-The layshaft U-saddles open toward the BACK: the layshaft drops in
-through the opening, the gear mesh + a printed clip retain it.
-
-View it: `just cad view blinds-shell`.
+View it: `just cad view blinds-frame`.
 """
 
 import math
 
-from build123d import Box, Cylinder, Polygon, Pos, Rot, Torus, extrude, fillet
+from build123d import (
+    Circle,
+    Cone,
+    Cylinder,
+    Polygon,
+    Pos,
+    RegularPolygon,
+    Rot,
+    Torus,
+    extrude,
+)
+from splitflap_cad.geo import box_between
 
 from .params import P
 
 
-def _box(x0, y0, z0, x1, y1, z1):
-    """Axis-aligned box by min/max corners — layout reads as coordinates."""
-    return Pos((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2) * Box(
-        x1 - x0, y1 - y0, z1 - z0
-    )
-
-
-def shell():
-    w, d, h, t = P.enc_w, P.enc_d, P.enc_h, P.enc_wall
-
-    body = _box(0, 0, 0, w, d, h)
-    body = fillet(
-        body.edges().filter_by(lambda e: abs(e.length - h) < 1e-6), P.enc_fillet
-    )
-    body -= _box(t, t, t, w - t, d - t, h - t)  # cavity
-    # open back: rimmed opening onto the wall plate
-    body -= _box(10, -1, 10, w - 10, t + 0.1, h - 10)
-
+def frame():
+    """Complete load-bearing wall frame, ready for the slide-on cover."""
+    body = _backbone()
+    body += _pcb_tray()
     body += _bulkhead()
     body += _right_saddle()
-    body += _tail_collar()
+    body += _tail_cradle()
     body += _wrap_guide()
-    body += _cleat_hook()
     body += _floor_bosses()
     body += _carrier_bosses()
+    body += _sleeve_guides()
+    body += _sleeve_retainers()
 
-    # chain slots through the top face, over the two strands
-    for x in P.strand_x:
-        body -= _box(
-            x - P.chain_slot / 2, P.spr_wy - P.chain_slot / 2, h - t - 1,
-            x + P.chain_slot / 2, P.spr_wy + P.chain_slot / 2, h + 1,
+    body -= _keeper_pockets()
+    body -= _keeper_tap_cuts()
+    body -= _axle_hardware_cuts()
+
+    # Four direct-to-wall #8 anchor holes through the rear rails.
+    for x, z in P.frame_wall_holes:
+        body -= Pos(x, P.frame_t / 2, z) * (
+            Rot(90, 0, 0) * Cylinder(P.wall_screw_d / 2, P.frame_t + 2)
         )
-    # two buttons + USB-C, front wall bottom
-    for x in (P.btn_x1, P.btn_x2):
-        body -= Pos(x, d - t / 2, P.btn_z) * (
-            Rot(90, 0, 0) * Cylinder(P.btn_d / 2, t + 2)
-        )
-    body -= _box(
-        P.usb_x - P.usb_w / 2, d - t - 1, P.usb_z - P.usb_t / 2,
-        P.usb_x + P.usb_w / 2, d + 1, P.usb_z + P.usb_t / 2,
+    return body
+
+
+def axle_keeper():
+    """Flat-printing front bridge that supports and retains the fixed axle."""
+    x0 = P.drive_x - P.keeper_outer_half_w
+    x1 = P.drive_x + P.keeper_outer_half_w
+    y1 = P.frame_front_y
+    body = box_between(x0, P.keeper_y0, P.keeper_z0, x1, y1, P.keeper_z1)
+
+    # Rearward side ribs stiffen the thin bridge without entering the
+    # sprocket/chain envelope. Matching frame pockets locate the part.
+    rib_y0 = P.keeper_y0 - P.keeper_rim
+    body += box_between(
+        x0, rib_y0, P.keeper_z0,
+        x0 + P.keeper_side_rib, P.keeper_y0, P.keeper_z1,
     )
-    # M5 sprocket axle: front wall -> guide cheeks -> cleat bar
-    body -= Pos(P.drive_x, d / 2, P.spr_z) * (
-        Rot(90, 0, 0) * Cylinder(P.axle_d / 2 + 0.1, d + 4)
+    body += box_between(
+        x1 - P.keeper_side_rib, rib_y0, P.keeper_z0,
+        x1, P.keeper_y0, P.keeper_z1,
     )
-    # cleat rail corridor: hooking on raises the unit ~12, so the rail
-    # overshoots its seat upward — clear everything above the rail top
-    # in its y band (top-wall strip, bulkhead rib corner, bar sliver)
-    body -= _box(
-        10, -1, P.cleat_rail_top - 0.3,
-        P.enc_w - 10, P.cleat_t + 0.4, h + 1,
+
+    for x in P.keeper_screw_x:
+        for z in P.keeper_screw_z:
+            body -= Pos(x, (P.keeper_y0 + y1) / 2, z) * (
+                Rot(90, 0, 0)
+                * Cylinder(P.keeper_screw_d / 2, y1 - P.keeper_y0 + 2)
+            )
+
+    body -= Pos(P.drive_x, (P.keeper_y0 + y1) / 2, P.spr_z) * (
+        Rot(90, 0, 0) * Cylinder(P.axle_d / 2 + 0.1, y1 - P.keeper_y0 + 2)
+    )
+    head_depth = y1 - P.axle_head_seat_y
+    body -= Pos(P.drive_x, P.axle_head_seat_y + head_depth / 2, P.spr_z) * (
+        Rot(90, 0, 0) * Cylinder(P.axle_head_d / 2, head_depth + 0.2)
     )
     return body
+
+
+def _keeper_pockets():
+    """Flush plate recess plus two anti-rattle side-rib sockets."""
+    x0 = P.drive_x - P.keeper_outer_half_w
+    x1 = P.drive_x + P.keeper_outer_half_w
+    y1 = P.frame_front_y + 0.1
+    pocket = box_between(x0, P.keeper_y0, P.keeper_z0, x1, y1, P.keeper_z1)
+    rib_y0 = P.keeper_y0 - P.keeper_rim
+    pocket += box_between(
+        x0, rib_y0, P.keeper_z0,
+        x0 + P.keeper_side_rib, P.keeper_y0, P.keeper_z1,
+    )
+    pocket += box_between(
+        x1 - P.keeper_side_rib, rib_y0, P.keeper_z0,
+        x1, P.keeper_y0, P.keeper_z1,
+    )
+    return pocket
+
+
+def _keeper_tap_cuts():
+    cuts = None
+    y = P.keeper_y0 - P.keeper_tap_depth / 2
+    for x in P.keeper_screw_x:
+        for z in P.keeper_screw_z:
+            cut = Pos(x, y, z) * (
+                Rot(90, 0, 0)
+                * Cylinder(P.m3_tap_d / 2, P.keeper_tap_depth + 0.2)
+            )
+            cuts = cut if cuts is None else cuts + cut
+    return cuts
+
+
+def _backbone():
+    """Flat wall-side rail grid; the print bed for every projecting feature."""
+    x0, x1 = P.frame_x0, P.frame_x1
+    z0, z1 = P.frame_z0, P.frame_z1
+    r, t = P.frame_rail_w, P.frame_t
+
+    body = box_between(x0, 0, z0, x0 + r, t, z1)
+    body += box_between(x1 - r, 0, z0, x1, t, z1)
+    for z in (z0, *P.frame_cross_rails_z, z1 - r):
+        body += box_between(x0, 0, z, x1, t, z + r)
+    return body
+
+
+def _pcb_tray():
+    """Thin structural floor under the PCB and sleeve-retainer bosses."""
+    return box_between(
+        P.frame_x0,
+        0,
+        P.frame_tray_z0,
+        P.frame_x1,
+        P.frame_front_y - P.sleeve_fit,
+        P.frame_tray_z1,
+    )
+
+
+def _axle_hardware_cuts():
+    """Through-bore and support-free captive rear M5 nut pocket."""
+    cuts = Pos(P.drive_x, P.enc_d / 2, P.spr_z) * (
+        Rot(90, 0, 0) * Cylinder(P.axle_d / 2 + 0.1, P.enc_d + 2)
+    )
+
+    # RegularPolygon's major radius is corner radius. For a hexagon,
+    # across-flats = sqrt(3) * corner radius.
+    nut = RegularPolygon(P.axle_nut_af / math.sqrt(3), 6, rotation=30)
+    nut = extrude(nut, amount=P.axle_nut_h / 2, both=True)
+    cuts += Pos(
+        P.drive_x,
+        P.axle_nut_y0 + P.axle_nut_h / 2,
+        P.spr_z,
+    ) * (Rot(90, 0, 0) * nut)
+
+    # A 45-degree transition closes the rear-loaded nut pocket down to
+    # the axle bore without asking the wall-face-down print to bridge it.
+    nut_corner_r = P.axle_nut_af / math.sqrt(3)
+    bore_r = P.axle_d / 2 + 0.1
+    roof_h = nut_corner_r - bore_r
+    roof = Cone(bore_r, nut_corner_r, roof_h)
+    cuts += Pos(
+        P.drive_x,
+        P.axle_nut_y0 + P.axle_nut_h + roof_h / 2,
+        P.spr_z,
+    ) * (Rot(90, 0, 0) * roof)
+    return cuts
 
 
 def _bulkhead():
     """Vertical motor-mount rib at the gearbox face: 6×M3 into the face,
     boss through-hole, and the layshaft's left U-saddle."""
-    t = P.enc_wall
-    rib = _box(P.bulkhead_x, t, P.bulkhead_z0, P.bulkhead_x + P.bulkhead_t, P.enc_d - t, P.enc_h - t)
+    y0 = 0
+    y1 = P.frame_front_y
+    rib = box_between(
+        P.bulkhead_x,
+        y0,
+        P.bulkhead_z0,
+        P.bulkhead_x + P.bulkhead_t,
+        y1,
+        P.frame_z1,
+    )
     # boss through-hole on the SHAFT axis
-    rib -= Pos(P.bulkhead_x + P.bulkhead_t / 2, P.drive_y, P.motor_z) * (
-        Rot(0, 90, 0) * Cylinder(P.jgb_boss_d / 2 + 0.75, P.bulkhead_t + 2)
+    rib -= _support_free_cross_bore(
+        P.jgb_boss_d / 2 + 0.75,
+        P.bulkhead_t + 2,
+        P.bulkhead_x + P.bulkhead_t / 2,
+        P.drive_y,
+        P.motor_z,
     )
     # 6×M3 tap holes on the GEARBOX axis (7 below the shaft — ecc down)
     for i in range(P.jgb_screw_n):
         a = math.radians(i * 360 / P.jgb_screw_n)
         r = P.jgb_screw_bcd / 2
-        rib -= Pos(
+        rib -= _support_free_cross_bore(
+            P.m3_tap_d / 2,
+            P.bulkhead_t + 2,
             P.bulkhead_x + P.bulkhead_t / 2,
             P.drive_y + r * math.cos(a),
             P.motor_z - P.jgb_ecc + r * math.sin(a),
-        ) * (Rot(0, 90, 0) * Cylinder(1.3, P.bulkhead_t + 2))  # M3 tap Ø2.6
+        )
     rib -= _saddle_cut(P.bulkhead_x - 1, P.bulkhead_x + P.bulkhead_t + 1)
-    rib -= _rail_cut()  # the seated cleat rail passes through this x
     return rib
 
 
 def _right_saddle():
-    """Layshaft right U-saddle block, hung from the top face."""
-    block = _box(P.saddle_x0, 13, 213, P.saddle_x1, 29, P.enc_h - P.enc_wall)
+    """Layshaft right U-saddle grown directly from the wall grid."""
+    block = box_between(
+        P.saddle_x0,
+        0,
+        P.saddle_z0,
+        P.saddle_x1,
+        P.saddle_y1,
+        P.frame_z1,
+    )
     return block - _saddle_cut(P.saddle_x0 - 1, P.saddle_x1 + 1)
 
 
 def _saddle_cut(x0, x1):
     """Layshaft bore + back-opening slot between the given x planes."""
     r = P.saddle_bore / 2
-    cut = Pos((x0 + x1) / 2, P.drive_y, P.lay_z) * (
-        Rot(0, 90, 0) * Cylinder(r, x1 - x0)
+    cut = _support_free_cross_bore(
+        r,
+        x1 - x0,
+        (x0 + x1) / 2,
+        P.drive_y,
+        P.lay_z,
     )
-    cut += _box(x0, P.enc_wall - 0.1, P.lay_z - r, x1, P.drive_y, P.lay_z + r)
+    cut += box_between(
+        x0,
+        P.frame_t - 0.2,
+        P.lay_z - r,
+        x1,
+        P.drive_y,
+        P.lay_z + r,
+    )
     return cut
 
 
-def _tail_collar():
-    """Ring steadying the motor can near its encoder end."""
+def _tail_cradle():
+    """Back-grown half cradle steadying the motor near its encoder end.
+
+    Stopping at the can centre makes the circular pocket support-free
+    when the whole frame prints wall-face down.
+    """
     gz = P.motor_z - P.jgb_ecc  # gearbox/can axis
-    ring = Pos((P.collar_x0 + P.collar_x1) / 2, P.drive_y, gz) * (
-        Rot(0, 90, 0)
-        * (Cylinder(P.jgb_gear_d / 2 + 2.0, P.collar_x1 - P.collar_x0)
-           - Cylinder(P.jgb_gear_d / 2 + 0.35, P.collar_x1 - P.collar_x0 + 2))
+    cradle = box_between(
+        P.cradle_x0,
+        0,
+        P.bulkhead_z0 - 1.0,
+        P.cradle_x1,
+        P.drive_y,
+        gz + P.jgb_gear_d / 2 + P.cradle_shell,
     )
-    # clamp inside the cavity and tie it to the front wall
-    ring &= _box(P.collar_x0, 2.5, P.bulkhead_z0 - 3, P.collar_x1, P.enc_d - P.enc_wall, P.enc_h)
-    ring += _box(P.collar_x0, 38, gz - 8, P.collar_x1, P.enc_d - P.enc_wall + 0.1, gz + 8)
-    return ring
+    cradle -= Pos(
+        (P.cradle_x0 + P.cradle_x1) / 2, P.drive_y, gz
+    ) * (
+        Rot(0, 90, 0)
+        * Cylinder(P.jgb_gear_d / 2 + 0.35, P.cradle_x1 - P.cradle_x0 + 2)
+    )
+    return cradle
 
 
 def _wrap_guide():
-    """Sprocket housing: block hung from the top face around the wheel —
-    keeps the chain wrapped >=180° and strips it off the wheel (#16).
-    Vertical run slots exit upward through the top-face chain slots."""
+    """Back-grown drive cassette around the sprocket and bevel pair.
+
+    The solid starts on the wall grid, then the sprocket, ring, layshaft,
+    chain, and axle tunnels are removed.  That construction leaves every
+    layer supported in the wall-face-down print orientation.
+    """
     cx, cz, wy = P.drive_x, P.spr_z, P.spr_wy
     r_ball = P.chain_ball_d / 2 + P.spr_ball_clear
-    y0 = P.spr_wy - P.spr_w / 2 - 1  # flush with the wheel-clearance bore
-    block = _box(cx - 10, y0, cz - P.guide_or, cx + 10, P.enc_d - P.enc_wall, P.enc_h - P.enc_wall)
-    # wheel clearance
-    block -= Pos(cx, wy, cz) * (
-        Rot(90, 0, 0) * Cylinder(P.spr_od / 2 + 1.2, P.spr_w + 2)
+    wheel_y0 = P.spr_wy - P.spr_w / 2 - P.cassette_wheel_axial_clear
+    wheel_y1 = P.frame_front_y + 0.1
+    block = box_between(
+        cx - P.cassette_half_w,
+        0,
+        cz - P.guide_or,
+        cx + P.cassette_half_w,
+        P.frame_front_y,
+        P.sleeve_h - P.sleeve_fit,
     )
+    # wheel clearance
+    block -= Pos(cx, (wheel_y0 + wheel_y1) / 2, cz) * (
+        Rot(90, 0, 0) * Cylinder(
+            P.spr_od / 2 + P.cassette_wheel_radial_clear,
+            wheel_y1 - wheel_y0,
+        )
+    )
+    # ring gear and drum tunnel from the wall side to the wheel bore
+    ring_y0 = P.sprocket_back_y - 0.5
+    ring_len = wheel_y0 - ring_y0
+    block -= Pos(cx, (wheel_y0 + ring_y0) / 2, cz) * (
+        Rot(90, 0, 0) * Cylinder(
+            P.bevel_r + P.cassette_ring_radial_clear,
+            ring_len,
+        )
+    )
+    # layshaft and bevel approach from the right along X
+    block -= _support_free_layshaft_tunnel()
     # chain channel around the wrap
     block -= Pos(cx, wy, cz) * (Rot(90, 0, 0) * Torus(P.spr_pcd / 2, r_ball))
     # vertical run exits
     for x in P.strand_x:
-        block -= _box(x - r_ball, wy - r_ball, cz - 1, x + r_ball, wy + r_ball, P.enc_h + 1)
+        block -= box_between(
+            x - r_ball,
+            wy - r_ball,
+            cz - 1,
+            x + r_ball,
+            wy + r_ball,
+            P.enc_h + 1,
+        )
     return block
 
 
-def _cleat_hook():
-    """Hook bar inside the top of the back opening; 45° notch receives
-    the wall plate's cleat rail (0.3 clearance). Doubles as the back
-    bearing for the sprocket's M5 axle. Kept to y<=7 so the sprocket
-    ring gear (back face y 8.5) clears it, and to x<=76 so the
-    layshaft's spur wheel does."""
-    rail_top = P.cleat_rail_top
-    bar = _box(P.cleat_x0, 0, rail_top - P.cleat_h - 4, P.cleat_x1, P.cleat_t + 1, P.enc_h - 10)
-    return bar - _rail_cut()
-
-
-def _rail_cut():
-    """The seated rail's notch prism (0.3 clearance), across the whole
-    opening span — the hook bar AND the bulkhead rib both clear it."""
-    rail_top = P.cleat_rail_top
-    # CCW winding — CW polygons extrude along -Z and flip the axis map
-    notch = Polygon(
-        (0, rail_top - P.cleat_h - 0.3),
-        (P.cleat_t + 0.3, rail_top + 0.3),
-        (0, rail_top + 0.3),
+def _support_free_cross_bore(radius, length, x, y, z):
+    """Cross-axis circular clearance with a 45-degree print-direction roof."""
+    profile = Circle(radius) + Polygon(
+        (-radius, 0),
+        (0, radius * math.sqrt(2)),
+        (radius, 0),
     )
-    # Rot(0,90,90) is the cyclic axis map: sketch(x,y)+extrude(z) -> unit(y,z,x)
-    return Rot(0, 90, 90) * extrude(notch, amount=P.enc_w)
+    tunnel = extrude(
+        profile,
+        amount=length / 2,
+        both=True,
+    )
+    return Pos(x, y, z) * (Rot(0, 90, 0) * tunnel)
 
 
+def _support_free_layshaft_tunnel():
+    return _support_free_cross_bore(
+        P.bevel_r + P.cassette_layshaft_radial_clear,
+        P.cassette_layshaft_tunnel_l,
+        P.drive_x,
+        P.drive_y,
+        P.spr_z,
+    )
 
 
 def _floor_bosses():
@@ -182,14 +353,21 @@ def _floor_bosses():
     pillar under the USB-C edge (plug insertion force)."""
     bosses = None
     for x, y in P.pcb_holes:
-        b = Pos(x, y, (P.enc_wall + P.pcb_z0) / 2) * Cylinder(
-            3.5, P.pcb_z0 - P.enc_wall
+        boss_z0 = P.pcb_z0 - P.pcb_boss_h
+        b = Pos(x, y, (boss_z0 + P.pcb_z0) / 2) * Cylinder(
+            P.pcb_boss_d / 2,
+            P.pcb_boss_h,
         )
-        b -= Pos(x, y, P.pcb_z0 - 3) * Cylinder(1.3, 6.2)
+        b -= Pos(x, y, (boss_z0 + P.pcb_z0) / 2) * Cylinder(
+            P.m3_tap_d / 2,
+            P.pcb_boss_h + 2,
+        )
         bosses = b if bosses is None else bosses + b
     px, py = P.pcb_pillar
-    bosses += Pos(px, py, (P.enc_wall + P.pcb_z0) / 2) * Cylinder(
-        3.0, P.pcb_z0 - P.enc_wall
+    boss_z0 = P.pcb_z0 - P.pcb_boss_h
+    bosses += Pos(px, py, (boss_z0 + P.pcb_z0) / 2) * Cylinder(
+        P.pcb_pillar_d / 2,
+        P.pcb_boss_h,
     )
     return bosses
 
@@ -198,22 +376,78 @@ def _carrier_bosses():
     """4× M3 heat-set standoffs off the back wall for the battery
     carrier PCB (holders solder to it; it busses the 2S3P pack)."""
     w = P.holder_l + 0.4
-    hgt = (P.cell_n - 1) * P.cell_pitch + P.holder_w + 2.0
+    hgt = (
+        (P.cell_n - 1) * P.cell_pitch
+        + P.holder_w
+        + P.carrier_edge_margin
+    )
     zc = P.bay_z0 + (P.cell_n - 1) * P.cell_pitch / 2
     bosses = None
     for sx in (-1, 1):
         for sz in (-1, 1):
-            x = P.drive_x + sx * (w / 2 - 4)
-            z = zc + sz * (hgt / 2 - 4)
-            b = Pos(x, (P.enc_wall + P.carrier_y0) / 2, z) * (
-                Rot(90, 0, 0) * Cylinder(4.0, P.carrier_y0 - P.enc_wall)
+            x = P.drive_x + sx * (w / 2 - P.carrier_hole_inset)
+            z = zc + sz * (hgt / 2 - P.carrier_hole_inset)
+            b = Pos(x, (P.frame_t + P.carrier_y0) / 2, z) * (
+                Rot(90, 0, 0)
+                * Cylinder(P.carrier_boss_d / 2, P.carrier_y0 - P.frame_t)
             )
-            b -= Pos(x, P.carrier_y0 - 3, z) * (Rot(90, 0, 0) * Cylinder(2.3, 6.2))
+            b -= Pos(x, (P.frame_t + P.carrier_y0) / 2, z) * (
+                Rot(90, 0, 0)
+                * Cylinder(
+                    P.m3_insert_d / 2,
+                    P.carrier_y0 - P.frame_t + 2,
+                )
+            )
             bosses = b if bosses is None else bosses + b
+    return bosses
+
+
+def _sleeve_guides():
+    """Four broad pads constrain the sleeve laterally during installation."""
+    inner_x0 = P.sleeve_t + P.sleeve_fit
+    inner_x1 = P.enc_w - P.sleeve_t - P.sleeve_fit
+    guides = None
+    for z0, z1 in P.sleeve_guide_bands:
+        left = box_between(
+            inner_x0, 0, z0,
+            P.frame_x0 + 0.1, P.frame_front_y, z1,
+        )
+        right = box_between(
+            P.frame_x1 - 0.1, 0, z0,
+            inner_x1, P.frame_front_y, z1,
+        )
+        pair = left + right
+        guides = pair if guides is None else guides + pair
+    return guides
+
+
+def _sleeve_retainers():
+    """Two M3 tap bosses reached through the sleeve underside."""
+    bosses = None
+    for x, y in P.sleeve_retainer_xy:
+        boss = Pos(x, y, P.sleeve_retainer_boss_z) * Cylinder(
+            P.sleeve_retainer_boss_d / 2,
+            P.sleeve_retainer_boss_h,
+        )
+        boss -= Pos(x, y, P.sleeve_retainer_boss_z) * Cylinder(
+            P.m3_tap_d / 2,
+            P.sleeve_retainer_boss_h + 2,
+        )
+        bosses = boss if bosses is None else bosses + boss
     return bosses
 
 
 def scene():
     from splitflap_cad.viewer import Scene
 
-    return Scene().add(shell(), "shell", color="whitesmoke")
+    return (
+        Scene()
+        .add(frame(), "frame", color="lightsteelblue")
+        .add(axle_keeper(), "axle-keeper", color="steelblue")
+    )
+
+
+def axle_keeper_scene():
+    from splitflap_cad.viewer import Scene
+
+    return Scene().add(axle_keeper(), "axle-keeper", color="steelblue")

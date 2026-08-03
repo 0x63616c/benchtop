@@ -5,9 +5,16 @@ part knowledge beyond the slot-0 marker style (which is deliberately
 one style everywhere).
 """
 
-from build123d import Polygon, Pos, Rot, extrude
+from build123d import Box, Polygon, Pos, Rot, extrude
 
 from .params import P
+
+
+def box_between(x0, y0, z0, x1, y1, z1):
+    """Axis-aligned box addressed by its minimum and maximum corners."""
+    return Pos((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2) * Box(
+        x1 - x0, y1 - y0, z1 - z0
+    )
 
 
 def polar_locs(n: int, start: float = 0.0) -> list:

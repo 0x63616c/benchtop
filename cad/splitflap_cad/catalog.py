@@ -138,11 +138,27 @@ MODELS = {
     ),
     # --- blinds project (blinds_cad package, wayfinder #12) ---
     "blinds-unit": Model(
-        "BLINDS full unit: shell ghost + motor + sprocket + chain + cells + plate",
+        "BLINDS full unit: wall frame + mechanism + slide-on sleeve + split cap",
         "blinds_cad.blindsunit",
     ),
-    "blinds-shell": Model("BLINDS enclosure shell alone", "blinds_cad.enclosure"),
-    "blinds-plate": Model("BLINDS wall plate w/ cleat rail", "blinds_cad.wallplate"),
+    "blinds-frame": Model(
+        "BLINDS printable wall-mounted structural exoskeleton",
+        "blinds_cad.enclosure",
+    ),
+    "blinds-axle-keeper": Model(
+        "BLINDS removable flat-printing sprocket axle keeper",
+        "blinds_cad.enclosure",
+        "axle_keeper_scene",
+    ),
+    "blinds-sleeve": Model(
+        "BLINDS thin open-back cosmetic sleeve",
+        "blinds_cad.cover",
+    ),
+    "blinds-cap": Model(
+        "BLINDS two-piece top cap closing around the installed chain",
+        "blinds_cad.cover",
+        "cap_scene",
+    ),
     "blinds-sprocket": Model(
         "BLINDS 12-pocket bead-chain sprocket + chain ghost", "blinds_cad.sprocket"
     ),
@@ -199,8 +215,11 @@ PRINTABLE = {
     "gear-box-output-gear": Printable("gearbox", "output_gear"),
     "gear-box-output-spacer": Printable("gearbox", "output_spacer"),
     "blinds-sprocket": Printable("blinds_cad.sprocket", "sprocket"),
-    "blinds-shell": Printable("blinds_cad.enclosure", "shell"),
-    "blinds-plate": Printable("blinds_cad.wallplate", "wallplate"),
+    "blinds-frame": Printable("blinds_cad.enclosure", "frame"),
+    "blinds-axle-keeper": Printable("blinds_cad.enclosure", "axle_keeper"),
+    "blinds-sleeve": Printable("blinds_cad.cover", "sleeve"),
+    "blinds-cap-rear": Printable("blinds_cad.cover", "cap_rear"),
+    "blinds-cap-front": Printable("blinds_cad.cover", "cap_front"),
     "blinds-pinion": Printable("blinds_cad.gears", "pinion"),
     "blinds-layshaft": Printable("blinds_cad.gears", "layshaft"),
 }

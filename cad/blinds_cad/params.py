@@ -58,8 +58,10 @@ class Params:
     holder_h: float = 21.8         # off the carrier face
     cell_pitch: float = 24.5       # holder_w + 0.6 gap
     carrier_t: float = 1.6
-    carrier_y0: float = 8.5        # carrier back face — clears the cleat bar (y<=7)
-    carrier_standoff_d: float = 7.0  # M3 heat-set bosses off the back wall
+    carrier_y0: float = 8.5        # carrier back face, behind the drive ring
+    carrier_boss_d: float = 8.0    # M3 heat-set bosses off the back wall
+    carrier_hole_inset: float = 4.0
+    carrier_edge_margin: float = 2.0
 
     # --- bead chain (measured: 5mm ball, 6mm pitch) + sprocket (#16) ---
     chain_ball_d: float = 5.0
@@ -73,7 +75,14 @@ class Params:
     spr_ball_clear: float = 1.0    # housing channel clearance over balls (#16)
     spr_bore_d: float = 5.2        # plain bore on the fixed M5 cross-axle
     spr_drum_d: float = 10.0       # hollow-ish drum bridging wheel -> ring gear
-    axle_d: float = 5.0            # M5 bolt, front wall -> cleat bar
+    axle_d: float = 5.0            # M5 bolt, front head -> captive frame nut
+    axle_bolt_len: float = 40.0    # front-access screw into captive rear nut
+    axle_head_d: float = 9.5       # M5 button-head clearance
+    axle_head_seat_y: float = 41.9 # shoulder in the removable axle keeper
+    axle_head_clear_d: float = 10.5 # sleeve passes over the installed head
+    axle_nut_af: float = 8.0       # M5 hex nut across flats
+    axle_nut_h: float = 4.0
+    axle_nut_y0: float = 0.0       # rear-loaded; wall retains it after mounting
 
     # --- gear train (all module 2, printed; steel bevels drop in later) ---
     gear_m: float = 2.0
@@ -91,7 +100,6 @@ class Params:
     enc_d: float = 44.0            # accepted off-wall depth (v1 rev B value)
     enc_h: float = 242.0           # PCB floor + 6-cell stack + motor + sprocket
     enc_wall: float = 2.0          # Ø37 in 42 leaves 0.5/side — thin walls are the point
-    enc_fillet: float = 4.0        # vertical outer edges
     drive_x: float = 49.0          # chain/sprocket center = enc_w/2
     drive_y: float = 21.0          # motor + layshaft axis depth (mid-cavity)
     motor_z: float = 189.0         # motor SHAFT axis height; eccentric DOWN
@@ -102,8 +110,9 @@ class Params:
     pinion_x: float = 81.5         # spur mesh plane center (teeth x 78..85)
     saddle_x0: float = 86.0        # right layshaft U-saddle block x span
     saddle_x1: float = 92.0
-    collar_x0: float = 8.0         # motor tail collar x span
-    collar_x1: float = 14.0
+    cradle_x0: float = 8.0         # support-free motor tail cradle x span
+    cradle_x1: float = 14.0
+    cradle_shell: float = 2.0      # material beyond the motor pocket
     spr_wy: float = 36.6           # sprocket WHEEL center depth (chain plane y);
                                    # 36.0 grazed the layshaft bevel's heel teeth
                                    # with the wheel's back rim
@@ -151,21 +160,62 @@ class Params:
     usb_t: float = 3.8             # front-wall slot, tall (z)
     usb_x: float = 49.0            # receptacle center, between the buttons
 
-    # --- wall plate + cleat ---
-    plate_w: float = 90.0
-    plate_h: float = 220.0         # taller unit -> taller plate; rail near top
-    plate_t: float = 4.0
-    plate_screw_d: float = 4.5     # countersunk for #8
-    plate_screw_head: float = 9.0
-    plate_screw_inset: float = 10.0
-    plate_z0: float = 15.0         # plate bottom in unit z
-    cleat_h: float = 12.0          # 45° french-cleat rail height
-    cleat_t: float = 6.0
-    cleat_rail_top: float = 232.0  # rail top in unit z — ABOVE the motor and
-                                   # spur gears; bar y<=7 clears the sprocket
-                                   # ring gear (back face y 8.5)
-    cleat_x0: float = 11.0         # bar/rail x span — stops short of the
-    cleat_x1: float = 76.0         # layshaft spur wheel (x 78..85, od r19)
+    # --- wall-mounted exoskeleton + cosmetic cover ---
+    # The frame prints wall-face down and owns every mechanical load.
+    # The open-back sleeve prints front-face down and carries no load.
+    frame_t: float = 3.0           # wall-side structural rail thickness
+    frame_rail_w: float = 8.0      # perimeter/cross-rail width in X/Z
+    frame_x0: float = 4.0
+    frame_x1: float = 94.0
+    frame_z0: float = 4.0
+    frame_z1: float = 238.0
+    frame_wall_holes: tuple = ((8.0, 16.0), (90.0, 16.0),
+                               (18.0, 234.0), (80.0, 234.0))
+    frame_cross_rails_z: tuple = (80.0, 150.0)
+    frame_tray_z0: float = 2.0
+    frame_tray_z1: float = 4.5
+    saddle_y1: float = 29.0
+    saddle_z0: float = 213.0
+
+    cassette_half_w: float = 17.0
+    cassette_wheel_axial_clear: float = 1.0
+    cassette_wheel_radial_clear: float = 1.2
+    cassette_ring_radial_clear: float = 2.0
+    cassette_layshaft_radial_clear: float = 3.0
+    cassette_layshaft_tunnel_l: float = 36.0
+
+    keeper_y0: float = 40.9        # 0.3 in front of the sprocket wheel
+    keeper_z0: float = 203.0
+    keeper_z1: float = 237.0
+    keeper_outer_half_w: float = 20.0
+    keeper_side_rib: float = 3.0
+    keeper_screw_x: tuple = (34.0, 64.0)
+    keeper_screw_z: tuple = (204.5, 235.5)
+    keeper_screw_d: float = 3.4
+    keeper_tap_depth: float = 8.0
+    keeper_rim: float = 4.0
+
+    m3_tap_d: float = 2.6
+    m3_insert_d: float = 4.6
+    pcb_boss_d: float = 7.0
+    pcb_pillar_d: float = 6.0
+
+    sleeve_t: float = 0.8          # two 0.4mm lines; cosmetic only
+    sleeve_h: float = 240.5        # open top; caps finish at enc_h
+    sleeve_fit: float = 0.4        # frame-to-sleeve running clearance
+    sleeve_guide_bands: tuple = ((18.0, 28.0), (205.0, 215.0))
+    sleeve_retainer_xy: tuple = ((18.0, 4.5), (80.0, 4.5))
+    sleeve_retainer_d: float = 3.4 # M3 clearance in the sleeve bottom
+    sleeve_retainer_boss_d: float = 7.0
+    sleeve_retainer_boss_h: float = 7.0
+    sleeve_retainer_boss_z: float = 5.0
+
+    cap_t: float = 1.2
+    cap_skirt: float = 4.0
+    cap_fit: float = 0.3
+    cap_lap: float = 2.0           # assembly allowance at the chain-plane seam
+
+    wall_screw_d: float = 4.5      # direct frame anchors for #8 screws
 
     # --- derived ---
     @property
@@ -220,6 +270,16 @@ class Params:
     def ring_heel_y(self) -> float:
         """Sprocket ring-gear heel plane: bevel_r wall-side of the apex."""
         return self.drive_y - self.bevel_r  # 11
+
+    @property
+    def sprocket_back_y(self) -> float:
+        """Wall-side face of the sprocket's printed back disc."""
+        return self.ring_heel_y - 2.5  # 8.5
+
+    @property
+    def frame_front_y(self) -> float:
+        """Front face of the frame, behind the cosmetic sleeve."""
+        return self.enc_d - self.sleeve_t - self.sleeve_fit  # 42.8
 
     @property
     def strand_x(self) -> tuple:

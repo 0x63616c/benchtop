@@ -5,7 +5,8 @@ Printable. Local frame: axis +Z, z=0 at the WHEEL's mid-plane. Going
 +Z (toward the wall once posed): wheel (±4), Ø10 drum bridge, bevel
 ring with its heel plane at z=25 and cone apex at z=15, back disc to
 z=27.5. Plain Ø5.2 bore throughout — it spins on a fixed M5 cross-axle
-(front wall -> cleat bar), driven by the layshaft's identical bevel.
+between a front-access head and captive wall-side frame nut, driven by
+the layshaft's identical bevel.
 
 Pocket geometry unchanged from #16: pitch circle Ø≈22.9 (12 × 6mm
 pitch / π); hemispherical Ø5.4 ball pockets centred ON the pitch

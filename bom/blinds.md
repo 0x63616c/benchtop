@@ -151,7 +151,15 @@ and the z10 bevel ring printed into the sprocket. Bought hardware:
 
 | Part | Qty | Note |
 |---|---|---|
-| M5×40 bolt + nut | 1 | fixed sprocket cross-axle, front wall → cleat bar |
+| M5×40 button-head bolt + nut | 1 | fixed sprocket cross-axle; front-access head, captive wall-side nut |
 | M3×8 (into gearbox face) | 6 | motor → bulkhead rib, BCD31 |
 | M3×8 + heat-set (board, carrier) | 3 + 4 | rev C board bosses, carrier bosses |
+| M3×8 (sleeve retention) | 2 | underside screws into the wall frame; sleeve remains non-structural |
+| M3×8 (axle keeper) | 4 | removable front bridge retains the axle independently of the sleeve |
 | Steel 1:1 bevel pair, m2-ish, Ø5/Ø6 bores | 0 (fallback) | only if the printed bevels wear — bores are standard |
+
+Printed enclosure parts: `blinds-frame`, `blinds-axle-keeper`,
+`blinds-sleeve`, `blinds-cap-rear`, and `blinds-cap-front`. Print the
+frame wall-face down, the keeper and sleeve front-face down, and both
+cap halves top-face down. The frame has a Bambu Studio slow-test guard
+that slices it on the P2S PETG profile with generated support disabled.

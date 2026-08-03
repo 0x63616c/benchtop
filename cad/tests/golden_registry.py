@@ -146,16 +146,34 @@ def _blinds_sprocket():
     return sprocket()
 
 
-def _blinds_shell():
-    from blinds_cad.enclosure import shell
+def _blinds_frame():
+    from blinds_cad.enclosure import frame
 
-    return shell()
+    return frame()
 
 
-def _blinds_wallplate():
-    from blinds_cad.wallplate import wallplate
+def _blinds_axle_keeper():
+    from blinds_cad.enclosure import axle_keeper
 
-    return wallplate()
+    return axle_keeper()
+
+
+def _blinds_sleeve():
+    from blinds_cad.cover import sleeve
+
+    return sleeve()
+
+
+def _blinds_cap_rear():
+    from blinds_cad.cover import cap_rear
+
+    return cap_rear()
+
+
+def _blinds_cap_front():
+    from blinds_cad.cover import cap_front
+
+    return cap_front()
 
 
 def _blinds_motor():
@@ -229,8 +247,11 @@ BREP_PARTS = {
     "unit-full": _full_unit,
     "unit-nema-full": _full_unit_nema,
     "blinds-sprocket": _blinds_sprocket,
-    "blinds-shell": _blinds_shell,
-    "blinds-wallplate": _blinds_wallplate,
+    "blinds-frame": _blinds_frame,
+    "blinds-axle-keeper": _blinds_axle_keeper,
+    "blinds-sleeve": _blinds_sleeve,
+    "blinds-cap-rear": _blinds_cap_rear,
+    "blinds-cap-front": _blinds_cap_front,
     "blinds-motor": _blinds_motor,
     "blinds-pinion": _blinds_pinion,
     "blinds-layshaft": _blinds_layshaft,

@@ -1,8 +1,8 @@
 """Named frames: where each part's local frame sits in UNIT coordinates.
 
-Unit frame: origin at the back-left-bottom corner of the enclosure.
+Unit frame: origin at the wall-side, left-bottom corner of the frame.
 +X right (along the wall), +Y off the wall into the room, +Z up. The
-wall plate lives at y<0, behind the unit's back face.
+frame mounts directly at y=0; the cosmetic sleeve shares this frame.
 
 Naming: X_IN_UNIT maps X-local coords into unit coords.
 """
@@ -64,8 +64,3 @@ USBC_IN_BOARD = Pos(P.usb_x - _B.X, _USB_YC - _B.Y, P.usb_z - _B.Z)
 
 def btn_in_board(x: float):
     return Pos(x - _B.X, _BTN_YC - _B.Y, P.btn_z - _B.Z)
-
-
-# Wall plate: its own frame is x centred, y=0 at the FRONT face (wall
-# side is -y), z=0 at the plate bottom. Hangs behind the unit.
-PLATE_IN_UNIT = Pos(P.enc_w / 2, 0, P.plate_z0)
