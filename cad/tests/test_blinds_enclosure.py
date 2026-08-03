@@ -115,7 +115,7 @@ def test_sprocket_axle_is_captive_without_trapping_the_sleeve(enclosure_parts):
     assert (frame & nut).volume < 1e-6
     bolt_tip_y = P.axle_head_seat_y - P.axle_bolt_len
     assert bolt_tip_y >= 0.0
-    assert P.axle_nut_y0 <= bolt_tip_y <= P.axle_nut_y0 + P.axle_nut_h
+    assert bolt_tip_y == pytest.approx(P.axle_nut_y0)
     assert P.axle_head_seat_y >= P.axle_nut_y0 + P.axle_nut_h
 
     passage = Pos(P.drive_x, P.enc_d - P.sleeve_t / 2, P.spr_z) * (
@@ -138,6 +138,21 @@ def test_parts_fit_the_p2s_in_their_documented_orientations(enclosure_parts):
     assert sleeve.size.X <= 256 and sleeve.size.Z <= 256 and sleeve.size.Y <= 50
     for cap in (rear, front):
         assert cap.size.X <= 256 and cap.size.Y <= 256 and cap.size.Z <= 10
+
+
+def test_axle_keeper_screw_holes_have_closed_edge_ligaments():
+    from blinds_cad.params import P
+
+    radius = P.keeper_screw_d / 2
+    x0 = P.drive_x - P.keeper_outer_half_w
+    x1 = P.drive_x + P.keeper_outer_half_w
+    for x in P.keeper_screw_x:
+        assert min(x - radius - x0, x1 - x - radius) >= P.keeper_hole_ligament
+    for z in P.keeper_screw_z:
+        assert min(
+            z - radius - P.keeper_z0,
+            P.keeper_z1 - z - radius,
+        ) >= P.keeper_hole_ligament
 
 
 def test_frame_guides_sleeve_with_running_clearance(enclosure_parts):

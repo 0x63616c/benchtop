@@ -23,7 +23,8 @@ P2S's 256 mm build volume, but it is not a dependable support-free print:
 
 The replacement must keep the 98 mm width and 44 mm chassis depth, provide a
 positive load path into the wall, resist rattle and rotation at the
-bottom of the unit, remain serviceable from the rear, and print without
+bottom of the unit, remain serviceable from the room side after sleeve
+removal, and print without
 generated support on the P2S. The mounting parts should use PETG or ASA rather
 than PLA because they carry a sustained wall load beside a window.
 

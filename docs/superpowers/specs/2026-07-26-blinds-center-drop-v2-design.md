@@ -26,7 +26,8 @@ centered, strands left/right, 98 × 44, printed gears with steel
 fallback) with the motor horizontal:
 
 - **Layout (tower), 98 × 44 × 242:**
-  - PCB flat on the floor (z 6..7.6), components up, on 4× M3 bosses.
+  - PCB flat on the floor (z 6..7.6), components up, on 3× M3 bosses
+    plus one plain support pillar under the USB edge.
   - All 6 battery holders horizontal, full width, one stack
     (z ≈ 14..160) — the v1-style rectangular carrier survives.
   - Motor horizontal along X near the top: gearbox face x=67, shaft

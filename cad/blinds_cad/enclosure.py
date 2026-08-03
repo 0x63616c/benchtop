@@ -16,7 +16,6 @@ import math
 
 from build123d import (
     Circle,
-    Cone,
     Cylinder,
     Polygon,
     Pos,
@@ -148,32 +147,22 @@ def _pcb_tray():
 
 
 def _axle_hardware_cuts():
-    """Through-bore and support-free captive rear M5 nut pocket."""
+    """Through-bore and ring-tunnel-loaded captive M5 nut channel."""
     cuts = Pos(P.drive_x, P.enc_d / 2, P.spr_z) * (
         Rot(90, 0, 0) * Cylinder(P.axle_d / 2 + 0.1, P.enc_d + 2)
     )
 
     # RegularPolygon's major radius is corner radius. For a hexagon,
     # across-flats = sqrt(3) * corner radius.
+    nut_slot_y1 = P.sprocket_back_y - 0.5
+    nut_slot_l = nut_slot_y1 - P.axle_nut_y0
     nut = RegularPolygon(P.axle_nut_af / math.sqrt(3), 6, rotation=30)
-    nut = extrude(nut, amount=P.axle_nut_h / 2, both=True)
+    nut = extrude(nut, amount=nut_slot_l / 2, both=True)
     cuts += Pos(
         P.drive_x,
-        P.axle_nut_y0 + P.axle_nut_h / 2,
+        (P.axle_nut_y0 + nut_slot_y1) / 2,
         P.spr_z,
     ) * (Rot(90, 0, 0) * nut)
-
-    # A 45-degree transition closes the rear-loaded nut pocket down to
-    # the axle bore without asking the wall-face-down print to bridge it.
-    nut_corner_r = P.axle_nut_af / math.sqrt(3)
-    bore_r = P.axle_d / 2 + 0.1
-    roof_h = nut_corner_r - bore_r
-    roof = Cone(bore_r, nut_corner_r, roof_h)
-    cuts += Pos(
-        P.drive_x,
-        P.axle_nut_y0 + P.axle_nut_h + roof_h / 2,
-        P.spr_z,
-    ) * (Rot(90, 0, 0) * roof)
     return cuts
 
 

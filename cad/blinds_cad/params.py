@@ -82,7 +82,6 @@ class Params:
     axle_head_clear_d: float = 10.5 # sleeve passes over the installed head
     axle_nut_af: float = 8.0       # M5 hex nut across flats
     axle_nut_h: float = 4.0
-    axle_nut_y0: float = 0.0       # rear-loaded; wall retains it after mounting
 
     # --- gear train (all module 2, printed; steel bevels drop in later) ---
     gear_m: float = 2.0
@@ -190,8 +189,9 @@ class Params:
     keeper_outer_half_w: float = 20.0
     keeper_side_rib: float = 3.0
     keeper_screw_x: tuple = (34.0, 64.0)
-    keeper_screw_z: tuple = (204.5, 235.5)
+    keeper_screw_z: tuple = (207.0, 233.0)
     keeper_screw_d: float = 3.4
+    keeper_hole_ligament: float = 2.0
     keeper_tap_depth: float = 8.0
     keeper_rim: float = 4.0
 
@@ -275,6 +275,11 @@ class Params:
     def sprocket_back_y(self) -> float:
         """Wall-side face of the sprocket's printed back disc."""
         return self.ring_heel_y - 2.5  # 8.5
+
+    @property
+    def axle_nut_y0(self) -> float:
+        """Rear face of the nut; the M5x40 tip reaches this plane."""
+        return self.axle_head_seat_y - self.axle_bolt_len
 
     @property
     def frame_front_y(self) -> float:
