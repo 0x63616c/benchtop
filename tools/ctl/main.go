@@ -1,4 +1,4 @@
-// ctl — split-flap project tooling. Bare run = TUI menu; namespaced args
+// ctl — benchtop project tooling. Bare run = TUI menu; namespaced args
 // (e.g. `ctl cad view holder`) run directly. Go orchestrates only; all CAD
 // geometry work happens in python via `uv run --project cad`.
 package main

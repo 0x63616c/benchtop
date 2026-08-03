@@ -1,4 +1,4 @@
-# split-flap task runner.
+# benchtop task runner.
 #
 # The bench (wayfinder #11 / bring-up #9) lives in ctl now — `just bench`.
 # The ESP-IDF `flash` / `ota` recipes from #5 land when that firmware exists.
@@ -16,7 +16,7 @@ ctl *args:
     cd tools/ctl && go run . {{args}}
 
 # --- CAD (build123d, in cad/) ---
-# `just cad` = interactive menu. Direct: view [model] | export [model] | list
+# `just cad` = project-aware menu. Direct: view [model] | export [model] | list
 cad cmd="" *args:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -26,7 +26,7 @@ cad cmd="" *args:
     *)       cd tools/ctl && go run . cad {{cmd}} {{args}} ;;
     esac
 
-# --- PCB (atopile + kicad-cli, in pcb/driver-board/) ---
-# `just pcb` = interactive menu. Direct: view | drc | build | place
+# --- PCB (atopile + kicad-cli, in pcb/*-board/) ---
+# `just pcb` = project-aware menu. Direct: view | drc | build | place [board]
 pcb cmd="" *args:
     cd tools/ctl && go run . pcb {{cmd}} {{args}}

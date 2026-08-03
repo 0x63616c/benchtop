@@ -629,7 +629,7 @@ func (m *appModel) View() string {
 	if m.top().id == "help" {
 		crumb = "help"
 	}
-	header := titleStyle.Render("ctl — split-flap tooling") + "\n" +
+	header := titleStyle.Render("ctl — benchtop tooling") + "\n" +
 		crumbStyle.Render(crumb) + "\n\n"
 	if m.top().id == "run" {
 		return header + m.runView()
@@ -908,7 +908,7 @@ func helpScreen() screen {
 func rootScreen() screen {
 	return screen{id: "root", title: "home", items: []menuItem{
 		{label: "cad", help: "viewers & exports"},
-		{label: "pcb", help: "driver board — 3D viewer, DRC, gerbers"},
+		{label: "pcb", help: "project boards — 3D viewer, DRC, gerbers"},
 		{label: "bench", help: "drive the breadboard module over serial"},
 		{label: "demo", help: "a cube, tumbling, for no reason at all"},
 		{label: "credits", help: "a long time ago, on a breadboard far, far away"},
@@ -998,11 +998,11 @@ func pickScreen(id string, cat catalog, printable bool, project string) screen {
 	sort.Strings(names)
 	items := make([]menuItem, len(names))
 	for i, n := range names {
-		label := n
+		item := menuItem{label: n}
 		if !printable {
-			label = fmt.Sprintf("%-12s %s", n, cat.Models[n])
+			item.help = cat.Models[n]
 		}
-		items[i] = menuItem{label: label}
+		items[i] = item
 	}
 	s := screen{id: id, title: project + " models", project: project, items: items, names: names,
 		canFilter: true, allItems: items, allNames: names}

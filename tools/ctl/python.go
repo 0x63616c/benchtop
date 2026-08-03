@@ -20,7 +20,7 @@ func repoRoot() (string, error) {
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			return "", fmt.Errorf("not inside the split-flap repo (no justfile found)")
+			return "", fmt.Errorf("not inside the benchtop repo (no justfile found)")
 		}
 		dir = parent
 	}

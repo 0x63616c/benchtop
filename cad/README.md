@@ -21,7 +21,7 @@ starts everything:
   re-pushes both panes (~10s)
 
 ```sh
-just cad list        # what models exist (the menu)
+just cad list        # models grouped by project
 just cad dev drum    # pin the focus pane to one model
 just cad dev         # unpin — back to follow-my-saves
 just cad down        # stop watcher + viewers
@@ -39,7 +39,7 @@ re-run `just cad dev`.
 | file | what |
 |---|---|
 | `splitflap_cad/params.py` | ALL dimensions. Raw measurements = named constants, positions = derived properties. No magic numbers in part files. |
-| `splitflap_cad/catalog.py` | THE registry: viewable models, printable parts, save→model focus map. **Add a part here** (builder fn + one `MODELS` entry). |
+| `splitflap_cad/catalog.py` | THE registry: projects, viewable models, printable parts, save→model focus map. Add each model and printable with its project. |
 | `splitflap_cad/<part>.py` | geometry only (`flap`, `drum`, `unit`, `motor`, `stepper28byj`) — no `__main__` blocks |
 | `splitflap_cad/assembly.py` | full-unit compose + posed bought-parts |
 | `splitflap_cad/fins.py` | interconnect fins: the five magnet tabs that latch modules together |

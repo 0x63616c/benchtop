@@ -10,6 +10,7 @@ Auto-commit each coherent step, silently. Good trace > big commits.
 ## CAD
 
 - `just ctl` = tooling TUI (namespaces: cad, pcb, bench). `just cad` = cad menu.
+  Model pickers ask for a project first, then show only that project's models.
   Direct: `just cad view [model]` (live viewer in CURRENT cmux pane — tab 1
   logs, tab 2 viewer; no model = follow last-saved; Ctrl-C = full teardown),
   `just cad export [part]`, `just cad render [drawing]`, `just cad list`,
@@ -19,7 +20,8 @@ Auto-commit each coherent step, silently. Good trace > big commits.
   fail → in-pane log + cmux notify, viewer keeps last good. Assembly is just
   a model — `just cad view assembly`. Strays: `pkill -f ocp_vscode`.
 - New part: module with part builder(s) + `scene()` (returns `viewer.Scene`),
-  one `Model` entry in `catalog.py` (+ `Printable` if it prints). All dims in
+  one project-tagged `Model` entry in `catalog.py` (+ project-tagged
+  `Printable` if it prints). All dims in
   `params.py` (edge breaks ≤1mm may inline); local→unit poses in `frames.py`;
   shared idioms in `geo.py` (polar arrays, radial plates, slot-0 marker) and
   `select.py` (named edge selectors). No `__main__` blocks or justfile recipes
@@ -49,9 +51,9 @@ Auto-commit each coherent step, silently. Good trace > big commits.
 
 ## PCB
 
-- `PCB_BOARD` picks the project the pcb commands drive (default `driver-board`;
-  the blinds board is `PCB_BOARD=blinds-board just pcb ...`).
-- `just pcb` = ctl's pcb menu. Direct: `just pcb view|drc|build|place`.
+- `just pcb` = ctl's pcb menu. Every action asks for a project, then a board.
+  Direct: `just pcb view|drc|build|place [board]`. `PCB_BOARD` remains a
+  compatible fallback when no board argument is given (default `driver-board`).
   `view` = live 3D board in the CURRENT pane (tab 1 logs, tab 2 GLB viewer;
   Ctrl-C = full teardown) — same shape as `just cad view`, own port (3950+),
   own watcher. Saving `place_and_render.py` or `main.ato` re-places, re-exports
