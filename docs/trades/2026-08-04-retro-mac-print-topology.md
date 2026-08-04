@@ -1,7 +1,8 @@
 # Trade Study: Retro Mac Print Topology
 
 **Date:** 2026-08-04
-**Status:** OPEN
+**Status:** DECIDED
+**Decision:** Use a load-bearing inner skeleton with removable cosmetic skins at the full 12.9:9 Macintosh scale.
 
 ## 1. Context
 
