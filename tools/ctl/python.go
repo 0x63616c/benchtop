@@ -40,8 +40,10 @@ type catalog struct {
 	Projects          map[string]string `json:"projects"`
 	Models            map[string]string `json:"models"`
 	ModelProjects     map[string]string `json:"model_projects"`
+	ModelSources      map[string]string `json:"model_sources"`
 	Printable         []string          `json:"printable"`
 	PrintableProjects map[string]string `json:"printable_projects"`
+	PrintableSources  map[string]string `json:"printable_sources"`
 	RenderProjects    map[string]string `json:"render_projects"`
 	SrcToModel        map[string]string `json:"src_to_model"`
 }

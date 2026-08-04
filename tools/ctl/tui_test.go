@@ -1,11 +1,73 @@
 package main
 
 import (
+	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
+
+func commitAt(t *testing.T, root, path, contents, when string) {
+	t.Helper()
+	full := filepath.Join(root, path)
+	if err := os.MkdirAll(filepath.Dir(full), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(full, []byte(contents), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, args := range [][]string{{"add", path}, {"commit", "-m", contents}} {
+		cmd := exec.Command("git", args...)
+		cmd.Dir = root
+		cmd.Env = append(os.Environ(),
+			"GIT_AUTHOR_NAME=Test", "GIT_AUTHOR_EMAIL=test@example.com",
+			"GIT_COMMITTER_NAME=Test", "GIT_COMMITTER_EMAIL=test@example.com",
+			"GIT_AUTHOR_DATE="+when, "GIT_COMMITTER_DATE="+when,
+		)
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v\n%s", args, err, out)
+		}
+	}
+}
+
+func TestModelPickerRendersCreatedAndUpdatedColumns(t *testing.T) {
+	root := t.TempDir()
+	cmd := exec.Command("git", "init", "-q")
+	cmd.Dir = root
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("git init: %v\n%s", err, out)
+	}
+	commitAt(t, root, "cad/splitflap_cad/widget.py", "create widget", "2026-08-02T12:00:00Z")
+	commitAt(t, root, "cad/splitflap_cad/widget.py", "update widget", "2026-08-04T09:00:00Z")
+
+	cat := catalog{
+		Models:        map[string]string{"widget": "a useful model"},
+		ModelProjects: map[string]string{"widget": "split-flap"},
+		ModelSources:  map[string]string{"widget": "splitflap_cad.widget"},
+	}
+	s := pickScreen("pick-view", cat, false, "split-flap", root)
+	m := &appModel{
+		stack: []screen{s}, width: 120,
+		now: func() time.Time { return time.Date(2026, 8, 4, 12, 0, 0, 0, time.UTC) },
+	}
+	view := m.View()
+
+	created := strings.Index(view, "CREATED")
+	updated := strings.Index(view, "UPDATED")
+	name := strings.Index(view, "NAME")
+	description := strings.Index(view, "DESCRIPTION")
+	if !(created >= 0 && created < updated && updated < name && name < description) {
+		t.Fatalf("missing or unordered table headings:\n%s", view)
+	}
+	if !strings.Contains(view, "2d ago") || !strings.Contains(view, "3h ago") ||
+		!strings.Contains(view, "widget") || !strings.Contains(view, "a useful model") {
+		t.Fatalf("model history row missing:\n%s", view)
+	}
+}
 
 func TestFuzzyMatch(t *testing.T) {
 	cases := []struct {
@@ -169,7 +231,7 @@ func TestCadProjectPickerScopesModels(t *testing.T) {
 	if projects.id != "cad-project" || !contains(projects.names, "split-flap") || !contains(projects.names, "blinds") {
 		t.Fatalf("view project picker = %+v", projects)
 	}
-	blinds := pickScreen("pick-view", cat, false, "blinds")
+	blinds := pickScreen("pick-view", cat, false, "blinds", root)
 	if len(blinds.names) == 0 {
 		t.Fatal("blinds model picker is empty")
 	}

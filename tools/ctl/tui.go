@@ -28,8 +28,10 @@ const footerHelp = "  [↑↓] move · [esc] go back · [enter] select · [h] he
 type menuItem struct {
 	label    string
 	help     string // dim text shown right of the label
-	disabled bool   // unselectable (cursor skips it)
-	inert    bool   // selectable but enter does nothing (coming-soon items)
+	created  time.Time
+	updated  time.Time
+	disabled bool // unselectable (cursor skips it)
+	inert    bool // selectable but enter does nothing (coming-soon items)
 }
 
 // screen is one level of the menu stack. id "run" renders the active
@@ -42,6 +44,7 @@ type screen struct {
 	items   []menuItem
 	names   []string // pick-* screens: model/project name per item
 	cursor  int
+	table   bool // rows are created/updated/name/description artifacts
 
 	// `/` fuzzy filter (pick-* screens): items/names hold the filtered view,
 	// allItems/allNames the full set.
@@ -160,6 +163,7 @@ type appModel struct {
 	cube     *demoModel  // non-nil while the demo screen is on the stack
 	bench    *benchModel // non-nil while the bench screen is on the stack
 	credits  *creditsModel
+	now      func() time.Time
 }
 
 func (m *appModel) top() *screen { return &m.stack[len(m.stack)-1] }
@@ -554,7 +558,7 @@ func (m *appModel) select_() (tea.Model, tea.Cmd) {
 		actions := []string{"view", "drc", "build", "place"}
 		m.stack = append(m.stack, pcbProjectScreen(actions[s.cursor], m.catalog()))
 	case "pcb-project":
-		m.stack = append(m.stack, pcbBoardScreen(s.action, s.names[s.cursor]))
+		m.stack = append(m.stack, pcbBoardScreen(m.root, s.action, s.names[s.cursor]))
 	case "pcb-board":
 		board := s.names[s.cursor]
 		title := fmt.Sprintf("pcb %s · %s", s.action, board)
@@ -585,9 +589,9 @@ func (m *appModel) select_() (tea.Model, tea.Cmd) {
 		project := s.names[s.cursor]
 		switch s.action {
 		case "view":
-			m.stack = append(m.stack, pickScreen("pick-view", m.catalog(), false, project))
+			m.stack = append(m.stack, pickScreen("pick-view", m.catalog(), false, project, m.root))
 		case "export":
-			m.stack = append(m.stack, pickScreen("pick-export", m.catalog(), true, project))
+			m.stack = append(m.stack, pickScreen("pick-export", m.catalog(), true, project, m.root))
 		case "render":
 			m.stack = append(m.stack, pickRenderScreen(m.root, m.catalog(), project))
 		}
@@ -651,6 +655,9 @@ func (m *appModel) View() string {
 			maxw = len([]rune(it.label))
 		}
 	}
+	if s.table {
+		out += dimStyle.Render(fmt.Sprintf("  %-8s  %-8s  %-*s   %s", "CREATED", "UPDATED", maxw, "NAME", "DESCRIPTION")) + "\n"
+	}
 	for i, it := range s.items {
 		label := it.label
 		marked := false
@@ -660,6 +667,9 @@ func (m *appModel) View() string {
 				mark, marked = "[x] ", true
 			}
 			label = mark + label
+		}
+		if s.table {
+			label = fmt.Sprintf("%-8s  %-8s  %-*s", relativeAge(it.created, m.currentTime()), relativeAge(it.updated, m.currentTime()), maxw, label)
 		}
 		line := "  " + label
 		switch {
@@ -673,7 +683,10 @@ func (m *appModel) View() string {
 			line = okStyle.Render(line)
 		}
 		if it.help != "" {
-			pad := maxw - len([]rune(it.label)) + 3
+			pad := 3
+			if !s.table {
+				pad = maxw - len([]rune(it.label)) + 3
+			}
 			for j := 0; j < pad; j++ {
 				line += " "
 			}
@@ -707,6 +720,13 @@ func (m *appModel) View() string {
 		footer = warnStyle.Render("  press ctrl+c again to quit")
 	}
 	return out + "\n" + footer + "\n"
+}
+
+func (m *appModel) currentTime() time.Time {
+	if m.now != nil {
+		return m.now()
+	}
+	return time.Now()
 }
 
 type creditsFrameMsg struct{}
@@ -952,7 +972,7 @@ func pcbProjectScreen(action string, cat catalog) screen {
 		items: items, names: names, canFilter: true, allItems: items, allNames: names}
 }
 
-func pcbBoardScreen(action, project string) screen {
+func pcbBoardScreen(root, action, project string) screen {
 	var boards []pcbBoardDef
 	for _, board := range pcbBoards {
 		if board.Project == project {
@@ -960,14 +980,20 @@ func pcbBoardScreen(action, project string) screen {
 		}
 	}
 	sort.Slice(boards, func(i, j int) bool { return boards[i].Name < boards[j].Name })
+	paths := make(map[string]string, len(boards))
+	for _, board := range boards {
+		paths[board.Name] = "pcb/" + board.Name
+	}
+	histories := artifactHistories(root, paths)
 	names := make([]string, len(boards))
 	items := make([]menuItem, len(boards))
 	for i, board := range boards {
 		names[i] = board.Name
-		items[i] = menuItem{label: board.Name, help: board.Help}
+		history := histories[board.Name]
+		items[i] = menuItem{label: board.Name, help: board.Help, created: history.Created, updated: history.Updated}
 	}
 	return screen{id: "pcb-board", title: project + " boards", action: action, project: project,
-		items: items, names: names, canFilter: true, allItems: items, allNames: names}
+		items: items, names: names, table: true, canFilter: true, allItems: items, allNames: names}
 }
 
 func viewScreen() screen {
@@ -977,7 +1003,7 @@ func viewScreen() screen {
 	}}
 }
 
-func pickScreen(id string, cat catalog, printable bool, project string) screen {
+func pickScreen(id string, cat catalog, printable bool, project, root string) screen {
 	var names []string
 	if printable {
 		for _, name := range cat.Printable {
@@ -996,16 +1022,26 @@ func pickScreen(id string, cat catalog, printable bool, project string) screen {
 		}
 	}
 	sort.Strings(names)
+	sources := cat.ModelSources
+	if printable {
+		sources = cat.PrintableSources
+	}
+	paths := make(map[string]string, len(names))
+	for _, name := range names {
+		paths[name] = cadSourcePath(sources[name])
+	}
+	histories := artifactHistories(root, paths)
 	items := make([]menuItem, len(names))
 	for i, n := range names {
-		item := menuItem{label: n}
+		history := histories[n]
+		item := menuItem{label: n, created: history.Created, updated: history.Updated}
 		if !printable {
 			item.help = cat.Models[n]
 		}
 		items[i] = item
 	}
 	s := screen{id: id, title: project + " models", project: project, items: items, names: names,
-		canFilter: true, allItems: items, allNames: names}
+		table: !printable, canFilter: true, allItems: items, allNames: names}
 	if printable { // export picker: space marks rows, enter runs the set
 		s.multi = true
 		s.selected = map[string]bool{}

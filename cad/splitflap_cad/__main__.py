@@ -49,9 +49,13 @@ def cmd_list(args):
                     "projects": PROJECTS,
                     "models": {name: m.help for name, m in MODELS.items()},
                     "model_projects": {name: m.project for name, m in MODELS.items()},
+                    "model_sources": {name: m.src for name, m in MODELS.items()},
                     "printable": list(PRINTABLE),
                     "printable_projects": {
                         name: part.project for name, part in PRINTABLE.items()
+                    },
+                    "printable_sources": {
+                        name: part.src for name, part in PRINTABLE.items()
                     },
                     "render_projects": {
                         name: render.project for name, render in RENDERS.items()
