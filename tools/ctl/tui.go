@@ -658,6 +658,7 @@ func (m *appModel) View() string {
 	if s.table {
 		out += dimStyle.Render(fmt.Sprintf("  %-8s  %-8s  %-*s   %s", "CREATED", "UPDATED", maxw, "NAME", "DESCRIPTION")) + "\n"
 	}
+	now := m.currentTime()
 	for i, it := range s.items {
 		label := it.label
 		marked := false
@@ -669,7 +670,7 @@ func (m *appModel) View() string {
 			label = mark + label
 		}
 		if s.table {
-			label = fmt.Sprintf("%-8s  %-8s  %-*s", relativeAge(it.created, m.currentTime()), relativeAge(it.updated, m.currentTime()), maxw, label)
+			label = fmt.Sprintf("%-8s  %-8s  %-*s", relativeAge(it.created, now), relativeAge(it.updated, now), maxw, label)
 		}
 		line := "  " + label
 		switch {
@@ -1022,15 +1023,14 @@ func pickScreen(id string, cat catalog, printable bool, project, root string) sc
 		}
 	}
 	sort.Strings(names)
-	sources := cat.ModelSources
-	if printable {
-		sources = cat.PrintableSources
+	histories := map[string]artifactHistory{}
+	if !printable {
+		paths := make(map[string]string, len(names))
+		for _, name := range names {
+			paths[name] = cadSourcePath(cat.ModelSources[name])
+		}
+		histories = artifactHistories(root, paths)
 	}
-	paths := make(map[string]string, len(names))
-	for _, name := range names {
-		paths[name] = cadSourcePath(sources[name])
-	}
-	histories := artifactHistories(root, paths)
 	items := make([]menuItem, len(names))
 	for i, n := range names {
 		history := histories[n]

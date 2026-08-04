@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -10,12 +9,7 @@ import (
 )
 
 func TestPCBPickerRendersCreatedAndUpdatedColumns(t *testing.T) {
-	root := t.TempDir()
-	cmd := exec.Command("git", "init", "-q")
-	cmd.Dir = root
-	if out, err := cmd.CombinedOutput(); err != nil {
-		t.Fatalf("git init: %v\n%s", err, out)
-	}
+	root := initHistoryRepo(t)
 	commitAt(t, root, "pcb/blinds-board/main.ato", "create board", "2026-07-31T12:00:00Z")
 	commitAt(t, root, "pcb/blinds-board/main.ato", "update board", "2026-08-04T11:30:00Z")
 

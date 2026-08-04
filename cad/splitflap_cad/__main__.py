@@ -54,9 +54,6 @@ def cmd_list(args):
                     "printable_projects": {
                         name: part.project for name, part in PRINTABLE.items()
                     },
-                    "printable_sources": {
-                        name: part.src for name, part in PRINTABLE.items()
-                    },
                     "render_projects": {
                         name: render.project for name, render in RENDERS.items()
                     },

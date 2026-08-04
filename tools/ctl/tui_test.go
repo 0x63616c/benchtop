@@ -34,15 +34,21 @@ func commitAt(t *testing.T, root, path, contents, when string) {
 	}
 }
 
-func TestModelPickerRendersCreatedAndUpdatedColumns(t *testing.T) {
+func initHistoryRepo(t *testing.T) string {
+	t.Helper()
 	root := t.TempDir()
 	cmd := exec.Command("git", "init", "-q")
 	cmd.Dir = root
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("git init: %v\n%s", err, out)
 	}
-	commitAt(t, root, "cad/splitflap_cad/widget.py", "create widget", "2026-08-02T12:00:00Z")
-	commitAt(t, root, "cad/splitflap_cad/widget.py", "update widget", "2026-08-04T09:00:00Z")
+	return root
+}
+
+func TestModelPickerRendersCreatedAndUpdatedColumns(t *testing.T) {
+	root := initHistoryRepo(t)
+	commitAt(t, root, "cad/splitflap_cad/widget.py", "create widget", "2026-08-03T12:00:00Z")
+	commitAt(t, root, "cad/splitflap_cad/widget.py", "update widget", "2026-08-04T11:57:00Z")
 
 	cat := catalog{
 		Models:        map[string]string{"widget": "a useful model"},
@@ -63,7 +69,7 @@ func TestModelPickerRendersCreatedAndUpdatedColumns(t *testing.T) {
 	if !(created >= 0 && created < updated && updated < name && name < description) {
 		t.Fatalf("missing or unordered table headings:\n%s", view)
 	}
-	if !strings.Contains(view, "2d ago") || !strings.Contains(view, "3h ago") ||
+	if !strings.Contains(view, "1d ago") || !strings.Contains(view, "3m ago") ||
 		!strings.Contains(view, "widget") || !strings.Contains(view, "a useful model") {
 		t.Fatalf("model history row missing:\n%s", view)
 	}
