@@ -39,8 +39,10 @@ fallback) with the motor horizontal:
     face at x = 49 ± 11.5, y ≈ 36.
 - **Drive: two printed stages.** Spur pair m2 14:17 (motor pinion on
   the D-shaft at x≈81.5 → layshaft at (21, 220), center distance 31).
-  Layshaft is one print: spur gear + Ø8 shaft + m2 z10 bevel at its
-  left end (heel plane x=59). That bevel meshes a z10 bevel ring
+  The layshaft is a bought Ø5×38.5 mm steel rod in two 625ZZ bearings.
+  Separate face-down z17 spur and heel-down z10 bevel prints are locked
+  to it with Ø2 cross pins and located by three printed axial spacers.
+  The bevel meshes a z10 bevel ring
   printed as ONE piece with the 12-pocket sprocket (ring heel plane
   y=11, drum bridge, wheel at y≈36). Sprocket spins on a fixed M5
   cross-axle (front-access head → captive wall-side frame nut). Net:
@@ -48,10 +50,12 @@ fallback) with the motor horizontal:
   ~109mm/s chain (target 100); sprocket torque ≈ 0.6 × 17/14 × ~0.72
   gear efficiency ≈ 0.52Nm vs 0.39 needed. Steel bevel fallback still
   possible (bores stay standard).
-- **Motor mount:** vertical rib bulkhead at x 67..70 (6×M3 BCD31 into
-  the gearbox face, layshaft U-saddle in the same rib) + a support-free
-  half cradle near x≈11. Layshaft right end rides a second U-saddle at x 86..92;
-  saddles open toward the back for insertion, retained by clips.
+- **Motor mount:** a separate four-screw cassette owns the x=67..70
+  motor face (6×M3 BCD31), tail cradle, and two open 625ZZ seats.
+  Preassemble the rod stack, drop both bearings into the seats, and secure
+  two split caps with four M3 screws. The complete cassette then screws onto
+  four insert pads on the permanent wall frame, so drive revisions do not
+  require reprinting the frame.
 - **Battery loom:** the two bought holders are wired as 1S3P banks and
   series-linked for 2S3P. PACK+, midpoint, and PACK- go directly to the
   main board's three-pin battery input. No carrier PCB is required.
@@ -60,10 +64,10 @@ fallback) with the motor horizontal:
   plungers through the front wall at z≈11.2. USB-C right-angle exits the
   front face beside them. Schematic, placement, and A* routing are complete.
 - **Enclosure (revised 2026-08-03):** a wall-mounted structural
-  exoskeleton owns the motor bulkhead, layshaft saddles, fixed sprocket
+  exoskeleton owns four drive-cassette insert pads, the fixed sprocket
   axle, direct battery-holder spine, PCB tray, and four #8 wall anchors. A
-  pair of rear load spines ties the upper drive cassette and motor
-  bulkhead into the middle cross rail; battery bosses grow from visible
+  pair of rear load spines ties the upper drive cassette pads into the
+  middle cross rail; battery bosses grow from visible
   side-rail brackets clear of the wall anchors, and all sleeve guides
   have positive overlap into their supporting rails. A
   separate 0.8 mm open-back, open-top sleeve slides over it and is held
@@ -87,7 +91,8 @@ fallback) with the motor horizontal:
 
 ## Risks / verify on arrival
 
-- Printed bevel wear under 0.4Nm — steel fallback designed in.
+- Printed bevel wear under 0.4Nm — the separate gear can be reprinted or
+  replaced without replacing its steel rod, bearings, cassette, or frame.
 - Shaft flat length (pinion rides the shaft tip) — caliper on arrival.
 - Button feel through the 0.8 mm sleeve at the z≈11.2 axis — verify on
   the first physical print.

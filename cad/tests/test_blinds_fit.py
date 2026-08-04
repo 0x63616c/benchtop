@@ -17,8 +17,8 @@ pytestmark = pytest.mark.slow
 # approximation graze means the mesh geometry regressed.
 MESHES = {
     frozenset({"chain", "sprocket"}): 200.0,   # ghost rides in the pockets
-    frozenset({"sprocket", "layshaft"}): 0.5,  # bevel mesh graze
-    frozenset({"layshaft", "pinion"}): 0.5,    # spur mesh graze
+    frozenset({"sprocket", "layshaft-bevel"}): 0.5,
+    frozenset({"layshaft-spur", "pinion"}): 0.5,
 }
 
 
@@ -28,8 +28,18 @@ def posed():
     from blinds_cad.blindsunit import button, pcb_ghost, usbc
     from blinds_cad.cells21700 import cell_stack, holder_stack
     from blinds_cad.cover import cap_front, cap_rear, sleeve
+    from blinds_cad.drivecassette import (
+        bearing_at,
+        bearing_caps,
+        bevel_spacer,
+        drive_cassette,
+        inner_spacer,
+        layshaft_rod,
+        motor_spacer,
+        outer_spacer,
+    )
     from blinds_cad.enclosure import axle_keeper, frame
-    from blinds_cad.gears import layshaft, pinion
+    from blinds_cad.gears import bevel_gear, pinion, spur_gear
     from blinds_cad.jgb37 import jgb37
     from blinds_cad.params import P
     from blinds_cad.sprocket import chain_ghost, sprocket
@@ -40,9 +50,19 @@ def posed():
         "sleeve": sleeve(),
         "cap-rear": cap_rear(),
         "cap-front": cap_front(),
+        "drive-cassette": drive_cassette(),
+        "bearing-caps": bearing_caps(),
         "motor": F.MOTOR_IN_UNIT * jgb37(),
         "pinion": F.PINION_IN_UNIT * pinion(),
-        "layshaft": F.LAYSHAFT_IN_UNIT * layshaft(),
+        "motor-spacer": motor_spacer(),
+        "layshaft-bevel": F.LAYSHAFT_IN_UNIT * bevel_gear(),
+        "bevel-spacer": bevel_spacer(),
+        "left-bearing": bearing_at(P.lay_bearing_centers_x[0]),
+        "inner-spacer": inner_spacer(),
+        "layshaft-spur": F.SPUR_IN_UNIT * spur_gear(),
+        "outer-spacer": outer_spacer(),
+        "right-bearing": bearing_at(P.lay_bearing_centers_x[1]),
+        "layshaft-rod": layshaft_rod(),
         "sprocket": F.SPROCKET_IN_UNIT * sprocket(),
         "chain": F.CHAIN_IN_UNIT * chain_ghost(200),
         "cells": F.BAY_IN_UNIT * cell_stack(),
@@ -75,7 +95,8 @@ def test_envelope(posed):
     assert posed["cap-rear"].bounding_box().max.Z == pytest.approx(P.enc_h)
     assert posed["cap-front"].bounding_box().max.Z == pytest.approx(P.enc_h)
     for name in (
-        "motor", "pinion", "layshaft", "sprocket",
+        "drive-cassette", "bearing-caps", "motor", "pinion",
+        "layshaft-bevel", "layshaft-spur", "layshaft-rod", "sprocket",
         "cells", "holders", "pcb",
     ):
         b = posed[name].bounding_box()
@@ -107,16 +128,3 @@ def test_gear_mesh_geometry():
     assert P.lay_z - P.motor_z == P.spur_pinion_r + P.spur_wheel_r
     assert P.bevel_heel_x - P.drive_x == P.bevel_r
     assert P.drive_y - P.ring_heel_y == P.bevel_r
-
-
-def test_layshaft_accepts_5mm_reinforcing_rod():
-    """The printed compound gear stays connected around a clear 5mm bore."""
-    from build123d import Cylinder, Pos
-
-    from blinds_cad.gears import layshaft
-
-    gear = layshaft()
-    rod = Pos(0, 0, -14) * Cylinder(2.5, 38)
-
-    assert len(gear.solids()) == 1
-    assert (gear & rod).volume < 1e-6

@@ -1,8 +1,8 @@
 """Wall-mounted structural exoskeleton for the blinds unit.
 
-Built in the UNIT frame.  This one print owns the wall anchors, motor
-bulkhead, layshaft saddles, motor-tail cradle, enclosed sprocket guide,
-PCB tray, direct battery-holder spine, and cosmetic-sleeve retainers.  It
+Built in the UNIT frame. This one print owns the wall anchors, removable-drive
+mounting pads, enclosed sprocket guide, PCB tray, direct battery-holder spine,
+and cosmetic-sleeve retainers. It
 prints wall-face down: X/Z are the 98 x 242 bed footprint and Y is only
 the 44 mm print height.
 
@@ -122,7 +122,7 @@ def _keeper_tap_cuts():
 def _backbone():
     """Flat wall-side rail grid; the print bed for every projecting feature.
 
-    The two upper spines carry the drive cassette and motor bulkhead down
+    The two upper spines carry the removable drive cassette down
     into the middle cross rail.  Without them those large cantilevers were
     fused only to the top rail and looked (and behaved) nearly unsupported.
     """

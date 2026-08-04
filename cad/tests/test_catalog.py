@@ -83,7 +83,11 @@ def test_printable_builders_exist():
         "blinds-cap-rear",
         "blinds-cap-front",
         "blinds-pinion",
-        "blinds-layshaft",
+        "blinds-layshaft-spur",
+        "blinds-layshaft-bevel",
+        "blinds-drive-cassette",
+        "blinds-bearing-caps",
+        "blinds-drive-spacers",
     }
 
 

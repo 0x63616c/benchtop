@@ -10,8 +10,18 @@ wall-mounted exoskeleton. The sleeve and cap halves are translucent.
 from . import frames as F
 from .cells21700 import cell_stack, holder_stack
 from .cover import cap_front, cap_rear, sleeve
+from .drivecassette import (
+    bearing_at,
+    bearing_caps,
+    bevel_spacer,
+    drive_cassette,
+    inner_spacer,
+    layshaft_rod,
+    motor_spacer,
+    outer_spacer,
+)
 from .enclosure import axle_keeper, frame
-from .gears import layshaft, pinion
+from .gears import bevel_gear, pinion, spur_gear
 from .jgb37 import jgb37
 from .params import P
 from .pcbboard import board as pcb_board
@@ -34,8 +44,26 @@ def scene():
     s.add(cap_rear(), "cap-rear", color="gainsboro", alpha=0.5)
     s.add(cap_front(), "cap-front", color="whitesmoke", alpha=0.5)
     s.add(jgb37(), "motor", color="silver", loc=F.MOTOR_IN_UNIT)
+    s.add(drive_cassette(), "drive-cassette", color="lightsteelblue", alpha=0.8)
+    s.add(bearing_caps(), "bearing-caps", color="steelblue", alpha=0.8)
     s.add(pinion(), "pinion", color="tomato", loc=F.PINION_IN_UNIT)
-    s.add(layshaft(), "layshaft", color="goldenrod", loc=F.LAYSHAFT_IN_UNIT)
+    s.add(motor_spacer(), "motor-spacer", color="darkorange")
+    s.add(bevel_gear(), "layshaft-bevel", color="gold", loc=F.LAYSHAFT_IN_UNIT)
+    s.add(bevel_spacer(), "bevel-spacer", color="goldenrod")
+    s.add(
+        bearing_at(P.lay_bearing_centers_x[0]),
+        "left-bearing",
+        color="silver",
+    )
+    s.add(inner_spacer(), "inner-spacer", color="goldenrod")
+    s.add(spur_gear(), "layshaft-spur", color="goldenrod", loc=F.SPUR_IN_UNIT)
+    s.add(outer_spacer(), "outer-spacer", color="goldenrod")
+    s.add(
+        bearing_at(P.lay_bearing_centers_x[1]),
+        "right-bearing",
+        color="silver",
+    )
+    s.add(layshaft_rod(), "layshaft-rod", color="dimgray")
     s.add(sprocket(), "sprocket", color="orange", loc=F.SPROCKET_IN_UNIT)
     s.add(chain_ghost(200), "chain", color="gray", alpha=0.5, loc=F.CHAIN_IN_UNIT)
     s.add(cell_stack(), "cells", color="teal", loc=F.BAY_IN_UNIT)

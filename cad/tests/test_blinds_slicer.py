@@ -1,4 +1,4 @@
-"""Bambu Studio regression for the frame's documented print orientation."""
+"""Bambu Studio regressions for documented blinds print orientations."""
 
 import json
 from pathlib import Path
@@ -28,22 +28,59 @@ def _resolved_preset(kind: str, name: str) -> dict:
     return resolved
 
 
+def _printable(name: str):
+    if name == "frame":
+        from blinds_cad.enclosure import frame
+
+        return Rot(90, 0, 0) * frame()
+    if name == "drive-cassette":
+        from blinds_cad.drivecassette import drive_cassette
+
+        return Rot(90, 0, 0) * drive_cassette()
+    if name == "bearing-caps":
+        from blinds_cad.drivecassette import bearing_caps_print
+
+        return bearing_caps_print()
+    if name == "drive-spacers":
+        from blinds_cad.drivecassette import spacers_print
+
+        return spacers_print()
+    if name == "sprocket":
+        from blinds_cad.sprocket import sprocket_print
+
+        return sprocket_print()
+    from blinds_cad import gears
+
+    return getattr(gears, f"{name}_print")()
+
+
 @pytest.mark.slow
-def test_frame_slices_wall_face_down_on_p2s_without_support_or_warnings(tmp_path):
+@pytest.mark.parametrize(
+    "model",
+    (
+        "frame",
+        "drive-cassette",
+        "bearing-caps",
+        "drive-spacers",
+        "sprocket",
+        "pinion",
+        "spur_gear",
+        "bevel_gear",
+    ),
+)
+def test_structural_and_drive_parts_slice_without_support_or_warnings(tmp_path, model):
     studio = shutil.which("bambu-studio")
     if studio is None or not PROFILE_ROOT.exists():
         pytest.skip("Bambu Studio P2S profiles are not installed")
 
-    from blinds_cad.enclosure import frame
-
-    oriented = Rot(90, 0, 0) * frame()
+    oriented = _printable(model)
     bounds = oriented.bounding_box()
     oriented = Pos(
         10 - bounds.min.X,
         10 - bounds.min.Y,
         -bounds.min.Z,
     ) * oriented
-    stl = tmp_path / "blinds-frame-wall-face-down.stl"
+    stl = tmp_path / f"blinds-{model}.stl"
     export_stl(oriented, str(stl))
 
     presets = {

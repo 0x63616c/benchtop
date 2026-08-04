@@ -1,9 +1,8 @@
 """Removable motor/gear cassette and bought layshaft hardware.
 
 The production layshaft is a 5 mm steel rod running in two 625ZZ
-bearings.  Cassette plastics and the split bearing caps are added in
-the next vertical slice; these reference solids establish the hardware
-contract and common unit-coordinate axes first.
+bearings. The rod, separate gears, spacers, and bearings drop into open
+rear seats, then two printed front caps retain the completed stack.
 """
 
 import math
@@ -45,6 +44,74 @@ def layshaft_rod():
     )
 
 
+def _axis_x_tube(outer_d: float, bore_d: float, x0: float, x1: float):
+    length = x1 - x0
+    if length <= 0:
+        raise ValueError(f"non-positive spacer length: {length}")
+    tube = _axis_x_cylinder(outer_d / 2, x0, length, P.drive_y, P.lay_z)
+    tube -= _axis_x_cylinder(bore_d / 2, x0 - 0.5, length + 1, P.drive_y, P.lay_z)
+    return tube
+
+
+def _posed_gears():
+    from . import frames as F
+    from .gears import bevel_gear, pinion, spur_gear
+
+    return {
+        "pinion": F.PINION_IN_UNIT * pinion(),
+        "layshaft-bevel": F.LAYSHAFT_IN_UNIT * bevel_gear(),
+        "layshaft-spur": F.SPUR_IN_UNIT * spur_gear(),
+    }
+
+
+def motor_spacer():
+    """Motor-boss-to-pinion spacer in assembled unit coordinates."""
+    pinion_min = _posed_gears()["pinion"].bounding_box().min.X
+    x0 = P.bulkhead_x + P.jgb_boss_h
+    x1 = pinion_min - P.drive_running_gap
+    length = x1 - x0
+    tube = _axis_x_cylinder(P.motor_spacer_d / 2, x0, length, P.drive_y, P.motor_z)
+    tube -= _axis_x_cylinder(3.1, x0 - 0.5, length + 1, P.drive_y, P.motor_z)
+    return tube
+
+
+def bevel_spacer():
+    gear_max = _posed_gears()["layshaft-bevel"].bounding_box().max.X
+    bearing_min = P.lay_bearing_centers_x[0] - P.lay_bearing_w / 2
+    return _axis_x_tube(
+        P.lay_spacer_d,
+        P.lay_rod_d + P.lay_rod_clear,
+        gear_max + P.drive_running_gap,
+        bearing_min,
+    )
+
+
+def inner_spacer():
+    bearing_max = P.lay_bearing_centers_x[0] + P.lay_bearing_w / 2
+    gear_min = _posed_gears()["layshaft-spur"].bounding_box().min.X
+    return _axis_x_tube(
+        P.lay_spacer_d,
+        P.lay_rod_d + P.lay_rod_clear,
+        bearing_max,
+        gear_min - P.drive_running_gap,
+    )
+
+
+def outer_spacer():
+    gear_max = _posed_gears()["layshaft-spur"].bounding_box().max.X
+    bearing_min = P.lay_bearing_centers_x[1] - P.lay_bearing_w / 2
+    return _axis_x_tube(
+        P.lay_spacer_d,
+        P.lay_rod_d + P.lay_rod_clear,
+        gear_max + P.drive_running_gap,
+        bearing_min,
+    )
+
+
+def bearing_at(x: float):
+    return Pos(x - P.lay_bearing_w / 2, P.drive_y, P.lay_z) * bearing_625zz()
+
+
 def _motor_bulkhead():
     """Cassette-owned motor face and left bearing support."""
     from .enclosure import _support_free_cross_bore
@@ -78,10 +145,10 @@ def _motor_bulkhead():
     body -= box_between(
         P.lay_bearing_centers_x[0] - P.lay_bearing_boss_w / 2 - 0.2,
         P.drive_y,
-        P.lay_z - P.lay_bearing_boss_d / 2 - 4.5,
-        P.lay_bearing_centers_x[0] + P.lay_bearing_boss_w / 2 + 0.2,
+        P.lay_z - P.lay_cap_ear_offset - P.lay_cap_ear_d / 2 - 0.2,
+        P.lay_bearing_centers_x[0] + P.lay_bearing_boss_w / 2 + P.lay_cap_ear_d / 2,
         P.lay_cap_y1 + 0.2,
-        P.lay_z + P.lay_bearing_boss_d / 2 + 4.5,
+        P.lay_z + P.lay_cap_ear_offset + P.lay_cap_ear_d / 2 + 0.2,
     )
     return body
 
@@ -138,7 +205,7 @@ def _bearing_pocket(x: float):
 
 def _bearing_shaft_cut(x: float):
     return _axis_x_cylinder(
-        (P.lay_rod_d + P.lay_rod_clear) / 2,
+        (P.lay_spacer_d + P.lay_rod_clear) / 2,
         x - P.lay_bearing_boss_w / 2 - 0.5,
         P.lay_bearing_boss_w + 1,
         P.drive_y,
@@ -201,7 +268,7 @@ def drive_cassette():
     """One-piece motor mount and rear bearing cradle, separate from frame."""
     body = box_between(
         P.cradle_x0,
-        P.drive_tab_y0,
+        P.drive_cassette_back_y,
         P.drive_lower_z0,
         P.saddle_x1,
         P.drive_tab_y1,
@@ -223,6 +290,20 @@ def drive_cassette():
         body -= _bearing_pocket(x)
         body -= _bearing_shaft_cut(x)
 
+    # The motor shaft continues through the right support to its tip.
+    body -= _axis_x_cylinder(
+        P.jgb_shaft_d / 2 + 0.3,
+        P.saddle_x0 - 1,
+        P.saddle_x1 - P.saddle_x0 + 2,
+        P.drive_y,
+        P.motor_z,
+    )
+
+    # The keeper remains frame-owned; the cassette bulkhead stops around it.
+    from .enclosure import _keeper_pockets
+
+    body -= _keeper_pockets()
+
     for x, _y, z in P.drive_mount_points:
         body -= box_between(
             x - P.drive_mount_boss_d / 2 - P.drive_cassette_fit,
@@ -237,3 +318,51 @@ def drive_cassette():
             * Cylinder(P.drive_mount_clear_d / 2, P.drive_tab_y1 + 1)
         )
     return body
+
+
+def bearing_caps_print():
+    """Both caps with their split faces on the print bed."""
+    oriented = Rot(90, 0, 0) * bearing_caps()
+    return Pos(0, 0, -oriented.bounding_box().min.Z) * oriented
+
+
+def spacers_print():
+    """Four axial spacers upright on one small build plate."""
+    assembly_parts = (
+        motor_spacer(),
+        bevel_spacer(),
+        inner_spacer(),
+        outer_spacer(),
+    )
+    plate = None
+    for index, part in enumerate(assembly_parts):
+        upright = Rot(0, -90, 0) * part
+        bounds = upright.bounding_box()
+        upright = Pos(index * 14 - bounds.min.X, -bounds.min.Y, -bounds.min.Z) * upright
+        plate = upright if plate is None else plate + upright
+    return plate
+
+
+def scene():
+    """Complete removable drive assembly in unit coordinates."""
+    from splitflap_cad.viewer import Scene
+
+    from . import frames as F
+    from .jgb37 import jgb37
+
+    gears = _posed_gears()
+    result = Scene()
+    result.add(drive_cassette(), "cassette", color="lightsteelblue", alpha=0.8)
+    result.add(bearing_caps(), "bearing-caps", color="steelblue", alpha=0.8)
+    result.add(jgb37(), "motor", color="silver", loc=F.MOTOR_IN_UNIT)
+    result.add(gears["pinion"], "pinion", color="orange")
+    result.add(motor_spacer(), "motor-spacer", color="darkorange")
+    result.add(gears["layshaft-bevel"], "layshaft-bevel", color="gold")
+    result.add(bevel_spacer(), "bevel-spacer", color="goldenrod")
+    result.add(bearing_at(P.lay_bearing_centers_x[0]), "left-bearing", color="silver")
+    result.add(inner_spacer(), "inner-spacer", color="goldenrod")
+    result.add(gears["layshaft-spur"], "layshaft-spur", color="goldenrod")
+    result.add(outer_spacer(), "outer-spacer", color="goldenrod")
+    result.add(bearing_at(P.lay_bearing_centers_x[1]), "right-bearing", color="silver")
+    result.add(layshaft_rod(), "layshaft-rod", color="dimgray")
+    return result

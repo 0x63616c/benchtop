@@ -238,8 +238,13 @@ MODELS = {
     ),
     "blinds-gears": Model(
         "blinds",
-        "BLINDS printed drive: spur pinion + layshaft (spur+bevel)",
+        "BLINDS support-free separate pinion, layshaft spur, and bevel",
         "blinds_cad.gears",
+    ),
+    "blinds-drive-cassette": Model(
+        "blinds",
+        "BLINDS removable motor mount, 625ZZ caps, rod, and spacers",
+        "blinds_cad.drivecassette",
     ),
     "blinds-cells": Model(
         "blinds",
@@ -301,7 +306,7 @@ PRINTABLE = {
     "gear-box-motor-output-spacer": Printable(
         "gear-box", "motorbevel", "output_spacer"
     ),
-    "blinds-sprocket": Printable("blinds", "blinds_cad.sprocket", "sprocket"),
+    "blinds-sprocket": Printable("blinds", "blinds_cad.sprocket", "sprocket_print"),
     "blinds-frame": Printable("blinds", "blinds_cad.enclosure", "frame"),
     "blinds-axle-keeper": Printable(
         "blinds", "blinds_cad.enclosure", "axle_keeper"
@@ -309,8 +314,22 @@ PRINTABLE = {
     "blinds-sleeve": Printable("blinds", "blinds_cad.cover", "sleeve"),
     "blinds-cap-rear": Printable("blinds", "blinds_cad.cover", "cap_rear"),
     "blinds-cap-front": Printable("blinds", "blinds_cad.cover", "cap_front"),
-    "blinds-pinion": Printable("blinds", "blinds_cad.gears", "pinion"),
-    "blinds-layshaft": Printable("blinds", "blinds_cad.gears", "layshaft"),
+    "blinds-pinion": Printable("blinds", "blinds_cad.gears", "pinion_print"),
+    "blinds-layshaft-spur": Printable(
+        "blinds", "blinds_cad.gears", "spur_gear_print"
+    ),
+    "blinds-layshaft-bevel": Printable(
+        "blinds", "blinds_cad.gears", "bevel_gear_print"
+    ),
+    "blinds-drive-cassette": Printable(
+        "blinds", "blinds_cad.drivecassette", "drive_cassette"
+    ),
+    "blinds-bearing-caps": Printable(
+        "blinds", "blinds_cad.drivecassette", "bearing_caps_print"
+    ),
+    "blinds-drive-spacers": Printable(
+        "blinds", "blinds_cad.drivecassette", "spacers_print"
+    ),
 }
 
 

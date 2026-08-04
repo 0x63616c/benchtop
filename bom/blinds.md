@@ -146,9 +146,10 @@ Per-unit marginal electronics cost ≈ **$36** (PCB parts + holders + motor; cel
 
 ## Mechanical, v2 center-drop drive (per unit)
 
-The v2 drive train (spec 2026-07-26) is printed: spur pinion m2 z14 on the
-motor D-shaft, one-piece layshaft (m2 z17 spur + Ø8 shaft + m2 z10 bevel),
-and the z10 bevel ring printed into the sprocket. Bought hardware:
+The v2 drive train (spec 2026-07-26) uses separately printed m2 z14 and z17
+spur gears plus a separate z10 layshaft bevel. The layshaft gears are pinned
+to a bought Ø5 mm steel rod running in two 625ZZ bearings; the matching z10
+bevel ring remains printed into the sprocket. Bought hardware:
 
 | Part | Qty | Note |
 |---|---|---|
@@ -157,10 +158,18 @@ and the z10 bevel ring printed into the sprocket. Bought hardware:
 | M3×8 + heat-set (board, battery holders) | 3 + 6 | rev C board bosses, direct holder spine |
 | M3×8 (sleeve retention) | 2 | underside screws into the wall frame; sleeve remains non-structural |
 | M3×8 (axle keeper) | 4 | removable front bridge retains the axle independently of the sleeve |
+| 625ZZ bearing (5×16×5 mm) | 2 | layshaft bearings retained by split printed caps |
+| Ø5×38.5 mm steel rod | 1 | removable layshaft; cut/deburr from 5 mm stock |
+| Ø2 mm steel cross pin | 2 | locks separate spur and bevel gears to the rod |
+| M3 grub screw | 1 | locks the motor pinion through its printable/tappable pilot |
+| M3×8 + heat-set (drive cassette) | 4 + 4 | cassette → frame, and two bearing caps → cassette |
 | Steel 1:1 bevel pair, m2-ish, Ø5/Ø6 bores | 0 (fallback) | only if the printed bevels wear — bores are standard |
 
-Printed enclosure parts: `blinds-frame`, `blinds-axle-keeper`,
-`blinds-sleeve`, `blinds-cap-rear`, and `blinds-cap-front`. Print the
-frame wall-face down, the keeper and sleeve front-face down, and both
-cap halves top-face down. The frame has a Bambu Studio slow-test guard
-that slices it on the P2S PETG profile with generated support disabled.
+Printed structural parts: `blinds-frame`, `blinds-drive-cassette`,
+`blinds-bearing-caps`, `blinds-drive-spacers`, `blinds-axle-keeper`,
+`blinds-sleeve`, `blinds-cap-rear`, and `blinds-cap-front`. Printed drive
+parts are `blinds-pinion`, `blinds-layshaft-spur`, `blinds-layshaft-bevel`,
+and `blinds-sprocket`. Print the frame and cassette wall-face down, the
+gears face/heel-down, and the spacers upright. Bambu Studio slow-test guards
+slice all structural and drive parts on the P2S PETG profile with generated
+support disabled.

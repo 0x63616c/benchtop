@@ -141,9 +141,9 @@ def _mirror_spacer_corner():
 
 
 def _blinds_sprocket():
-    from blinds_cad.sprocket import sprocket
+    from blinds_cad.sprocket import sprocket_print
 
-    return sprocket()
+    return sprocket_print()
 
 
 def _blinds_frame():
@@ -183,15 +183,39 @@ def _blinds_motor():
 
 
 def _blinds_pinion():
-    from blinds_cad.gears import pinion
+    from blinds_cad.gears import pinion_print
 
-    return pinion()
+    return pinion_print()
 
 
-def _blinds_layshaft():
-    from blinds_cad.gears import layshaft
+def _blinds_layshaft_spur():
+    from blinds_cad.gears import spur_gear_print
 
-    return layshaft()
+    return spur_gear_print()
+
+
+def _blinds_layshaft_bevel():
+    from blinds_cad.gears import bevel_gear_print
+
+    return bevel_gear_print()
+
+
+def _blinds_drive_cassette():
+    from blinds_cad.drivecassette import drive_cassette
+
+    return drive_cassette()
+
+
+def _blinds_bearing_caps():
+    from blinds_cad.drivecassette import bearing_caps_print
+
+    return bearing_caps_print()
+
+
+def _blinds_drive_spacers():
+    from blinds_cad.drivecassette import spacers_print
+
+    return spacers_print()
 
 
 def _gearbox_housing():
@@ -296,7 +320,11 @@ BREP_PARTS = {
     "blinds-cap-front": _blinds_cap_front,
     "blinds-motor": _blinds_motor,
     "blinds-pinion": _blinds_pinion,
-    "blinds-layshaft": _blinds_layshaft,
+    "blinds-layshaft-spur": _blinds_layshaft_spur,
+    "blinds-layshaft-bevel": _blinds_layshaft_bevel,
+    "blinds-drive-cassette": _blinds_drive_cassette,
+    "blinds-bearing-caps": _blinds_bearing_caps,
+    "blinds-drive-spacers": _blinds_drive_spacers,
     "gear-box-housing": _gearbox_housing,
     "gear-box-lid": _gearbox_lid,
     "gear-box-input-gear": _gearbox_input_gear,

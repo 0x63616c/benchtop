@@ -28,6 +28,12 @@ PINION_IN_UNIT = Pos(P.pinion_x, P.drive_y, P.motor_z) * _SHAFT_ROT
 # and the shaft/spur run right toward the saddles.
 LAYSHAFT_IN_UNIT = Pos(P.bevel_heel_x, P.drive_y, P.lay_z) * Rot(0, -90, 0)
 
+# Separate z17 spur on the same bought rod.  Its local centre is the
+# old compound layshaft wheel centre, preserving the proven spur mesh.
+SPUR_IN_UNIT = LAYSHAFT_IN_UNIT * Pos(
+    0, 0, P.bevel_heel_x - P.pinion_x
+)
+
 # Sprocket (axis +Z, wheel mid-plane z=0, ring gear +Z) onto the M5
 # axle: local +Z -> unit -Y so the ring sits wall-side at y=11.
 SPROCKET_IN_UNIT = Pos(P.drive_x, P.spr_wy, P.spr_z) * Rot(90, 0, 0)

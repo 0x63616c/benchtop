@@ -99,10 +99,11 @@ class Params:
     bevel_z: int = 10              # 1:1 miter pair, layshaft -> sprocket ring
     bevel_face: float = 5.0
     gear_backlash: float = 0.05  # coefficient of module per py_gearworks gear
-    lay_shaft_d: float = 8.0       # printed layshaft body
-    lay_rod_bore_d: float = 5.2    # optional 5mm steel reinforcement rod
-    lay_hub_d: float = 16.0        # bevel-end hub
-    saddle_bore: float = 8.4       # U-saddle bores in rib + right block
+    gear_hub_d: float = 12.0
+    gear_hub_len: float = 3.0
+    pinion_grub_pilot_d: float = 2.6
+    lay_pin_guide_d: float = 2.2
+    lay_bevel_pin_span: float = 14.0
 
     # Production layshaft: bought 5 mm rod in two 625ZZ bearings.  The
     # old Ø8 printed shaft becomes separate pinned gears + spacers.
@@ -260,6 +261,9 @@ class Params:
     lay_cap_ear_d: float = 8.0
     lay_cap_clear_d: float = 3.4
     lay_cap_insert_depth: float = 4.5
+    drive_running_gap: float = 0.2
+    lay_spacer_d: float = 8.0
+    motor_spacer_d: float = 10.0
 
     cap_t: float = 1.2
     cap_skirt: float = 4.0

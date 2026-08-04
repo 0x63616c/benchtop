@@ -1,29 +1,31 @@
-"""Printed gear train for the v2 center-drop drive. Printable ×2.
+"""Separate printable gears for the removable blinds drive cassette.
 
-Two parts:
-  * `pinion()`   — m2 z14 spur on the motor's 6mm D-shaft.
-  * `layshaft()` — ONE print: m2 z17 spur + Ø8 shaft + m2 z10 bevel
-                   at the far end. Rides in two U-saddles (bulkhead
-                   rib + right block), retained by the mesh + clips.
+The motor pinion, layshaft spur, and layshaft bevel are independent
+prints.  The two layshaft gears run on a bought 5 mm rod rather than a
+printed shaft.  The round-bore gears include 2.2 mm cross-pin drilling
+guides; the motor pinion uses the JGB37's measured D-flat plus an M3
+grub-screw pilot.
 
-Tooth geometry comes from py_gearworks: true involute spur teeth and
-a matched octoid miter-bevel pair. The continuous Ø8 printed layshaft
-has a 5.2mm axial bore for an optional 5mm steel reinforcing rod.
-
-Local frames: gear axis +Z. The layshaft's bevel HEEL plane is z=0
-with the cone apex at +Z (z=+bevel_r); shaft and spur extend -Z.
-
-View: `just cad view blinds-gears`.
+Every exported gear has a deliberate flat print pose: spur faces or the
+bevel heel on the bed, with any hub growing upward.
 """
 
 from functools import lru_cache
 from math import pi
 import warnings
 
-from build123d import Box, Cylinder, Pos, Rot
+from build123d import Align, Box, Cone, Cylinder, Pos, Rot
 from py_gearworks import BevelGear, RIGHT, SpurGear
 
 from .params import P
+
+
+def _cylinder(radius: float, height: float):
+    return Cylinder(
+        radius,
+        height,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
 
 
 @lru_cache(maxsize=1)
@@ -64,9 +66,6 @@ def _bevel_pair_parts():
         layshaft_part = layshaft_definition.build_part(n_vert=4)
         ring_part = ring_definition.build_part(n_vert=4)
 
-    # The meshed ring has its heel centre at (bevel_r, 0, bevel_r),
-    # axis toward -X. Reframe it onto a local +Z sprocket axis with its
-    # heel plane at z=0 and apex at z=-bevel_r.
     ring_part = Pos(P.bevel_r, 0, -P.bevel_r) * Rot(0, -90, 0) * ring_part
     return layshaft_part, ring_part
 
@@ -77,48 +76,117 @@ def bevel_ring():
 
 
 def _d_bore(length: float):
-    """Ø6.2 D-bore matching the motor shaft (flat toward +Y local)."""
+    """Ø6.2 D-bore matching the motor shaft, centred on local z=0."""
     bore = Cylinder(3.1, length)
     flat_y = 5.55 - 3.1
     bore -= Pos(0, flat_y + 3.1) * Box(6.2 * 2, 6.2, length + 2)
     return bore
 
 
-def pinion():
-    """Motor spur pinion, centered on z=0 (rides the shaft flat).
+def _round_bore(z0: float, length: float):
+    return Pos(0, 0, z0) * _cylinder(
+        (P.lay_rod_d + P.lay_rod_clear) / 2,
+        length,
+    )
 
-    Half-tooth phase rotation BEFORE the bore: posed on the shaft, the
-    layshaft spur presents a gap at the mesh line, so the pinion must
-    present a tooth there — while the D-flat stays aligned local +Y."""
-    g = (
+
+def _cross_pin(z: float, outer_d: float):
+    """Transverse 2.2 mm drilling guide through a round-shaft gear."""
+    return Pos(0, outer_d / 2 + 1, z) * Rot(90, 0, 0) * _cylinder(
+        P.lay_pin_guide_d / 2,
+        outer_d + 2,
+    )
+
+
+def _self_supporting_heel(part):
+    """Trim shallow heel tooth ends to the proven 55-degree envelope."""
+    heel_z = part.bounding_box().min.Z
+    heel_faces = [
+        face
+        for face in part.faces()
+        if abs(face.bounding_box().min.Z - heel_z) < 1e-6
+        and abs(face.bounding_box().max.Z - heel_z) < 1e-6
+    ]
+    heel_bounds = max(heel_faces, key=lambda face: face.area).bounding_box()
+    heel_radius = max(abs(heel_bounds.min.X), abs(heel_bounds.max.X))
+    height = part.bounding_box().max.Z - heel_z + 0.1
+    envelope = Pos(0, 0, heel_z) * Cone(
+        heel_radius,
+        heel_radius + 0.7 * height,
+        height,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
+    return part & envelope
+
+
+def pinion():
+    """Motor D-shaft pinion in its centred assembly frame."""
+    gear = (
         Rot(0, 0, P.spur_pinion_phase)
         * Pos(0, 0, -P.spur_w / 2)
         * _spur_pair_parts()[0]
     )
-    return g - _d_bore(P.spur_w + 2)
-
-
-def layshaft():
-    """Real bevel + continuous Ø8 shaft + real z17 spur, one print."""
-    body = _bevel_pair_parts()[0]
-    body += Pos(0, 0, -2.5) * Cylinder(P.lay_hub_d / 2, 5)  # bevel hub, z -5..0
-    # (kept short: the hub must stay left of the bulkhead rib at x 67)
-    shaft_len = 33.0  # unit x 59..92: through both saddles
-    body += Pos(0, 0, -shaft_len / 2) * Cylinder(P.lay_shaft_d / 2, shaft_len)
-    # spur wheel over the pinion: unit x = bevel_heel_x - local z, so the
-    # teeth at unit x 78..85 live at local z -26..-19
-    z_far = P.bevel_heel_x - (P.pinion_x + P.spur_w / 2)  # -26
-    body += Pos(0, 0, z_far) * _spur_pair_parts()[1]
-    body -= Pos(0, 0, (-shaft_len + P.bevel_face) / 2) * Cylinder(
-        P.lay_rod_bore_d / 2, shaft_len + P.bevel_face + 1
+    hub_z0 = -P.spur_w / 2 - P.gear_hub_len
+    body = gear + Pos(0, 0, hub_z0) * _cylinder(
+        P.gear_hub_d / 2,
+        P.gear_hub_len,
+    )
+    body -= _d_bore(P.spur_w + 2 * P.gear_hub_len + 2)
+    # Drill/tap this pilot M3 after printing; it lands on the motor flat.
+    body -= Pos(0, P.gear_hub_d / 2 + 1, hub_z0 + P.gear_hub_len / 2) * (
+        Rot(90, 0, 0)
+        * _cylinder(P.pinion_grub_pilot_d / 2, P.gear_hub_d + 2)
     )
     return body
+
+
+def spur_gear():
+    """Layshaft z17 spur with round bore and cross-pin guide."""
+    gear = Pos(0, 0, -P.spur_w / 2) * _spur_pair_parts()[1]
+    hub_z0 = P.spur_w / 2
+    body = gear + Pos(0, 0, hub_z0) * _cylinder(
+        P.gear_hub_d / 2,
+        P.gear_hub_len,
+    )
+    body -= _round_bore(-P.spur_w / 2 - 1, P.spur_w + P.gear_hub_len + 2)
+    body -= _cross_pin(hub_z0 + P.gear_hub_len / 2, P.gear_hub_d)
+    return body
+
+
+def bevel_gear():
+    """Layshaft miter gear; hubless so its wide heel prints on the bed."""
+    body = _self_supporting_heel(_bevel_pair_parts()[0])
+    bounds = body.bounding_box()
+    body -= _round_bore(bounds.min.Z - 1, bounds.size.Z + 2)
+    body -= _cross_pin(1.0, P.lay_bevel_pin_span)
+    return body
+
+
+def _on_bed(part):
+    return Pos(0, 0, -part.bounding_box().min.Z) * part
+
+
+def pinion_print():
+    """Motor pinion face-down, hub upward."""
+    return _on_bed(Rot(180, 0, 0) * pinion())
+
+
+def spur_gear_print():
+    """Layshaft spur face-down, hub upward."""
+    return _on_bed(spur_gear())
+
+
+def bevel_gear_print():
+    """Layshaft bevel wide-heel-down."""
+    return _on_bed(bevel_gear())
 
 
 def scene():
     from splitflap_cad.viewer import Scene
 
-    s = Scene()
-    s.add(pinion(), "pinion", color="orange")
-    s.add(layshaft(), "layshaft", color="goldenrod", loc=Pos(45, 0, 0))
-    return s
+    return (
+        Scene()
+        .add(pinion_print(), "pinion", color="orange", loc=Pos(-38, 0, 0))
+        .add(spur_gear_print(), "layshaft-spur", color="goldenrod")
+        .add(bevel_gear_print(), "layshaft-bevel", color="gold", loc=Pos(38, 0, 0))
+    )

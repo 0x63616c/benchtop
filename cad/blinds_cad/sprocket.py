@@ -20,7 +20,7 @@ View it: `just cad view blinds-sprocket` (chain ghost included).
 
 import math
 
-from build123d import Box, Cylinder, Pos, Rot, Sphere, Torus
+from build123d import Box, Cone, Cylinder, Pos, Rot, Sphere, Torus
 
 from .params import P
 from .gears import bevel_ring
@@ -57,13 +57,39 @@ def sprocket():
 
     # Genuine py_gearworks bevel ring, already reframed with heel z=0
     # and its matched apex toward the wheel at -bevel_r.
-    ring = Pos(0, 0, rz) * Rot(0, 0, P.bevel_ring_phase) * bevel_ring()
+    raw_ring = Rot(0, 0, P.bevel_ring_phase) * bevel_ring()
+    ring_bounds = raw_ring.bounding_box()
+    ring_h = ring_bounds.size.Z + 0.1
+    # Keep the bed-facing tooth ends inside the same proven 55-degree
+    # envelope as the separate layshaft bevel. The first surviving ring
+    # layers therefore grow directly from the Ø10 drum instead of appearing
+    # as disconnected tooth-tip islands in the slicer.
+    ring_envelope = Pos(0, 0, ring_bounds.min.Z + ring_h / 2) * Cone(
+        P.spr_drum_d / 2,
+        P.spr_drum_d / 2 + 0.7 * ring_h,
+        ring_h,
+    )
+    printable_ring = raw_ring & ring_envelope
+    ring = Pos(0, 0, rz) * printable_ring
     ring += Pos(0, 0, rz + 1.25) * Cylinder(7.5, 2.5)  # back disc
+    # A short Ø12.2 root collar reaches the trimmed ring's first annulus.
+    # It is behind the active teeth and stays clear of the crossing layshaft.
+    collar_z0 = rz + printable_ring.bounding_box().min.Z - 0.2
+    ring += Pos(0, 0, (collar_z0 + rz) / 2) * Cylinder(
+        6.1,
+        rz - collar_z0,
+    )
 
     body = wheel + drum + ring
     # plain bore on the M5 axle
     body -= Pos(0, 0, 11) * Cylinder(P.spr_bore_d / 2, 44)
     return body
+
+
+def sprocket_print():
+    """Whole sprocket/ring assembly standing on its wheel face."""
+    part = sprocket()
+    return Pos(0, 0, -part.bounding_box().min.Z) * part
 
 
 def _ring(r_in: float, r_out: float, w: float):

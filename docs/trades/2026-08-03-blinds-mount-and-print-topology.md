@@ -66,10 +66,11 @@ a purchased part and loses the all-printed mounting goal.
 
 ### Option E: Wall-mounted exoskeleton with sliding sleeve
 
-Move every load-bearing feature into a wall-mounted frame: the motor bulkhead,
-layshaft saddles, sprocket axle, battery carrier supports, PCB shelf, and wall
-anchors. The enclosure becomes a thin cosmetic sleeve with front, sides, and
-bottom but no back or top. It slides over the assembled frame from the room toward
+Move the wall loads, four removable-drive hardpoints, sprocket axle, direct
+battery-holder spine, and PCB shelf into a wall-mounted frame. A separate
+motor/gear cassette screws to those hardpoints. The enclosure becomes a thin
+cosmetic sleeve with front, sides, and bottom but no back or top. It slides over
+the assembled frame from the room toward
 the wall and is retained by small lower tabs or two accessible M3 fasteners.
 
 The sleeve has an open top, so it passes under the installed chain without
@@ -91,15 +92,17 @@ infill. Literal vase mode is not required.
 
 ## 4. Recommendation
 
-- **Rationale:** Option E is the selected architecture. The exoskeleton owns the motor,
-  gears, axle, batteries, and wall loads; the sleeve only hides them. Its
+- **Rationale:** Option E is the selected architecture. The exoskeleton owns the wall
+  loads, sprocket axle, batteries, and screw-in drive interface; the removable
+  cassette owns the motor, layshaft bearings, spacers, and separate gears. The
+  sleeve only hides them. Its
   two-piece cap solves chain installation without threading beads through a
   closed cover. A separate flat-printed front keeper supports the fixed
   sprocket axle without bridging over the wheel cavity, so the sleeve can be
   removed without releasing the drivetrain. Four close-running frame pads
   guide the sleeve while two underside screws retain it. The projecting
-  features use positive volumetric roots: two rear spines carry the drive
-  cassette and motor bulkhead into the middle cross rail, the battery bosses
+  features use positive volumetric roots: two rear spines carry the four drive
+  cassette pads into the middle cross rail, the battery bosses
   grow from visible rectangular side-rail brackets, and the PCB tray overlaps
   the full thickness of the bottom rail. Wall-anchor holes are kept clear of
   those brackets. This avoids relying on face-only boolean contact.
