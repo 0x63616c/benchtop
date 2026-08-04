@@ -25,7 +25,7 @@ build-backend = "hatchling.build"
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["splitflap_cad", "blinds_cad"]
+packages = ["splitflap_cad", "blinds_cad", "nas_cad"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

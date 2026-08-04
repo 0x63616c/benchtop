@@ -89,6 +89,9 @@ def test_printable_builders_exist():
         "blinds-layshaft-bevel",
         "blinds-drive-cassette",
         "blinds-drive-spacers",
+        "nas-caddy",
+        "nas-latch",
+        "nas-bay-frame",
     }
 
 

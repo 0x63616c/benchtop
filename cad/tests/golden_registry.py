@@ -296,6 +296,30 @@ def _gearbox_motor_output_spacer():
     return output_spacer()
 
 
+def _nas_hdd():
+    from nas_cad.hdd import hdd_envelope
+
+    return hdd_envelope()
+
+
+def _nas_caddy():
+    from nas_cad.bay import caddy
+
+    return caddy()
+
+
+def _nas_latch():
+    from nas_cad.bay import latch
+
+    return latch()
+
+
+def _nas_bay_frame():
+    from nas_cad.bay import bay_frame
+
+    return bay_frame()
+
+
 # name -> builder. All in their own local frames.
 BREP_PARTS = {
     "flap": _flap,
@@ -344,6 +368,10 @@ BREP_PARTS = {
     "gear-box-motor-lid": _gearbox_motor_lid,
     "gear-box-motor-input-spacer": _gearbox_motor_input_spacer,
     "gear-box-motor-output-spacer": _gearbox_motor_output_spacer,
+    "nas-hdd": _nas_hdd,
+    "nas-caddy": _nas_caddy,
+    "nas-latch": _nas_latch,
+    "nas-bay-frame": _nas_bay_frame,
 }
 
 FINGERPRINT_ONLY = {}

@@ -69,6 +69,7 @@ PROJECTS = {
     "lid-clip": "storage-box lid clip",
     "box-corner": "storage-box corner brace",
     "gear-box": "compact right-angle gearbox",
+    "nas": "parametric printable network-attached storage enclosure",
 }
 
 
@@ -262,6 +263,22 @@ MODELS = {
         "blinds",
         "BLINDS 6× 21700 stack reference (2S3P bay)", "blinds_cad.cells21700"
     ),
+    # --- NAS project (SFF-8301 3.5-inch drive bays) ---
+    "nas-hdd": Model(
+        "nas", "NAS SFF-8301 3.5-inch HDD reference", "nas_cad.hdd"
+    ),
+    "nas-caddy": Model(
+        "nas", "NAS removable HDD caddy with closed cam latch", "nas_cad.bay", "caddy_scene"
+    ),
+    "nas-bay": Model(
+        "nas", "NAS single closed HDD bay with provisional SATA backplane", "nas_cad.bay"
+    ),
+    "nas-bay-open": Model(
+        "nas", "NAS single bay with caddy extracted and cam latch open", "nas_cad.bay", "open_scene"
+    ),
+    "nas-storage": Model(
+        "nas", "NAS parametric 2x3 six-drive storage block", "nas_cad.nas"
+    ),
 }
 
 # saved file stem -> model name, for ctl's save auto-focus.
@@ -345,6 +362,9 @@ PRINTABLE = {
     "blinds-drive-spacers": Printable(
         "blinds", "blinds_cad.drivecassette", "spacers_print"
     ),
+    "nas-caddy": Printable("nas", "nas_cad.bay", "caddy"),
+    "nas-latch": Printable("nas", "nas_cad.bay", "latch"),
+    "nas-bay-frame": Printable("nas", "nas_cad.bay", "bay_frame"),
 }
 
 
