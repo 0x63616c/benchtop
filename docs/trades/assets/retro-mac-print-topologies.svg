@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#17181b"/>
+      <stop offset="1" stop-color="#0d0e10"/>
+    </linearGradient>
+    <linearGradient id="platinum" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e8e4d8"/>
+      <stop offset="1" stop-color="#bdb9ac"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-opacity="0.42"/>
+    </filter>
+    <style>
+      .title { font: 700 34px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; fill:#f5f3ed }
+      .subtitle { font: 400 18px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; fill:#aaa9a3 }
+      .cardtitle { font: 700 24px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; fill:#f5f3ed }
+      .copy { font: 400 16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; fill:#b9b8b2 }
+      .metric { font: 600 15px ui-monospace,SFMono-Regular,Menlo,monospace; fill:#8fdbb4 }
+      .seam { fill:none; stroke:#ff7166; stroke-width:4; stroke-dasharray:10 7 }
+      .frame { fill:none; stroke:#f2b84b; stroke-width:7 }
+      .dim { fill:none; stroke:#8fdbb4; stroke-width:2 }
+    </style>
+  </defs>
+  <rect width="1500" height="900" fill="url(#bg)"/>
+  <text x="70" y="67" class="title">How a 12.9-inch iPad becomes a scale-faithful compact Mac</text>
+  <text x="70" y="99" class="subtitle">All three assemble to 349 W × 495 H × 397 D mm · every printed part fits the P2S 256 mm cube</text>
+
+  <!-- cards -->
+  <g transform="translate(55 145)">
+    <rect width="430" height="680" rx="28" fill="#222428" stroke="#383b40"/>
+    <text x="28" y="48" class="cardtitle">A · Tiled monocoque</text>
+    <text x="28" y="78" class="copy">Shell and cradle are the same structure</text>
+    <g transform="translate(86 115)" filter="url(#shadow)">
+      <path d="M28 0 H230 Q258 0 258 28 V405 Q258 437 226 437 H32 Q0 437 0 405 V36 Q0 8 28 0Z" fill="url(#platinum)" stroke="#88857c" stroke-width="3"/>
+      <rect x="29" y="66" width="200" height="152" rx="16" fill="#24272a" stroke="#7a776e" stroke-width="7"/>
+      <rect x="36" y="73" width="186" height="138" rx="12" fill="#0b0c0e"/>
+      <rect x="168" y="302" width="54" height="8" rx="4" fill="#65635d"/>
+      <circle cx="184" cy="333" r="4" fill="#65635d"/>
+      <path d="M129 0V437 M0 257H258" class="seam"/>
+      <path d="M73 -18H185" stroke="#80a98f" stroke-width="9" stroke-linecap="round"/>
+    </g>
+    <text x="28" y="594" class="metric">~14 shell tiles</text>
+    <text x="28" y="624" class="copy">Simple concept, but seams cross the face</text>
+    <text x="28" y="649" class="copy">and shell error becomes cradle error.</text>
+  </g>
+
+  <g transform="translate(535 145)">
+    <rect width="430" height="680" rx="28" fill="#222428" stroke="#383b40"/>
+    <text x="28" y="48" class="cardtitle">B · Structural rings</text>
+    <text x="28" y="78" class="copy">Stacked bands make the complete body</text>
+    <g transform="translate(45 135)" filter="url(#shadow)">
+      <path d="M26 0 H185 Q211 0 211 26 V380 Q211 409 182 409 H29 Q0 409 0 380 V32 Q0 8 26 0Z" fill="url(#platinum)" stroke="#88857c" stroke-width="3"/>
+      <rect x="24" y="62" width="163" height="124" rx="14" fill="#17191c" stroke="#77746b" stroke-width="7"/>
+      <path d="M0 102H211 M0 204H211 M0 306H211" class="seam"/>
+      <path d="M57 -17H154" stroke="#80a98f" stroke-width="9" stroke-linecap="round"/>
+      <path d="M211 26 L322 65 V363 L182 409 V26Z" fill="#c7c3b7" stroke="#88857c" stroke-width="3"/>
+      <path d="M211 102L322 123 M211 204L322 214 M211 306L322 304" class="seam"/>
+    </g>
+    <text x="28" y="594" class="metric">~10 ring segments + fasciae</text>
+    <text x="28" y="624" class="copy">Strong and easy to print, but repeated</text>
+    <text x="28" y="649" class="copy">horizontal seams change the original look.</text>
+  </g>
+
+  <g transform="translate(1015 145)">
+    <rect width="430" height="680" rx="28" fill="#25282b" stroke="#8fdbb4" stroke-width="2"/>
+    <text x="28" y="48" class="cardtitle">C · Skeleton + skins</text>
+    <text x="28" y="78" class="copy">Independent cradle; thin cosmetic shell</text>
+    <g transform="translate(48 127)" filter="url(#shadow)">
+      <!-- rear skin, skeleton, front skin exploded -->
+      <path d="M55 26 L157 0 L157 399 L55 420Z" fill="#b9b5aa" stroke="#77746b" stroke-width="3" opacity=".72"/>
+      <path d="M154 17V400 M154 78H267 M154 205H267 M154 330H267 M267 60V365" class="frame"/>
+      <rect x="166" y="79" width="90" height="126" rx="8" fill="none" stroke="#f2b84b" stroke-width="7"/>
+      <rect x="173" y="86" width="76" height="112" rx="6" fill="#101214" opacity=".9"/>
+      <path d="M196 0H225" stroke="#80a98f" stroke-width="10" stroke-linecap="round"/>
+      <path d="M293 0 H337 Q356 0 356 22 V392 Q356 419 330 419 H297 Q278 419 278 400 V25 Q278 6 293 0Z" fill="url(#platinum)" stroke="#88857c" stroke-width="3"/>
+      <path d="M278 220H356" class="seam"/>
+      <path d="M281 62H353" stroke="#292b2e" stroke-width="7"/>
+      <path d="M281 187H353" stroke="#292b2e" stroke-width="7"/>
+    </g>
+    <text x="28" y="570" class="metric">recommended · isolated iPad cradle</text>
+    <text x="28" y="600" class="copy">Ribs carry the device. Replaceable skins</text>
+    <text x="28" y="625" class="copy">hide seams on real case feature lines.</text>
+    <rect x="28" y="647" width="172" height="5" rx="2.5" fill="#8fdbb4"/>
+  </g>
+</svg>
