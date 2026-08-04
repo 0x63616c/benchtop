@@ -209,7 +209,7 @@ MODELS = {
     "blinds-axle-keeper": Model(
         "blinds",
         "BLINDS removable flat-printing sprocket axle keeper",
-        "blinds_cad.enclosure",
+        "blinds_cad.drivecassette",
         "axle_keeper_scene",
     ),
     "blinds-sleeve": Model(
@@ -225,8 +225,20 @@ MODELS = {
     ),
     "blinds-sprocket": Model(
         "blinds",
-        "BLINDS 12-pocket bead-chain sprocket + chain ghost",
+        "BLINDS split 12-pocket chain wheel, bevel, 5 mm shaft + chain ghost",
         "blinds_cad.sprocket",
+    ),
+    "blinds-sprocket-bevel": Model(
+        "blinds",
+        "BLINDS separate support-free sprocket bevel gear",
+        "blinds_cad.sprocket",
+        "bevel_scene",
+    ),
+    "blinds-sprocket-spacer": Model(
+        "blinds",
+        "BLINDS sprocket wheel-to-bevel shaft spacer",
+        "blinds_cad.drivecassette",
+        "sprocket_spacer_scene",
     ),
     "blinds-motor": Model(
         "blinds",
@@ -243,7 +255,7 @@ MODELS = {
     ),
     "blinds-drive-cassette": Model(
         "blinds",
-        "BLINDS removable motor mount, 625ZZ caps, rod, and spacers",
+        "BLINDS removable motor, gear, bearing, and sprocket cassette",
         "blinds_cad.drivecassette",
     ),
     "blinds-cells": Model(
@@ -307,9 +319,15 @@ PRINTABLE = {
         "gear-box", "motorbevel", "output_spacer"
     ),
     "blinds-sprocket": Printable("blinds", "blinds_cad.sprocket", "sprocket_print"),
+    "blinds-sprocket-bevel": Printable(
+        "blinds", "blinds_cad.sprocket", "sprocket_bevel_print"
+    ),
+    "blinds-sprocket-spacer": Printable(
+        "blinds", "blinds_cad.drivecassette", "sprocket_spacer_print"
+    ),
     "blinds-frame": Printable("blinds", "blinds_cad.enclosure", "frame"),
     "blinds-axle-keeper": Printable(
-        "blinds", "blinds_cad.enclosure", "axle_keeper"
+        "blinds", "blinds_cad.drivecassette", "axle_keeper"
     ),
     "blinds-sleeve": Printable("blinds", "blinds_cad.cover", "sleeve"),
     "blinds-cap-rear": Printable("blinds", "blinds_cad.cover", "cap_rear"),

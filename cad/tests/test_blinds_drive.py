@@ -19,6 +19,36 @@ def test_layshaft_uses_a_real_5mm_rod_and_two_625zz_bearings():
     assert P.lay_bearing_centers_x == (69.0, 89.0)
     assert tuple(bearing_bounds.size) == pytest.approx((5.0, 16.0, 16.0))
     assert tuple(rod_bounds.size) == pytest.approx((38.5, 5.0, 5.0))
+    assert bearing_bounds.min.X == pytest.approx(0)
+    assert rod_bounds.min.X == pytest.approx(0)
+
+
+def test_sprocket_is_two_prints_on_a_real_5mm_shaft_and_two_bearings():
+    from blinds_cad.drivecassette import drive_parts, sprocket_bearing_mr105
+    from blinds_cad.params import P
+
+    parts = drive_parts()
+    bearing_bounds = sprocket_bearing_mr105().bounding_box()
+    shaft_bounds = parts["sprocket-shaft"].bounding_box()
+
+    assert P.spr_shaft_d == 5.0
+    assert P.spr_bearing_d == 10.0
+    assert P.spr_bearing_w == 4.0
+    assert tuple(bearing_bounds.size) == pytest.approx((10.0, 4.0, 10.0))
+    assert shaft_bounds.size.Y == pytest.approx(40.0)
+    assert len(parts["chain-wheel"].solids()) == 1
+    assert len(parts["sprocket-bevel"].solids()) == 1
+    assert (parts["chain-wheel"] & parts["sprocket-bevel"]).volume < 1e-6
+    assert (parts["chain-wheel"] & parts["layshaft-bevel"]).volume < 1e-6
+
+    assert (
+        parts["sprocket-bevel"].bounding_box().max.Y + P.drive_running_gap
+        == pytest.approx(parts["sprocket-spacer"].bounding_box().min.Y)
+    )
+    assert (
+        parts["sprocket-spacer"].bounding_box().max.Y + P.drive_running_gap
+        == pytest.approx(parts["chain-wheel"].bounding_box().min.Y)
+    )
 
 
 def test_drive_cassette_is_removable_and_all_four_mounts_are_supported():
@@ -48,6 +78,28 @@ def test_drive_cassette_is_removable_and_all_four_mounts_are_supported():
         assert (structure & screw).volume < 1e-6, (x, z)
         assert (cassette & screw).volume < 1e-6, (x, z)
         assert (structure & frame_pad).volume >= 30.0, (x, z)
+
+
+@pytest.mark.slow
+def test_complete_drive_with_sprocket_and_keeper_withdraws_straight_out():
+    """The complete cassette, keeper, and sprocket withdraw straight out."""
+    from build123d import Pos
+
+    from blinds_cad.drivecassette import drive_parts
+    from blinds_cad.enclosure import frame
+    from blinds_cad.params import P
+
+    moving = drive_parts()
+    withdraw_steps = int(P.enc_d / P.drive_removal_step)
+    path = [
+        Pos(0, index * P.drive_removal_step, 0)
+        for index in range(withdraw_steps + 1)
+    ]
+
+    structure = frame()
+    for pose in path:
+        for name, part in moving.items():
+            assert ((pose * part) & structure).volume < 1e-6, (pose, name)
 
 
 @pytest.mark.parametrize(
@@ -104,7 +156,14 @@ def test_spacers_and_bearing_caps_positively_locate_the_rod_stack():
     args = scene().show_args()
     parts = dict(zip(args["names"], args["objects"]))
     required = {
-        "cassette",
+        "drive-cassette",
+        "axle-keeper",
+        "chain-wheel",
+        "sprocket-bevel",
+        "sprocket-spacer",
+        "rear-sprocket-bearing",
+        "front-sprocket-bearing",
+        "sprocket-shaft",
         "bearing-caps",
         "motor",
         "pinion",
@@ -150,7 +209,19 @@ def test_spacers_and_bearing_caps_positively_locate_the_rod_stack():
         parts["right-bearing"].bounding_box().min.X
     )
 
-    for name in required - {"layshaft-rod", "motor", "cassette", "bearing-caps"}:
+    for name in required - {
+        "layshaft-rod",
+        "motor",
+        "drive-cassette",
+        "bearing-caps",
+        "axle-keeper",
+        "chain-wheel",
+        "sprocket-bevel",
+        "sprocket-spacer",
+        "rear-sprocket-bearing",
+        "front-sprocket-bearing",
+        "sprocket-shaft",
+    }:
         if name == "motor-spacer" or name == "pinion":
             continue
         assert (parts["layshaft-rod"] & parts[name]).volume < 1e-6, name

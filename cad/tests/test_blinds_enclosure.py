@@ -1,6 +1,6 @@
 """Public assembly contract for the printable blinds enclosure system.
 
-The wall frame and removable axle keeper are structural. The sleeve and
+The wall frame and removable drive cassette are structural. The sleeve and
 two cap halves are cosmetic, removable parts. These tests observe only the
 exported solids and their assembled locations, so the construction can
 change without weakening the contract.
@@ -12,11 +12,13 @@ from build123d import Cylinder, Pos, Rot
 
 @pytest.fixture(scope="module")
 def enclosure_parts():
-    from blinds_cad.enclosure import axle_keeper, frame
     from blinds_cad.cover import cap_front, cap_rear, sleeve
+    from blinds_cad.drivecassette import axle_keeper, drive_cassette
+    from blinds_cad.enclosure import frame
 
     return {
         "frame": frame(),
+        "drive-cassette": drive_cassette(),
         "axle-keeper": axle_keeper(),
         "sleeve": sleeve(),
         "cap-rear": cap_rear(),
@@ -36,9 +38,9 @@ def test_cosmetic_parts_clear_the_structural_frame(enclosure_parts):
         assert overlap < 1e-6, f"frame x {name}: {overlap:.3f} mm3"
 
 
-def test_axle_keeper_seats_without_overlapping_frame(enclosure_parts):
+def test_axle_keeper_seats_without_overlapping_drive_cassette(enclosure_parts):
     overlap = (
-        enclosure_parts["frame"] & enclosure_parts["axle-keeper"]
+        enclosure_parts["drive-cassette"] & enclosure_parts["axle-keeper"]
     ).volume
     assert overlap < 1e-6
 
@@ -100,40 +102,29 @@ def test_wall_anchors_do_not_cut_through_battery_mount():
         assert (battery_mount & gauge).volume < 1e-6, (x, z)
 
 
-def test_sprocket_axle_is_captive_without_trapping_the_sleeve(enclosure_parts):
-    """The M5 axle screws into a wall-side captive nut. Its front head
-    remains accessible through the sleeve, so removing the sleeve never
-    releases the sprocket."""
+def test_sprocket_shaft_and_bearings_are_captive_inside_the_sleeve(
+    enclosure_parts,
+):
+    """The smooth 5 mm shaft is captured by cassette and keeper bearings.
+    It stops behind the cosmetic sleeve, so the sleeve needs no axle hole."""
+    from blinds_cad import frames as F
+    from blinds_cad.drivecassette import sprocket_bearing_mr105, sprocket_shaft
     from blinds_cad.params import P
 
-    frame = enclosure_parts["frame"]
+    cassette = enclosure_parts["drive-cassette"]
     keeper = enclosure_parts["axle-keeper"]
     sleeve = enclosure_parts["sleeve"]
+    shaft = F.SPROCKET_SHAFT_IN_UNIT * sprocket_shaft()
+    rear = F.REAR_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_mr105()
+    front = F.FRONT_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_mr105()
 
-    head_depth = P.frame_front_y - P.axle_head_seat_y
-    head = Pos(
-        P.drive_x,
-        P.axle_head_seat_y + head_depth / 2,
-        P.spr_z,
-    ) * (Rot(90, 0, 0) * Cylinder(P.axle_head_d / 2, head_depth + 0.2))
-    assert (frame & head).volume < 1e-6
-    assert (keeper & head).volume < 1e-6
-
-    nut = Pos(
-        P.drive_x,
-        P.axle_nut_y0 + P.axle_nut_h / 2,
-        P.spr_z,
-    ) * (Rot(90, 0, 0) * Cylinder(P.axle_nut_af / 2, P.axle_nut_h))
-    assert (frame & nut).volume < 1e-6
-    bolt_tip_y = P.axle_head_seat_y - P.axle_bolt_len
-    assert bolt_tip_y >= 0.0
-    assert bolt_tip_y == pytest.approx(P.axle_nut_y0)
-    assert P.axle_head_seat_y >= P.axle_nut_y0 + P.axle_nut_h
-
-    passage = Pos(P.drive_x, P.enc_d - P.sleeve_t / 2, P.spr_z) * (
-        Rot(90, 0, 0) * Cylinder(P.axle_head_clear_d / 2, P.sleeve_t + 2)
-    )
-    assert (sleeve & passage).volume < 1e-6
+    assert shaft.bounding_box().min.Y < rear.bounding_box().min.Y
+    assert shaft.bounding_box().max.Y > front.bounding_box().max.Y
+    assert shaft.bounding_box().max.Y < P.enc_d - P.sleeve_t
+    for part in (shaft, rear, front):
+        assert (cassette & part).volume < 1e-6
+        assert (keeper & part).volume < 1e-6
+        assert (sleeve & part).volume < 1e-6
 
 
 def test_parts_fit_the_p2s_in_their_documented_orientations(enclosure_parts):
@@ -176,6 +167,15 @@ def test_frame_guides_sleeve_with_running_clearance(enclosure_parts):
     assert P.enc_d - P.sleeve_t - frame.max.Y == pytest.approx(P.sleeve_fit)
 
 
+def test_sleeve_retainer_blocks_start_on_the_tray_not_below_it():
+    from blinds_cad import enclosure as e
+    from blinds_cad.params import P
+
+    bounds = e._sleeve_retainers().bounding_box()
+    assert bounds.min.Y == pytest.approx(0)
+    assert bounds.min.Z == pytest.approx(P.frame_tray_z0)
+
+
 def test_projecting_features_have_structural_root_overlap():
     """Projecting features need a volumetric joint, not coincident faces.
 
@@ -189,10 +189,10 @@ def test_projecting_features_have_structural_root_overlap():
     backbone = e._backbone()
     rooted = {
         "pcb-tray": (e._pcb_tray(), 600.0),
-        "sprocket-guide": (e._wrap_guide(), 1700.0),
         "battery-mount-spine": (e._battery_mount_spine(), 390.0),
         "drive-mounts": (e._drive_mounts(), 100.0),
         "sleeve-guides": (e._sleeve_guides(), 300.0),
+        "sleeve-retainers": (e._sleeve_retainers(), 190.0),
     }
     for name, (feature, minimum) in rooted.items():
         overlap = (feature & backbone).volume

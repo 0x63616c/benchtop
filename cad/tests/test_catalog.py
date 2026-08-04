@@ -77,6 +77,8 @@ def test_printable_builders_exist():
         "gear-box-motor-input-spacer",
         "gear-box-motor-output-spacer",
         "blinds-sprocket",
+        "blinds-sprocket-bevel",
+        "blinds-sprocket-spacer",
         "blinds-frame",
         "blinds-axle-keeper",
         "blinds-sleeve",

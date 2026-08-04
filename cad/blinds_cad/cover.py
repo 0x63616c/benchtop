@@ -43,11 +43,6 @@ def sleeve():
         P.usb_z + P.usb_t / 2,
     )
 
-    # The sleeve slides over the installed sprocket-axle button head.
-    body -= Pos(P.drive_x, d - t / 2, P.spr_z) * (
-        Rot(90, 0, 0) * Cylinder(P.axle_head_clear_d / 2, t + 2)
-    )
-
     # Two underside screws retain the sleeve against sliding back off.
     for x, y in P.sleeve_retainer_xy:
         body -= Pos(x, y, t / 2) * Cylinder(

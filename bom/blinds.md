@@ -148,19 +148,22 @@ Per-unit marginal electronics cost ≈ **$36** (PCB parts + holders + motor; cel
 
 The v2 drive train (spec 2026-07-26) uses separately printed m2 z14 and z17
 spur gears plus a separate z10 layshaft bevel. The layshaft gears are pinned
-to a bought Ø5 mm steel rod running in two 625ZZ bearings; the matching z10
-bevel ring remains printed into the sprocket. Bought hardware:
+to a bought Ø5 mm steel rod running in two 625ZZ bearings. The matching z10
+sprocket bevel and chain wheel are separate prints, pinned to a second Ø5 mm
+shaft running in two MR105ZZ bearings. Bought hardware:
 
 | Part | Qty | Note |
 |---|---|---|
-| M5×40 button-head bolt + nut | 1 | fixed sprocket cross-axle; front-access head, captive wall-side nut |
 | M3×8 (into gearbox face) | 6 | motor → bulkhead rib, BCD31 |
 | M3×8 + heat-set (board, battery holders) | 3 + 6 | rev C board bosses, direct holder spine |
 | M3×8 (sleeve retention) | 2 | underside screws into the wall frame; sleeve remains non-structural |
-| M3×8 (axle keeper) | 4 | removable front bridge retains the axle independently of the sleeve |
+| M3×8 (shaft keeper) | 4 | removable front bridge retains the sprocket shaft's front bearing independently of the sleeve |
 | 625ZZ bearing (5×16×5 mm) | 2 | layshaft bearings retained by split printed caps |
 | Ø5×38.5 mm steel rod | 1 | removable layshaft; cut/deburr from 5 mm stock |
-| Ø2 mm steel cross pin | 2 | locks separate spur and bevel gears to the rod |
+| MR105ZZ bearing (5×10×4 mm) | 2 | sprocket-shaft bearings; rear cassette seat + removable front keeper |
+| Ø5×40 mm steel rod | 1 | rotating sprocket shaft; chain wheel and bevel pin to it |
+| Ø2×12 mm steel cross pin | 1 | locks the layshaft spur to its rod |
+| Ø2×14 mm steel cross pin | 3 | locks the layshaft bevel, sprocket bevel, and chain wheel to their rods |
 | M3 grub screw | 1 | locks the motor pinion through its printable/tappable pilot |
 | M3×8 + heat-set (drive cassette) | 4 + 4 | cassette → frame, and two bearing caps → cassette |
 | Steel 1:1 bevel pair, m2-ish, Ø5/Ø6 bores | 0 (fallback) | only if the printed bevels wear — bores are standard |
@@ -169,7 +172,8 @@ Printed structural parts: `blinds-frame`, `blinds-drive-cassette`,
 `blinds-bearing-caps`, `blinds-drive-spacers`, `blinds-axle-keeper`,
 `blinds-sleeve`, `blinds-cap-rear`, and `blinds-cap-front`. Printed drive
 parts are `blinds-pinion`, `blinds-layshaft-spur`, `blinds-layshaft-bevel`,
-and `blinds-sprocket`. Print the frame and cassette wall-face down, the
-gears face/heel-down, and the spacers upright. Bambu Studio slow-test guards
+`blinds-sprocket`, `blinds-sprocket-bevel`, and `blinds-sprocket-spacer`.
+Print the frame and cassette wall-face down, the gears face/heel-down, and
+the spacers upright. Bambu Studio slow-test guards
 slice all structural and drive parts on the P2S PETG profile with generated
 support disabled.

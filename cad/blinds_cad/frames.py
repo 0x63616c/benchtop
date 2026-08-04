@@ -34,9 +34,44 @@ SPUR_IN_UNIT = LAYSHAFT_IN_UNIT * Pos(
     0, 0, P.bevel_heel_x - P.pinion_x
 )
 
-# Sprocket (axis +Z, wheel mid-plane z=0, ring gear +Z) onto the M5
-# axle: local +Z -> unit -Y so the ring sits wall-side at y=11.
-SPROCKET_IN_UNIT = Pos(P.drive_x, P.spr_wy, P.spr_z) * Rot(90, 0, 0)
+
+def motor_axis_in_unit(x: float):
+    """Local +X hardware posed along the motor shaft at unit x."""
+    return Pos(x, P.drive_y, P.motor_z)
+
+
+def layshaft_axis_in_unit(x: float):
+    """Local +X hardware posed along the bought layshaft at unit x."""
+    return Pos(x, P.drive_y, P.lay_z)
+
+
+MOTOR_SPACER_IN_UNIT = motor_axis_in_unit(P.bulkhead_x + P.jgb_boss_h)
+LAYSHAFT_ROD_IN_UNIT = layshaft_axis_in_unit(P.lay_rod_x0)
+LEFT_BEARING_IN_UNIT = layshaft_axis_in_unit(
+    P.lay_bearing_centers_x[0] - P.lay_bearing_w / 2
+)
+RIGHT_BEARING_IN_UNIT = layshaft_axis_in_unit(
+    P.lay_bearing_centers_x[1] - P.lay_bearing_w / 2
+)
+
+# Split sprocket parts share a bought 5 mm shaft along unit +Y.  Both
+# printable parts use local +Z axes, posed toward the wall as unit -Y.
+SPROCKET_WHEEL_IN_UNIT = Pos(P.drive_x, P.spr_wy, P.spr_z) * Rot(90, 0, 0)
+SPROCKET_BEVEL_IN_UNIT = Pos(P.drive_x, P.ring_heel_y, P.spr_z) * Rot(90, 0, 0)
+
+
+def sprocket_axis_in_unit(y: float):
+    """Local +Y hardware posed along the sprocket shaft at unit y."""
+    return Pos(P.drive_x, y, P.spr_z)
+
+
+SPROCKET_SHAFT_IN_UNIT = sprocket_axis_in_unit(P.spr_shaft_y0)
+REAR_SPROCKET_BEARING_IN_UNIT = sprocket_axis_in_unit(
+    P.spr_bearing_centers_y[0] - P.spr_bearing_w / 2
+)
+FRONT_SPROCKET_BEARING_IN_UNIT = sprocket_axis_in_unit(
+    P.spr_bearing_centers_y[1] - P.spr_bearing_w / 2
+)
 
 # Chain ghost is built unit-aligned (wheel axis +Y) — translate only.
 CHAIN_IN_UNIT = Pos(P.drive_x, P.spr_wy, P.spr_z)

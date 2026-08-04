@@ -16,8 +16,8 @@ pytestmark = pytest.mark.slow
 # meshes are phased + backlashed, so anything beyond a straight-tooth
 # approximation graze means the mesh geometry regressed.
 MESHES = {
-    frozenset({"chain", "sprocket"}): 200.0,   # ghost rides in the pockets
-    frozenset({"sprocket", "layshaft-bevel"}): 0.5,
+    frozenset({"chain", "chain-wheel"}): 200.0,   # ghost rides in the pockets
+    frozenset({"sprocket-bevel", "layshaft-bevel"}): 0.5,
     frozenset({"layshaft-spur", "pinion"}): 0.5,
 }
 
@@ -28,42 +28,17 @@ def posed():
     from blinds_cad.blindsunit import button, pcb_ghost, usbc
     from blinds_cad.cells21700 import cell_stack, holder_stack
     from blinds_cad.cover import cap_front, cap_rear, sleeve
-    from blinds_cad.drivecassette import (
-        bearing_at,
-        bearing_caps,
-        bevel_spacer,
-        drive_cassette,
-        inner_spacer,
-        layshaft_rod,
-        motor_spacer,
-        outer_spacer,
-    )
-    from blinds_cad.enclosure import axle_keeper, frame
-    from blinds_cad.gears import bevel_gear, pinion, spur_gear
-    from blinds_cad.jgb37 import jgb37
+    from blinds_cad.drivecassette import drive_parts
+    from blinds_cad.enclosure import frame
     from blinds_cad.params import P
-    from blinds_cad.sprocket import chain_ghost, sprocket
+    from blinds_cad.sprocket import chain_ghost
 
     return {
         "frame": frame(),
-        "axle-keeper": axle_keeper(),
         "sleeve": sleeve(),
         "cap-rear": cap_rear(),
         "cap-front": cap_front(),
-        "drive-cassette": drive_cassette(),
-        "bearing-caps": bearing_caps(),
-        "motor": F.MOTOR_IN_UNIT * jgb37(),
-        "pinion": F.PINION_IN_UNIT * pinion(),
-        "motor-spacer": motor_spacer(),
-        "layshaft-bevel": F.LAYSHAFT_IN_UNIT * bevel_gear(),
-        "bevel-spacer": bevel_spacer(),
-        "left-bearing": bearing_at(P.lay_bearing_centers_x[0]),
-        "inner-spacer": inner_spacer(),
-        "layshaft-spur": F.SPUR_IN_UNIT * spur_gear(),
-        "outer-spacer": outer_spacer(),
-        "right-bearing": bearing_at(P.lay_bearing_centers_x[1]),
-        "layshaft-rod": layshaft_rod(),
-        "sprocket": F.SPROCKET_IN_UNIT * sprocket(),
+        **drive_parts(),
         "chain": F.CHAIN_IN_UNIT * chain_ghost(200),
         "cells": F.BAY_IN_UNIT * cell_stack(),
         "holders": F.BAY_IN_UNIT * holder_stack(),
@@ -96,7 +71,9 @@ def test_envelope(posed):
     assert posed["cap-front"].bounding_box().max.Z == pytest.approx(P.enc_h)
     for name in (
         "drive-cassette", "bearing-caps", "motor", "pinion",
-        "layshaft-bevel", "layshaft-spur", "layshaft-rod", "sprocket",
+        "layshaft-bevel", "layshaft-spur", "layshaft-rod", "chain-wheel",
+        "sprocket-bevel", "sprocket-spacer", "sprocket-shaft",
+        "rear-sprocket-bearing", "front-sprocket-bearing",
         "cells", "holders", "pcb",
     ):
         b = posed[name].bounding_box()

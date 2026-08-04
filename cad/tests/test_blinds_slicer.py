@@ -49,6 +49,14 @@ def _printable(name: str):
         from blinds_cad.sprocket import sprocket_print
 
         return sprocket_print()
+    if name == "sprocket-bevel":
+        from blinds_cad.sprocket import sprocket_bevel_print
+
+        return sprocket_bevel_print()
+    if name == "sprocket-spacer":
+        from blinds_cad.drivecassette import sprocket_spacer_print
+
+        return sprocket_spacer_print()
     from blinds_cad import gears
 
     return getattr(gears, f"{name}_print")()
@@ -63,6 +71,8 @@ def _printable(name: str):
         "bearing-caps",
         "drive-spacers",
         "sprocket",
+        "sprocket-bevel",
+        "sprocket-spacer",
         "pinion",
         "spur_gear",
         "bevel_gear",

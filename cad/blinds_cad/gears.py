@@ -14,8 +14,9 @@ from functools import lru_cache
 from math import pi
 import warnings
 
-from build123d import Align, Box, Cone, Cylinder, Pos, Rot
+from build123d import Align, Box, Cylinder, Pos, Rot
 from py_gearworks import BevelGear, RIGHT, SpurGear
+from splitflap_cad.geo import self_supporting_heel
 
 from .params import P
 
@@ -98,27 +99,6 @@ def _cross_pin(z: float, outer_d: float):
     )
 
 
-def _self_supporting_heel(part):
-    """Trim shallow heel tooth ends to the proven 55-degree envelope."""
-    heel_z = part.bounding_box().min.Z
-    heel_faces = [
-        face
-        for face in part.faces()
-        if abs(face.bounding_box().min.Z - heel_z) < 1e-6
-        and abs(face.bounding_box().max.Z - heel_z) < 1e-6
-    ]
-    heel_bounds = max(heel_faces, key=lambda face: face.area).bounding_box()
-    heel_radius = max(abs(heel_bounds.min.X), abs(heel_bounds.max.X))
-    height = part.bounding_box().max.Z - heel_z + 0.1
-    envelope = Pos(0, 0, heel_z) * Cone(
-        heel_radius,
-        heel_radius + 0.7 * height,
-        height,
-        align=(Align.CENTER, Align.CENTER, Align.MIN),
-    )
-    return part & envelope
-
-
 def pinion():
     """Motor D-shaft pinion in its centred assembly frame."""
     gear = (
@@ -149,16 +129,19 @@ def spur_gear():
         P.gear_hub_len,
     )
     body -= _round_bore(-P.spur_w / 2 - 1, P.spur_w + P.gear_hub_len + 2)
-    body -= _cross_pin(hub_z0 + P.gear_hub_len / 2, P.gear_hub_d)
+    body -= _cross_pin(hub_z0 + P.gear_hub_len / 2, P.lay_spur_pin_len)
     return body
 
 
 def bevel_gear():
     """Layshaft miter gear; hubless so its wide heel prints on the bed."""
-    body = _self_supporting_heel(_bevel_pair_parts()[0])
+    body = self_supporting_heel(
+        _bevel_pair_parts()[0],
+        P.gear_print_radial_growth,
+    )
     bounds = body.bounding_box()
     body -= _round_bore(bounds.min.Z - 1, bounds.size.Z + 2)
-    body -= _cross_pin(1.0, P.lay_bevel_pin_span)
+    body -= _cross_pin(1.0, P.lay_bevel_pin_len)
     return body
 
 

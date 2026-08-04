@@ -5,7 +5,9 @@ part knowledge beyond the slot-0 marker style (which is deliberately
 one style everywhere).
 """
 
-from build123d import Box, Polygon, Pos, Rot, extrude
+import math
+
+from build123d import Align, Box, Circle, Cone, Polygon, Pos, Rot, extrude
 
 from .params import P
 
@@ -38,6 +40,46 @@ def radial_plate(profile, thickness: float):
     per-site recentring shifts.
     """
     return Rot(90, 0, 0) * extrude(profile, amount=thickness / 2, both=True)
+
+
+def self_supporting_heel(part, radial_growth: float, base_radius: float | None = None):
+    """Trim bed-facing bevel ends to a conical printable envelope.
+
+    ``radial_growth`` is radial millimetres gained per millimetre of print
+    height. When ``base_radius`` is omitted, the widest planar heel face
+    establishes the bed radius. Supplying it lets an integral gear grow from
+    an existing hub or drum instead.
+    """
+    heel_z = part.bounding_box().min.Z
+    if base_radius is None:
+        heel_faces = [
+            face
+            for face in part.faces()
+            if abs(face.bounding_box().min.Z - heel_z) < 1e-6
+            and abs(face.bounding_box().max.Z - heel_z) < 1e-6
+        ]
+        heel_bounds = max(heel_faces, key=lambda face: face.area).bounding_box()
+        base_radius = max(abs(heel_bounds.min.X), abs(heel_bounds.max.X))
+
+    height = part.bounding_box().max.Z - heel_z + 0.1
+    envelope = Pos(0, 0, heel_z) * Cone(
+        base_radius,
+        base_radius + radial_growth * height,
+        height,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
+    return part & envelope
+
+
+def support_free_cross_bore(radius: float, length: float, x: float, y: float, z: float):
+    """Cross-axis circular clearance with a 45-degree print-direction roof."""
+    profile = Circle(radius) + Polygon(
+        (-radius, 0),
+        (0, radius * math.sqrt(2)),
+        (radius, 0),
+    )
+    tunnel = extrude(profile, amount=length / 2, both=True)
+    return Pos(x, y, z) * (Rot(0, 90, 0) * tunnel)
 
 
 def slot0_marker(apex_r: float, z_face: float, cut: str = "down", point: str = "out"):

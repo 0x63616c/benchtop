@@ -42,10 +42,11 @@ fallback) with the motor horizontal:
   The layshaft is a bought Ø5×38.5 mm steel rod in two 625ZZ bearings.
   Separate face-down z17 spur and heel-down z10 bevel prints are locked
   to it with Ø2 cross pins and located by three printed axial spacers.
-  The bevel meshes a z10 bevel ring
-  printed as ONE piece with the 12-pocket sprocket (ring heel plane
-  y=11, drum bridge, wheel at y≈36). Sprocket spins on a fixed M5
-  cross-axle (front-access head → captive wall-side frame nut). Net:
+  The bevel meshes a separate rear-disc-down z10 bevel ring. That gear and a
+  separately face-down 12-pocket chain wheel are cross-pinned to a bought
+  Ø5×40 mm steel shaft, separated by a printed tube, and run in two MR105ZZ
+  bearings. There is no tall printed drum bridge and the wheel is clear of
+  the layshaft gear envelope. Net:
   111rpm × 14/17 ≈ 91rpm →
   ~109mm/s chain (target 100); sprocket torque ≈ 0.6 × 17/14 × ~0.72
   gear efficiency ≈ 0.52Nm vs 0.39 needed. Steel bevel fallback still
@@ -64,8 +65,9 @@ fallback) with the motor horizontal:
   plungers through the front wall at z≈11.2. USB-C right-angle exits the
   front face beside them. Schematic, placement, and A* routing are complete.
 - **Enclosure (revised 2026-08-03):** a wall-mounted structural
-  exoskeleton owns four drive-cassette insert pads, the fixed sprocket
-  axle, direct battery-holder spine, PCB tray, and four #8 wall anchors. A
+  exoskeleton owns four drive-cassette insert pads, the direct battery-holder
+  spine, PCB tray, and four #8 wall anchors. The removable cassette owns the
+  motor, gears, bearing seats, sprocket housing, smooth shaft, and keeper. A
   pair of rear load spines ties the upper drive cassette pads into the
   middle cross rail; battery bosses grow from visible
   side-rail brackets clear of the wall anchors, and all sleeve guides
@@ -73,10 +75,57 @@ fallback) with the motor horizontal:
   separate 0.8 mm open-back, open-top sleeve slides over it and is held
   by two underside M3 screws. Rear and front top-cap halves meet at the
   chain plane, closing around both installed strands without threading.
-  A flat-printed, four-screw front keeper supports the axle without
-  bridging over the sprocket cavity. Button, USB, and axle-head openings
-  remain in the sleeve front face.
+  A flat-printed, four-screw front keeper holds the front MR105ZZ bearing
+  without bridging over the sprocket cavity. Only the button and USB openings
+  remain in the sleeve front face; the shaft stops behind it.
   The French cleat and monolithic structural shell are removed.
+
+## Drive assembly and service order
+
+1. Deburr the Ø5×38.5 mm rod. Slide on the heel-down bevel, use its
+   Ø2.2 guide to cross-drill the steel rod Ø2, and install a Ø2×14 mm pin.
+   Then install the bevel spacer, left 625ZZ, inner spacer, z17 spur,
+   outer spacer, and right 625ZZ in that order. Cross-drill the spur and
+   rod together and install its Ø2×12 mm pin.
+2. Before fitting the motor, place the motor spacer and loose pinion in the
+   cassette cavity. Insert the motor shaft from the left through the motor
+   face, spacer, and pinion; install the six motor screws, then drill/tap the
+   pinion pilot M3 and tighten the grub screw onto the D-flat.
+3. Drop the preassembled rod stack into the two open bearing seats and secure
+   both printed caps with four M3 screws into cassette heat-set inserts. No
+   shaft is threaded through a closed printed hole.
+4. For the sprocket shaft, slide the rear MR105ZZ onto the Ø5×40 mm rod first.
+   Add the separate bevel, cross-drill through its Ø2.2 guide, and install its
+   Ø2×14 mm pin. Add the printed spacer, then the separate chain wheel and its
+   Ø2×14 mm pin. Seat the rear bearing in the cassette, press the front MR105ZZ
+   into the keeper from behind, and fasten the keeper over the shaft end. The
+   complete motor/gear/sprocket module is now one serviceable assembly.
+5. Seat that assembly straight onto the frame's four recessed pads and fasten
+   four M3 screws into the frame heat-set inserts. Refit the chain, then install
+   the sleeve and split top cap. For service, remove the sleeve/cap and lift off
+   the chain, remove the four cassette screws, and withdraw the complete module
+   straight roomward. A swept-clearance regression checks the full cassette,
+   sprocket, and keeper against the bare frame throughout that path.
+
+## Assembly visuals
+
+Assembled removable cassette:
+
+![Assembled motor and gear cassette](../../research/img/blinds-drive-cassette-assembled.png)
+
+Exploded rod, bearings, gears, spacers, and caps:
+
+![Exploded motor and gear cassette](../../research/img/blinds-drive-cassette-exploded.png)
+
+Split sprocket stack: layshaft bevel, sprocket bevel, spacer, chain wheel,
+two MR105ZZ bearings, and the separate 5 mm steel shaft:
+
+![Split sprocket shaft stack](../../research/img/blinds-sprocket-split-stack.png)
+
+Frame attachment: red = four frame-owned insert pads, gold = four cassette
+mount screws, blue = cassette pulled roomward for clarity:
+
+![Cassette attachment to wall frame](../../research/img/blinds-drive-frame-mount.png)
 
 ## Rejected
 

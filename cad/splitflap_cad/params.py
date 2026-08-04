@@ -953,6 +953,7 @@ class Params:
     gb_gear_backlash: float = 0.08  # coefficient of module in py_gearworks
     gb_gear_hub_d: float = 10.0
     gb_gear_hub_len: float = 4.0
+    gb_gear_print_radial_growth: float = 0.7  # 55deg bed-facing envelope
     gb_pin_guide_d: float = 2.2
     gb_test_bushing_bore_d: float = 5.4
     gb_jig_w: float = 32.0

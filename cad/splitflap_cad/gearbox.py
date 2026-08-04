@@ -27,10 +27,11 @@ from functools import lru_cache
 from math import atan2, pi
 import warnings
 
-from build123d import Align, Box, Cone, Cylinder, Pos, Rot
+from build123d import Align, Box, Cylinder, Pos, Rot
 from py_gearworks import BevelGear, RIGHT
 
 from . import frames as F
+from .geo import self_supporting_heel
 from .params import P
 from .viewer import Scene
 
@@ -58,28 +59,6 @@ def _d_prism(diameter: float, flat_span: float, height: float):
         height + 0.2,
     )
     return _cylinder(radius, height) & keep
-
-
-def _self_supporting_heel(part):
-    """Trim a shallow bevel heel to a support-free printable envelope."""
-    heel_z = part.bounding_box().min.Z
-    heel_faces = [
-        face
-        for face in part.faces()
-        if abs(face.bounding_box().min.Z - heel_z) < 1e-6
-        and abs(face.bounding_box().max.Z - heel_z) < 1e-6
-    ]
-    heel_bb = max(heel_faces, key=lambda face: face.area).bounding_box()
-    heel_r = max(abs(heel_bb.min.X), abs(heel_bb.max.X))
-    height = part.bounding_box().max.Z - heel_z + 0.1
-    radial_growth = 0.7  # 55 degrees from the bed, safely above 45
-    envelope = Pos(0, 0, heel_z) * Cone(
-        heel_r,
-        heel_r + radial_growth * height,
-        height,
-        align=(Align.CENTER, Align.CENTER, Align.MIN),
-    )
-    return part & envelope
 
 
 @lru_cache(maxsize=1)
@@ -121,7 +100,10 @@ def _pair_parts():
     input_part += Pos(0, 0, input_hub_z0) * _cylinder(
         hub_r, P.gb_gear_hub_len
     )
-    input_part = _self_supporting_heel(input_part)
+    input_part = self_supporting_heel(
+        input_part,
+        P.gb_gear_print_radial_growth,
+    )
     input_part -= Pos(0, 0, -2) * _d_prism(
         P.gb_input_bore_d, P.gb_input_bore_flat, 10
     )

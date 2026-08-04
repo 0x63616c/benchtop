@@ -1,32 +1,30 @@
-"""Bead-chain sprocket — 12-pocket wheel per ticket #16, v2: printed
-as ONE piece with its m2 z10 bevel ring gear.
+"""Split bead-chain sprocket for the removable blinds cassette.
 
-Printable. Local frame: axis +Z, z=0 at the WHEEL's mid-plane. Going
-+Z (toward the wall once posed): wheel (±4), Ø10 drum bridge, bevel
-ring with its heel plane at z=25 and cone apex at z=15, back disc to
-z=27.5. Plain Ø5.2 bore throughout — it spins on a fixed M5 cross-axle
-between a front-access head and captive wall-side frame nut, driven by
-the layshaft's identical bevel.
+The chain wheel and its m2 z10 bevel are independent flat-printing parts.
+Both are cross-pinned to a bought 5 mm steel shaft running in two MR105ZZ
+bearings.  There is no printed shaft and no tall wheel-to-gear bridge.
 
 Pocket geometry unchanged from #16: pitch circle Ø≈22.9 (12 × 6mm
 pitch / π); hemispherical Ø5.4 ball pockets centred ON the pitch
 circle; continuous 3.5mm cord groove at pocket depth.
 
-Print standing on the wheel face (z=-4 down), no supports (P2S, PLA):
-the drum and 45° ring cone self-support.
+The wheel prints on either face.  The bevel prints with its trimmed wide
+heel on the bed.  Neither part needs supports.
 
 View it: `just cad view blinds-sprocket` (chain ghost included).
 """
 
 import math
 
-from build123d import Box, Cone, Cylinder, Pos, Rot, Sphere, Torus
+from build123d import Box, Cylinder, Pos, Rot, Sphere, Torus
+from splitflap_cad.geo import support_free_cross_bore
 
 from .params import P
 from .gears import bevel_ring
 
 
-def sprocket():
+def chain_wheel():
+    """12-pocket chain wheel, local shaft axis +Z and centred at z=0."""
     r_pitch = P.spr_pcd / 2
 
     wheel = Cylinder(P.spr_od / 2, P.spr_w)
@@ -40,55 +38,52 @@ def sprocket():
             P.spr_pocket_d / 2
         )
 
-    # back-rim relief: the layshaft bevel's heel teeth sweep to within
-    # 0.6 of the wheel's back face at its outer radius — recess the rim
-    # beyond the drum over the last 1mm (pockets live at mid-plane, safe)
-    wheel -= Pos(0, 0, 3.55) * _ring(P.spr_drum_d / 2 + 0.2, P.spr_od / 2 + 1, 1.1)
-
-    # ring heel plane in local z: wheel mid-plane is unit y=spr_wy and
-    # local +Z runs wall-ward, so the heel (unit y=ring_heel_y) lands at
-    rz = P.spr_wy - P.ring_heel_y  # 25.6
-
-    # drum bridge: wheel back face -> ring gear
-    drum_z0, drum_z1 = P.spr_w / 2, rz
-    drum = Pos(0, 0, (drum_z0 + drum_z1) / 2) * Cylinder(
-        P.spr_drum_d / 2, drum_z1 - drum_z0
+    wheel -= Cylinder((P.spr_shaft_d + P.spr_shaft_clear) / 2, P.spr_w + 2)
+    wheel -= support_free_cross_bore(
+        P.spr_pin_guide_d / 2,
+        P.spr_od + 2,
+        0,
+        0,
+        0,
     )
+    return wheel
 
-    # Genuine py_gearworks bevel ring, already reframed with heel z=0
-    # and its matched apex toward the wheel at -bevel_r.
-    raw_ring = Rot(0, 0, P.bevel_ring_phase) * bevel_ring()
-    ring_bounds = raw_ring.bounding_box()
-    ring_h = ring_bounds.size.Z + 0.1
-    # Keep the bed-facing tooth ends inside the same proven 55-degree
-    # envelope as the separate layshaft bevel. The first surviving ring
-    # layers therefore grow directly from the Ø10 drum instead of appearing
-    # as disconnected tooth-tip islands in the slicer.
-    ring_envelope = Pos(0, 0, ring_bounds.min.Z + ring_h / 2) * Cone(
-        P.spr_drum_d / 2,
-        P.spr_drum_d / 2 + 0.7 * ring_h,
-        ring_h,
-    )
-    printable_ring = raw_ring & ring_envelope
-    ring = Pos(0, 0, rz) * printable_ring
-    ring += Pos(0, 0, rz + 1.25) * Cylinder(7.5, 2.5)  # back disc
-    # A short Ø12.2 root collar reaches the trimmed ring's first annulus.
-    # It is behind the active teeth and stays clear of the crossing layshaft.
-    collar_z0 = rz + printable_ring.bounding_box().min.Z - 0.2
-    ring += Pos(0, 0, (collar_z0 + rz) / 2) * Cylinder(
-        6.1,
-        rz - collar_z0,
-    )
 
-    body = wheel + drum + ring
-    # plain bore on the M5 axle
-    body -= Pos(0, 0, 11) * Cylinder(P.spr_bore_d / 2, 44)
-    return body
+def sprocket_bevel():
+    """Matched bevel ring with a broad rear disc for face-down printing."""
+    ring = Rot(0, 0, P.bevel_ring_phase) * bevel_ring()
+    ring += Pos(0, 0, P.spr_ring_back_t / 2) * Cylinder(
+        P.spr_ring_back_d / 2,
+        P.spr_ring_back_t,
+    )
+    ring -= Pos(0, 0, -1) * Cylinder(
+        (P.spr_shaft_d + P.spr_shaft_clear) / 2,
+        12,
+    )
+    ring -= support_free_cross_bore(
+        P.spr_pin_guide_d / 2,
+        P.spr_bevel_pin_len + 2,
+        0,
+        0,
+        P.spr_ring_back_t / 2,
+    )
+    return ring
+
+
+def sprocket():
+    """Compatibility name for the chain-contacting printable part."""
+    return chain_wheel()
 
 
 def sprocket_print():
-    """Whole sprocket/ring assembly standing on its wheel face."""
-    part = sprocket()
+    """Chain wheel on one flat face."""
+    part = chain_wheel()
+    return Pos(0, 0, -part.bounding_box().min.Z) * part
+
+
+def sprocket_bevel_print():
+    """Separate bevel ring on its broad rear disc."""
+    part = Rot(180, 0, 0) * sprocket_bevel()
     return Pos(0, 0, -part.bounding_box().min.Z) * part
 
 
@@ -112,10 +107,22 @@ def chain_ghost(run_len: float = 120.0):
 
 
 def scene():
+    from . import frames as F
+    from .drivecassette import sprocket_bearing_mr105, sprocket_shaft
     from splitflap_cad.viewer import Scene
 
-    s = Scene()
-    # pose the wheel into the chain frame (axis +Y) so they co-display
-    s.add(sprocket(), "sprocket", color="orange", loc=Rot(90, 0, 0))
-    s.add(chain_ghost(), "chain", color="gray", alpha=0.5)
-    return s
+    return (
+        Scene()
+        .add(F.SPROCKET_WHEEL_IN_UNIT * chain_wheel(), "chain-wheel", color="orange")
+        .add(F.SPROCKET_BEVEL_IN_UNIT * sprocket_bevel(), "sprocket-bevel", color="gold")
+        .add(F.SPROCKET_SHAFT_IN_UNIT * sprocket_shaft(), "5mm-shaft", color="dimgray")
+        .add(F.REAR_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_mr105(), "rear-bearing", color="silver")
+        .add(F.FRONT_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_mr105(), "front-bearing", color="silver")
+        .add(F.CHAIN_IN_UNIT * chain_ghost(), "chain", color="gray", alpha=0.5)
+    )
+
+
+def bevel_scene():
+    from splitflap_cad.viewer import Scene
+
+    return Scene().add(sprocket_bevel_print(), "sprocket-bevel", color="gold")

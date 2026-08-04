@@ -79,17 +79,23 @@ class Params:
     spr_pocket_d: float = 5.4      # ball + 0.4 print clearance
     spr_groove_w: float = 3.5      # cord groove — continuous joiner relief
     spr_rim_over: float = 0.7      # wheel OR beyond the pitch circle (pocket cup)
-    spr_w: float = 8.0             # wheel width
+    spr_w: float = 6.4             # wheel width; 5 mm beads + 0.7 mm side rims
     spr_ball_clear: float = 1.0    # housing channel clearance over balls (#16)
-    spr_bore_d: float = 5.2        # plain bore on the fixed M5 cross-axle
-    spr_drum_d: float = 10.0       # hollow-ish drum bridging wheel -> ring gear
-    axle_d: float = 5.0            # M5 bolt, front head -> captive frame nut
-    axle_bolt_len: float = 40.0    # front-access screw into captive rear nut
-    axle_head_d: float = 9.5       # M5 button-head clearance
-    axle_head_seat_y: float = 41.9 # shoulder in the removable axle keeper
-    axle_head_clear_d: float = 10.5 # sleeve passes over the installed head
-    axle_nut_af: float = 8.0       # M5 hex nut across flats
-    axle_nut_h: float = 4.0
+    spr_ring_back_d: float = 15.0  # rear disc joining the ring tooth roots
+    spr_ring_back_t: float = 3.2   # backs the teeth and locates near rear bearing
+    spr_shaft_d: float = 5.0       # bought smooth steel shaft, not a printed axle
+    spr_shaft_clear: float = 0.2
+    spr_shaft_y0: float = 3.0
+    spr_shaft_len: float = 40.0
+    spr_bearing_d: float = 10.0    # two MR105ZZ bearings, 5x10x4 mm
+    spr_bearing_w: float = 4.0
+    spr_bearing_clear: float = 0.2
+    spr_bearing_centers_y: tuple = (5.6, 40.5)
+    spr_pin_guide_d: float = 2.2
+    spr_wheel_pin_len: float = 14.0
+    spr_bevel_pin_len: float = 14.0
+    spr_spacer_d: float = 8.0
+    spr_spacer_print_pitch: float = 12.0
 
     # --- gear train (all module 2, printed; steel bevels drop in later) ---
     gear_m: float = 2.0
@@ -103,7 +109,9 @@ class Params:
     gear_hub_len: float = 3.0
     pinion_grub_pilot_d: float = 2.6
     lay_pin_guide_d: float = 2.2
-    lay_bevel_pin_span: float = 14.0
+    lay_spur_pin_len: float = 12.0
+    lay_bevel_pin_len: float = 14.0
+    gear_print_radial_growth: float = 0.7  # 55deg bed-facing envelope
 
     # Production layshaft: bought 5 mm rod in two 625ZZ bearings.  The
     # old Ø8 printed shaft becomes separate pinned gears + spacers.
@@ -134,9 +142,8 @@ class Params:
     cradle_x0: float = 8.0         # support-free motor tail cradle x span
     cradle_x1: float = 14.0
     cradle_shell: float = 2.0      # material beyond the motor pocket
-    spr_wy: float = 36.6           # sprocket WHEEL center depth (chain plane y);
-                                   # 36.0 grazed the layshaft bevel's heel teeth
-                                   # with the wheel's back rim
+    spr_wy: float = 34.8           # chain-wheel center depth; its rear face clears
+                                   # the separate layshaft bevel by 0.8 mm
     guide_or: float = 17.0         # wrap-guide clearance radius envelope
     chain_slot: float = 7.0        # top-face slot square (ball 5 + joiner room)
 
@@ -202,10 +209,11 @@ class Params:
     cassette_wheel_axial_clear: float = 1.0
     cassette_wheel_radial_clear: float = 1.2
     cassette_ring_radial_clear: float = 2.0
-    cassette_layshaft_radial_clear: float = 3.0
+    cassette_layshaft_radial_clear: float = 3.6
     cassette_layshaft_tunnel_l: float = 36.0
+    drive_removal_step: float = 2.0
 
-    keeper_y0: float = 40.9        # 0.3 in front of the sprocket wheel
+    keeper_y0: float = 38.3        # removable front MR105 bearing cap starts here
     keeper_z0: float = 203.0
     keeper_z1: float = 237.0
     keeper_outer_half_w: float = 20.0
@@ -231,7 +239,6 @@ class Params:
     sleeve_retainer_d: float = 3.4 # M3 clearance in the sleeve bottom
     sleeve_retainer_boss_d: float = 7.0
     sleeve_retainer_boss_h: float = 7.0
-    sleeve_retainer_boss_z: float = 5.0
 
     # Removable motor/gear cassette.  The frame presents four M3 insert
     # pads at y=6; the cassette begins 0.4 mm in front and can be removed
@@ -253,6 +260,7 @@ class Params:
     drive_lower_z1: float = 162.0
     drive_cassette_back_y: float = 3.4
     drive_bulkhead_z0: float = 160.0
+    drive_housing_bridge_overlap: float = 2.0
     lay_bearing_boss_d: float = 20.0
     lay_bearing_boss_w: float = 6.0
     lay_bearing_pocket_w: float = 5.2
@@ -264,6 +272,8 @@ class Params:
     drive_running_gap: float = 0.2
     lay_spacer_d: float = 8.0
     motor_spacer_d: float = 10.0
+    motor_spacer_bore_d: float = 6.2
+    drive_spacer_print_pitch: float = 14.0
 
     cap_t: float = 1.2
     cap_skirt: float = 4.0
@@ -350,12 +360,7 @@ class Params:
     @property
     def sprocket_back_y(self) -> float:
         """Wall-side face of the sprocket's printed back disc."""
-        return self.ring_heel_y - 2.5  # 8.5
-
-    @property
-    def axle_nut_y0(self) -> float:
-        """Rear face of the nut; the M5x40 tip reaches this plane."""
-        return self.axle_head_seat_y - self.axle_bolt_len
+        return self.ring_heel_y - self.spr_ring_back_t
 
     @property
     def frame_front_y(self) -> float:

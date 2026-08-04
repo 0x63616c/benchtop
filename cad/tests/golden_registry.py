@@ -146,6 +146,18 @@ def _blinds_sprocket():
     return sprocket_print()
 
 
+def _blinds_sprocket_bevel():
+    from blinds_cad.sprocket import sprocket_bevel_print
+
+    return sprocket_bevel_print()
+
+
+def _blinds_sprocket_spacer():
+    from blinds_cad.drivecassette import sprocket_spacer_print
+
+    return sprocket_spacer_print()
+
+
 def _blinds_frame():
     from blinds_cad.enclosure import frame
 
@@ -153,7 +165,7 @@ def _blinds_frame():
 
 
 def _blinds_axle_keeper():
-    from blinds_cad.enclosure import axle_keeper
+    from blinds_cad.drivecassette import axle_keeper
 
     return axle_keeper()
 
@@ -313,6 +325,8 @@ BREP_PARTS = {
     "unit-full": _full_unit,
     "unit-nema-full": _full_unit_nema,
     "blinds-sprocket": _blinds_sprocket,
+    "blinds-sprocket-bevel": _blinds_sprocket_bevel,
+    "blinds-sprocket-spacer": _blinds_sprocket_spacer,
     "blinds-frame": _blinds_frame,
     "blinds-axle-keeper": _blinds_axle_keeper,
     "blinds-sleeve": _blinds_sleeve,
