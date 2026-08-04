@@ -122,15 +122,27 @@ def _keeper_tap_cuts():
 
 
 def _backbone():
-    """Flat wall-side rail grid; the print bed for every projecting feature."""
+    """Flat wall-side rail grid; the print bed for every projecting feature.
+
+    The two upper spines carry the drive cassette and motor bulkhead down
+    into the middle cross rail.  Without them those large cantilevers were
+    fused only to the top rail and looked (and behaved) nearly unsupported.
+    """
     x0, x1 = P.frame_x0, P.frame_x1
     z0, z1 = P.frame_z0, P.frame_z1
     r, t = P.frame_rail_w, P.frame_t
 
     body = box_between(x0, 0, z0, x0 + r, t, z1)
     body += box_between(x1 - r, 0, z0, x1, t, z1)
-    for z in (z0, *P.frame_cross_rails_z, z1 - r):
+    # Start the bottom rail at the tray floor so the cantilevered PCB tray
+    # has its full thickness rooted into it, rather than a 0.5 mm sliver.
+    for z in (P.frame_tray_z0, *P.frame_cross_rails_z, z1 - r):
         body += box_between(x0, 0, z, x1, t, z + r)
+    for x, depth in zip(P.frame_load_spines_x, P.frame_load_spine_depths):
+        body += box_between(
+            x, 0, P.frame_cross_rails_z[-1],
+            x + r, depth, z1,
+        )
     return body
 
 
@@ -362,8 +374,12 @@ def _floor_bosses():
 
 
 def _carrier_bosses():
-    """4× M3 heat-set standoffs off the back wall for the battery
-    carrier PCB (holders solder to it; it busses the 2S3P pack)."""
+    """4× rooted M3 brackets for the battery carrier PCB.
+
+    Each round insert boss grows from a rectangular side-rail web.  The
+    web makes the load path obvious in the model and prevents a boss from
+    looking or slicing like a loose puck over a wall-anchor hole.
+    """
     w = P.holder_l + 0.4
     hgt = (
         (P.cell_n - 1) * P.cell_pitch
@@ -372,19 +388,35 @@ def _carrier_bosses():
     )
     zc = P.bay_z0 + (P.cell_n - 1) * P.cell_pitch / 2
     bosses = None
+    boss_y0 = P.frame_t - P.carrier_boss_embed
+    boss_len = P.carrier_y0 - boss_y0
+    insert_y0 = P.carrier_y0 - P.carrier_insert_depth
     for sx in (-1, 1):
         for sz in (-1, 1):
             x = P.drive_x + sx * (w / 2 - P.carrier_hole_inset)
             z = zc + sz * (hgt / 2 - P.carrier_hole_inset)
-            b = Pos(x, (P.frame_t + P.carrier_y0) / 2, z) * (
+            b = Pos(x, (boss_y0 + P.carrier_y0) / 2, z) * (
                 Rot(90, 0, 0)
-                * Cylinder(P.carrier_boss_d / 2, P.carrier_y0 - P.frame_t)
+                * Cylinder(P.carrier_boss_d / 2, boss_len)
             )
-            b -= Pos(x, (P.frame_t + P.carrier_y0) / 2, z) * (
+            web_x0, web_x1 = (
+                (P.frame_x0, x + P.carrier_boss_d / 2)
+                if sx < 0
+                else (x - P.carrier_boss_d / 2, P.frame_x1)
+            )
+            b += box_between(
+                web_x0,
+                0,
+                z - P.carrier_boss_web_h / 2,
+                web_x1,
+                P.carrier_boss_web_depth,
+                z + P.carrier_boss_web_h / 2,
+            )
+            b -= Pos(x, (insert_y0 + P.carrier_y0) / 2, z) * (
                 Rot(90, 0, 0)
                 * Cylinder(
                     P.m3_insert_d / 2,
-                    P.carrier_y0 - P.frame_t + 2,
+                    P.carrier_insert_depth + 0.2,
                 )
             )
             bosses = b if bosses is None else bosses + b
@@ -399,10 +431,10 @@ def _sleeve_guides():
     for z0, z1 in P.sleeve_guide_bands:
         left = box_between(
             inner_x0, 0, z0,
-            P.frame_x0 + 0.1, P.frame_front_y, z1,
+            P.frame_x0 + P.sleeve_guide_embed, P.frame_front_y, z1,
         )
         right = box_between(
-            P.frame_x1 - 0.1, 0, z0,
+            P.frame_x1 - P.sleeve_guide_embed, 0, z0,
             inner_x1, P.frame_front_y, z1,
         )
         pair = left + right

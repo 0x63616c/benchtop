@@ -59,6 +59,10 @@ fallback) with the motor horizontal:
 - **Enclosure (revised 2026-08-03):** a wall-mounted structural
   exoskeleton owns the motor bulkhead, layshaft saddles, fixed sprocket
   axle, battery-carrier bosses, PCB tray, and four #8 wall anchors. A
+  pair of rear load spines ties the upper drive cassette and motor
+  bulkhead into the middle cross rail; battery bosses grow from visible
+  side-rail brackets clear of the wall anchors, and all sleeve guides
+  have positive overlap into their supporting rails. A
   separate 0.8 mm open-back, open-top sleeve slides over it and is held
   by two underside M3 screws. Rear and front top-cap halves meet at the
   chain plane, closing around both installed strands without threading.

@@ -97,7 +97,12 @@ infill. Literal vase mode is not required.
   closed cover. A separate flat-printed front keeper supports the fixed
   sprocket axle without bridging over the wheel cavity, so the sleeve can be
   removed without releasing the drivetrain. Four close-running frame pads
-  guide the sleeve while two underside screws retain it.
+  guide the sleeve while two underside screws retain it. The projecting
+  features use positive volumetric roots: two rear spines carry the drive
+  cassette and motor bulkhead into the middle cross rail, the battery bosses
+  grow from visible rectangular side-rail brackets, and the PCB tray overlaps
+  the full thickness of the bottom rail. Wall-anchor holes are kept clear of
+  those brackets. This avoids relying on face-only boolean contact.
 - **What we're giving up:** Option E creates more printed parts and needs a
   deliberate slide-guide and retention design. The thin sleeve is cosmetic,
   not a structural enclosure, and the exoskeleton remains visible whenever

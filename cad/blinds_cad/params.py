@@ -64,6 +64,8 @@ class Params:
     carrier_edge_margin: float = 2.0
     carrier_boss_embed: float = 1.5  # positive root overlap into rear rails
     carrier_insert_depth: float = 4.5
+    carrier_boss_web_h: float = 10.0
+    carrier_boss_web_depth: float = 5.0
 
     # --- bead chain (measured: 5mm ball, 6mm pitch) + sprocket (#16) ---
     chain_ball_d: float = 5.0
@@ -172,7 +174,7 @@ class Params:
     frame_x1: float = 94.0
     frame_z0: float = 4.0
     frame_z1: float = 238.0
-    frame_wall_holes: tuple = ((8.0, 16.0), (90.0, 16.0),
+    frame_wall_holes: tuple = ((8.0, 45.0), (90.0, 45.0),
                                (18.0, 234.0), (80.0, 234.0))
     frame_cross_rails_z: tuple = (80.0, 150.0)
     frame_load_spines_x: tuple = (32.0, 62.0)
