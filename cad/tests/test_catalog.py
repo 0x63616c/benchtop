@@ -90,7 +90,7 @@ def test_printable_builders_exist():
         "blinds-drive-cassette",
         "blinds-drive-spacers",
         "nas-caddy",
-        "nas-latch",
+        "nas-door",
         "nas-bay-frame",
     }
 

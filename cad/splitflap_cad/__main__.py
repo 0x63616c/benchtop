@@ -25,12 +25,15 @@ RENDER_DIR = EXPORT_DIR / "renders"
 
 
 def _push(name, port):
-    from ocp_vscode import show
+    from ocp_vscode import set_port, show
 
-    kwargs = MODELS[name].build().show_args()
+    scene = MODELS[name].build()
+    kwargs = scene.show_args()
     objects = kwargs.pop("objects")
     try:
+        set_port(port)
         show(*objects, port=port, **kwargs)
+        scene.play_animation(port)
     except Exception as exc:  # viewer down, most likely
         sys.exit(f"push {name} -> :{port} failed ({exc}); viewer up? try `just cad`")
     print(f"pushed {name} -> :{port}")

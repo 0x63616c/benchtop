@@ -1,64 +1,44 @@
-"""Parametric multi-bay storage block assembled from the proven bay unit."""
+"""Parametric upright multi-bay storage block with animated push-doors."""
 
 from build123d import Pos
 
-from .bay import (
-    bay_frame,
-    backplane,
-    caddy,
-    caddy_location,
-    drive_in_caddy_location,
-    latch,
-    latch_location,
-)
-from .hdd import add_hdd_to_scene
+from .bay import add_opening_animation, bay_group, vertical_bay_frame, vertical_bay_location
 from .params import P
 
 
 def storage_frame(columns: int = P.bay_columns, rows: int = P.bay_rows):
-    """Union of repeated bays; dimensions follow columns and rows."""
+    """Union of upright repeated bays; dimensions follow columns and rows."""
     if columns < 1 or rows < 1:
         raise ValueError("NAS storage frame needs at least one row and column")
     result = None
+    pitch_x = P.bay_h + P.bay_array_gap
+    pitch_z = P.bay_w + P.bay_array_gap
     for row in range(rows):
         for column in range(columns):
-            loc = Pos(
-                column * (P.bay_w + P.bay_array_gap),
-                0,
-                row * (P.bay_h + P.bay_array_gap),
-            )
-            part = loc * bay_frame()
+            part = Pos(column * pitch_x, 0, row * pitch_z) * vertical_bay_frame()
             result = part if result is None else result + part
     return result
 
 
 def scene(columns: int = P.bay_columns, rows: int = P.bay_rows):
+    """Six narrow vertical bays; doors animate in a left-to-right wave."""
     from splitflap_cad.viewer import Scene
 
-    s = Scene()
+    storage = Scene()
+    pitch_x = P.bay_h + P.bay_array_gap
+    pitch_z = P.bay_w + P.bay_array_gap
     for row in range(rows):
         for column in range(columns):
             index = row * columns + column + 1
-            cell = Pos(
-                column * (P.bay_w + P.bay_array_gap),
-                0,
-                row * (P.bay_h + P.bay_array_gap),
-            )
-            s.add(bay_frame(), f"bay-{index}", color="lightsteelblue", alpha=0.82, loc=cell)
-            s.add(caddy(), f"caddy-{index}", color="slategray", loc=cell * caddy_location())
-            s.add(latch(), f"latch-{index}", color="orange", loc=cell * latch_location())
-            pcb, plug = backplane()
-            s.add(
-                pcb,
-                f"backplane-pcb-{index}",
-                color="darkgreen",
-                loc=cell,
-            )
-            s.add(
-                plug,
-                f"backplane-sata-{index}",
-                color="black",
-                loc=cell,
-            )
-            add_hdd_to_scene(s, cell * drive_in_caddy_location(), prefix=f"hdd-{index}")
-    return s
+            bay_name = f"bay-{index}"
+            loc = Pos(column * pitch_x, 0, row * pitch_z) * vertical_bay_location()
+            storage.add_group(bay_group(), bay_name, loc=loc)
+
+    result = Scene().add_group(storage, "nas-storage")
+    for index in range(1, columns * rows + 1):
+        add_opening_animation(
+            result,
+            f"nas-storage/bay-{index}",
+            start=(index - 1) * 0.16,
+        )
+    return result.animation_speed(1.0)

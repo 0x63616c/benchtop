@@ -308,10 +308,10 @@ def _nas_caddy():
     return caddy()
 
 
-def _nas_latch():
-    from nas_cad.bay import latch
+def _nas_door():
+    from nas_cad.bay import door
 
-    return latch()
+    return door()
 
 
 def _nas_bay_frame():
@@ -370,7 +370,7 @@ BREP_PARTS = {
     "gear-box-motor-output-spacer": _gearbox_motor_output_spacer,
     "nas-hdd": _nas_hdd,
     "nas-caddy": _nas_caddy,
-    "nas-latch": _nas_latch,
+    "nas-door": _nas_door,
     "nas-bay-frame": _nas_bay_frame,
 }
 

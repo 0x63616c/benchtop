@@ -40,7 +40,7 @@ class Params:
     backplane_w: float = 74.0
     backplane_h: float = 24.0
 
-    # Removable caddy. The drive is retained with four side screws.
+    # Removable caddy. Four printed pins snap into the standard side holes.
     drive_side_clear: float = 0.75
     drive_bottom_clear: float = 1.0
     caddy_floor_t: float = 2.4
@@ -53,14 +53,28 @@ class Params:
     caddy_vent_d: float = 76.0
     caddy_vent_gap: float = 8.0
 
-    # Front cam lever. Pivot axis is vertical; closed lever spans the bezel.
-    latch_t: float = 4.0
-    latch_h: float = 9.0
-    latch_pivot_d: float = 4.0
-    latch_pivot_margin: float = 8.0
-    latch_end_margin: float = 8.0
-    latch_cam_r: float = 7.0
-    latch_open_deg: float = 62.0
+    # Tool-less retention: fixed pins at left, flex fingers at right.
+    retention_pin_d: float = 3.25
+    retention_pin_len: float = 2.4
+    retention_pin_tip_d: float = 2.5
+    retention_pin_tip_len: float = 1.2
+    retention_finger_w: float = 16.0
+    retention_finger_root_h: float = 3.0
+    retention_slot_w: float = 1.2
+    retention_pull_tab_w: float = 9.0
+    retention_pull_tab_out: float = 3.5
+
+    # Full-height push-to-open front door. In the horizontal bay frame the
+    # hinge is the +X edge; after the bay rotates upright it becomes the bottom.
+    door_t: float = 3.0
+    door_gap: float = 1.2
+    door_face_inset: float = 1.0
+    door_button_d: float = 8.0
+    door_button_depth: float = 0.8
+    door_button_from_hinge: float = 12.0
+    door_press_travel: float = 1.5
+    door_open_deg: float = 28.0
+    door_hinge_d: float = 3.0
     caddy_open_travel: float = 45.0
 
     # Repeatable bay frame. Open front and rear keep airflow unobstructed.
@@ -74,8 +88,8 @@ class Params:
     bay_joiner_edge: float = 7.0
 
     # Default storage block; callers can pass any positive rows/columns.
-    bay_columns: int = 2
-    bay_rows: int = 3
+    bay_columns: int = 6
+    bay_rows: int = 1
     bay_array_gap: float = 0.8
 
     # Bambu Lab P2S advertised build volume.

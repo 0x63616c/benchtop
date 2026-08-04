@@ -268,16 +268,16 @@ MODELS = {
         "nas", "NAS SFF-8301 3.5-inch HDD reference", "nas_cad.hdd"
     ),
     "nas-caddy": Model(
-        "nas", "NAS removable HDD caddy with closed cam latch", "nas_cad.bay", "caddy_scene"
+        "nas", "NAS tool-less HDD caddy with closed push-door", "nas_cad.bay", "caddy_scene"
     ),
     "nas-bay": Model(
-        "nas", "NAS single closed HDD bay with provisional SATA backplane", "nas_cad.bay"
+        "nas", "NAS animated upright bay with push-door and SATA backplane", "nas_cad.bay"
     ),
     "nas-bay-open": Model(
-        "nas", "NAS single bay with caddy extracted and cam latch open", "nas_cad.bay", "open_scene"
+        "nas", "NAS upright bay with door open and caddy extracted", "nas_cad.bay", "open_scene"
     ),
     "nas-storage": Model(
-        "nas", "NAS parametric 2x3 six-drive storage block", "nas_cad.nas"
+        "nas", "NAS animated six-across vertical-drive storage block", "nas_cad.nas"
     ),
 }
 
@@ -363,7 +363,7 @@ PRINTABLE = {
         "blinds", "blinds_cad.drivecassette", "spacers_print"
     ),
     "nas-caddy": Printable("nas", "nas_cad.bay", "caddy"),
-    "nas-latch": Printable("nas", "nas_cad.bay", "latch"),
+    "nas-door": Printable("nas", "nas_cad.bay", "door"),
     "nas-bay-frame": Printable("nas", "nas_cad.bay", "bay_frame"),
 }
 
