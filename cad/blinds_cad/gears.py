@@ -6,11 +6,9 @@ Two parts:
                    at the far end. Rides in two U-saddles (bulkhead
                    rib + right block), retained by the mesh + clips.
 
-Tooth geometry: proper involute flanks (20° PA) computed as a point
-polyline; the bevel is the same outline lofted toward its 45° cone
-apex — a straight-bevel approximation that prints clean and meshes
-the sprocket's identical z10 ring. Steel bevels can replace the pair
-later; bores stay standard (Ø6 D / Ø5 axle on the sprocket side).
+Tooth geometry comes from py_gearworks: true involute spur teeth and
+a matched octoid miter-bevel pair. The continuous Ø8 printed layshaft
+has a 5.2mm axial bore for an optional 5mm steel reinforcing rod.
 
 Local frames: gear axis +Z. The layshaft's bevel HEEL plane is z=0
 with the cone apex at +Z (z=+bevel_r); shaft and spur extend -Z.
@@ -18,85 +16,64 @@ with the cone apex at +Z (z=+bevel_r); shaft and spur extend -Z.
 View: `just cad view blinds-gears`.
 """
 
-import math
+from functools import lru_cache
+from math import pi
+import warnings
 
-from build123d import Box, Cylinder, Polygon, Pos, extrude
+from build123d import Box, Cylinder, Pos, Rot
+from py_gearworks import BevelGear, RIGHT, SpurGear
 
 from .params import P
 
 
-def _inv(t: float) -> float:
-    return t - math.atan(t)
+@lru_cache(maxsize=1)
+def _spur_pair_parts():
+    """Meshed py_gearworks spur pair, each returned on its own axis."""
+    common = dict(
+        module=P.gear_m,
+        height=P.spur_w,
+        backlash=P.gear_backlash,
+    )
+    pinion_definition = SpurGear(number_of_teeth=P.spur_pinion_z, **common)
+    wheel_definition = SpurGear(number_of_teeth=P.spur_wheel_z, **common)
+    wheel_definition.mesh_to(pinion_definition, target_dir=RIGHT)
+
+    pinion_part = pinion_definition.build_part(n_vert=2)
+    wheel_part = wheel_definition.build_part(n_vert=2)
+    wheel_part = Pos(
+        -(P.spur_pinion_r + P.spur_wheel_r), 0, 0
+    ) * wheel_part
+    return pinion_part, wheel_part
 
 
-BACKLASH = 0.2  # arc-mm of tooth thinning at the pitch circle — printed
-                # gears at nominal center distance need the slack
+@lru_cache(maxsize=1)
+def _bevel_pair_parts():
+    """Matched py_gearworks 1:1 miter pair in layshaft/ring frames."""
+    common = dict(
+        number_of_teeth=P.bevel_z,
+        module=P.gear_m,
+        height=P.bevel_face,
+        cone_angle=pi / 2,
+        backlash=P.gear_backlash,
+    )
+    layshaft_definition = BevelGear(**common)
+    ring_definition = BevelGear(**common)
+    ring_definition.mesh_to(layshaft_definition, target_dir=RIGHT)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="Gimbal lock detected.*")
+        layshaft_part = layshaft_definition.build_part(n_vert=4)
+        ring_part = ring_definition.build_part(n_vert=4)
+
+    # The meshed ring has its heel centre at (bevel_r, 0, bevel_r),
+    # axis toward -X. Reframe it onto a local +Z sprocket axis with its
+    # heel plane at z=0 and apex at z=-bevel_r.
+    ring_part = Pos(P.bevel_r, 0, -P.bevel_r) * Rot(0, -90, 0) * ring_part
+    return layshaft_part, ring_part
 
 
-def gear_outline(m: float, z: int, pa_deg: float = 20.0) -> list:
-    """Full involute gear outline as a closed point loop (CCW)."""
-    pa = math.radians(pa_deg)
-    r_p = m * z / 2
-    r_b = r_p * math.cos(pa)
-    r_a = r_p + m            # addendum
-    r_r = r_p - 1.25 * m     # dedendum
-    beta = (math.pi / (2 * z) + _inv(math.tan(pa))
-            - BACKLASH / (2 * r_p))  # base half-thickness angle, thinned
-    t_a = math.sqrt((r_a / r_b) ** 2 - 1)          # roll param at the tip
-    theta_tip = beta - _inv(t_a)
-    pitch = 2 * math.pi / z
-
-    pts = []
-    for i in range(z):
-        c = i * pitch
-        # root arc from the previous gap into this tooth
-        for k in range(3):
-            a = c - pitch / 2 + k * (pitch / 2 - beta) / 2
-            pts.append((r_r * math.cos(a), r_r * math.sin(a)))
-        # leading flank, root -> tip
-        for k in range(6):
-            t = t_a * k / 5
-            r = r_b * math.sqrt(1 + t * t)
-            a = c - beta + _inv(t)
-            pts.append((max(r, r_r) * math.cos(a), max(r, r_r) * math.sin(a)))
-        # tip arc
-        for k in range(3):
-            a = c - theta_tip + k * theta_tip
-            pts.append((r_a * math.cos(a), r_a * math.sin(a)))
-        # trailing flank, tip -> root
-        for k in range(6):
-            t = t_a * (5 - k) / 5
-            r = r_b * math.sqrt(1 + t * t)
-            a = c + beta - _inv(t)
-            pts.append((max(r, r_r) * math.cos(a), max(r, r_r) * math.sin(a)))
-        # root arc out of this tooth
-        for k in range(3):
-            a = c + beta + (k + 1) * (pitch / 2 - beta) / 3
-            pts.append((r_r * math.cos(a), r_r * math.sin(a)))
-    return pts
-
-
-def spur(m: float, z: int, width: float):
-    """Spur gear blank, z=0..width, no bore."""
-    return extrude(Polygon(*gear_outline(m, z)), amount=width)
-
-
-def bevel(m: float, z: int, face: float, steps: int = 6):
-    """Straight 45° miter bevel: heel outline at z=0 shrinking toward
-    the cone apex at z=+pitch_r, built as a stack of thin extruded
-    slices. (A single loft between the two 300-point outlines twists
-    its vertex correspondence and emits knife-thin fins.)"""
-    r_p = m * z / 2
-    cone = r_p * math.sqrt(2)          # heel cone distance
-    dz = face / math.sqrt(2)
-    heel = gear_outline(m, z)
-    body = None
-    for i in range(steps):
-        s = (cone - face * i / steps) / cone   # scale at the slice BASE —
-        pts = [(x * s, y * s) for x, y in heel]  # each slice slightly proud
-        sl = Pos(0, 0, i * dz / steps) * extrude(Polygon(*pts), amount=dz / steps)
-        body = sl if body is None else body + sl
-    return body
+def bevel_ring():
+    """Matched sprocket-side bevel, heel plane at local z=0."""
+    return _bevel_pair_parts()[1]
 
 
 def _d_bore(length: float):
@@ -113,16 +90,17 @@ def pinion():
     Half-tooth phase rotation BEFORE the bore: posed on the shaft, the
     layshaft spur presents a gap at the mesh line, so the pinion must
     present a tooth there — while the D-flat stays aligned local +Y."""
-    from build123d import Rot
-
-    g = Pos(0, 0, -P.spur_w / 2) * spur(P.gear_m, P.spur_pinion_z, P.spur_w)
-    g = Rot(0, 0, 360.0 / (2 * P.spur_pinion_z)) * g
+    g = (
+        Rot(0, 0, P.spur_pinion_phase)
+        * Pos(0, 0, -P.spur_w / 2)
+        * _spur_pair_parts()[0]
+    )
     return g - _d_bore(P.spur_w + 2)
 
 
 def layshaft():
-    """Bevel (heel z=0, apex +Z) + Ø8 shaft + z17 spur, one print."""
-    body = bevel(P.gear_m, P.bevel_z, P.bevel_face)
+    """Real bevel + continuous Ø8 shaft + real z17 spur, one print."""
+    body = _bevel_pair_parts()[0]
     body += Pos(0, 0, -2.5) * Cylinder(P.lay_hub_d / 2, 5)  # bevel hub, z -5..0
     # (kept short: the hub must stay left of the bulkhead rib at x 67)
     shaft_len = 33.0  # unit x 59..92: through both saddles
@@ -130,7 +108,10 @@ def layshaft():
     # spur wheel over the pinion: unit x = bevel_heel_x - local z, so the
     # teeth at unit x 78..85 live at local z -26..-19
     z_far = P.bevel_heel_x - (P.pinion_x + P.spur_w / 2)  # -26
-    body += Pos(0, 0, z_far) * spur(P.gear_m, P.spur_wheel_z, P.spur_w)
+    body += Pos(0, 0, z_far) * _spur_pair_parts()[1]
+    body -= Pos(0, 0, (-shaft_len + P.bevel_face) / 2) * Cylinder(
+        P.lay_rod_bore_d / 2, shaft_len + P.bevel_face + 1
+    )
     return body
 
 

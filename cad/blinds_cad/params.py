@@ -62,6 +62,8 @@ class Params:
     carrier_boss_d: float = 8.0    # M3 heat-set bosses off the back wall
     carrier_hole_inset: float = 4.0
     carrier_edge_margin: float = 2.0
+    carrier_boss_embed: float = 1.5  # positive root overlap into rear rails
+    carrier_insert_depth: float = 4.5
 
     # --- bead chain (measured: 5mm ball, 6mm pitch) + sprocket (#16) ---
     chain_ball_d: float = 5.0
@@ -90,7 +92,9 @@ class Params:
     spur_w: float = 7.0            # face width, both spurs
     bevel_z: int = 10              # 1:1 miter pair, layshaft -> sprocket ring
     bevel_face: float = 5.0
+    gear_backlash: float = 0.05  # coefficient of module per py_gearworks gear
     lay_shaft_d: float = 8.0       # printed layshaft body
+    lay_rod_bore_d: float = 5.2    # optional 5mm steel reinforcement rod
     lay_hub_d: float = 16.0        # bevel-end hub
     saddle_bore: float = 8.4       # U-saddle bores in rib + right block
 
@@ -171,6 +175,8 @@ class Params:
     frame_wall_holes: tuple = ((8.0, 16.0), (90.0, 16.0),
                                (18.0, 234.0), (80.0, 234.0))
     frame_cross_rails_z: tuple = (80.0, 150.0)
+    frame_load_spines_x: tuple = (32.0, 62.0)
+    frame_load_spine_depths: tuple = (3.0, 2.3)  # right clears gearbox rear
     frame_tray_z0: float = 2.0
     frame_tray_z1: float = 4.5
     saddle_y1: float = 29.0
@@ -204,6 +210,7 @@ class Params:
     sleeve_h: float = 240.5        # open top; caps finish at enc_h
     sleeve_fit: float = 0.4        # frame-to-sleeve running clearance
     sleeve_guide_bands: tuple = ((18.0, 28.0), (205.0, 215.0))
+    sleeve_guide_embed: float = 3.0  # root width inside each side rail
     sleeve_retainer_xy: tuple = ((18.0, 4.5), (80.0, 4.5))
     sleeve_retainer_d: float = 3.4 # M3 clearance in the sleeve bottom
     sleeve_retainer_boss_d: float = 7.0
@@ -243,12 +250,22 @@ class Params:
         return self.gear_m * self.spur_pinion_z / 2  # 14
 
     @property
+    def spur_pinion_phase(self) -> float:
+        """Half-tooth clocking after the motor/lay axes oppose in-unit."""
+        return 180 / self.spur_pinion_z
+
+    @property
     def spur_wheel_r(self) -> float:
         return self.gear_m * self.spur_wheel_z / 2  # 17
 
     @property
     def bevel_r(self) -> float:
         return self.gear_m * self.bevel_z / 2  # 10
+
+    @property
+    def bevel_ring_phase(self) -> float:
+        """Half-tooth clocking after the miter pair is reframed in-unit."""
+        return 180 / self.bevel_z
 
     @property
     def lay_z(self) -> float:

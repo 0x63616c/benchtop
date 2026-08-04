@@ -23,7 +23,7 @@ import math
 from build123d import Box, Cylinder, Pos, Rot, Sphere, Torus
 
 from .params import P
-from .gears import bevel
+from .gears import bevel_ring
 
 
 def sprocket():
@@ -50,14 +50,14 @@ def sprocket():
     rz = P.spr_wy - P.ring_heel_y  # 25.6
 
     # drum bridge: wheel back face -> ring gear
-    drum_z0, drum_z1 = P.spr_w / 2, rz - P.bevel_face / math.sqrt(2)
+    drum_z0, drum_z1 = P.spr_w / 2, rz
     drum = Pos(0, 0, (drum_z0 + drum_z1) / 2) * Cylinder(
         P.spr_drum_d / 2, drum_z1 - drum_z0
     )
 
-    # bevel ring: heel plane z=rz, apex toward the wheel at rz-10 —
-    # gears.bevel() builds apex +Z, so flip it over before placing
-    ring = Pos(0, 0, rz) * (Rot(180, 0, 0) * bevel(P.gear_m, P.bevel_z, P.bevel_face))
+    # Genuine py_gearworks bevel ring, already reframed with heel z=0
+    # and its matched apex toward the wheel at -bevel_r.
+    ring = Pos(0, 0, rz) * Rot(0, 0, P.bevel_ring_phase) * bevel_ring()
     ring += Pos(0, 0, rz + 1.25) * Cylinder(7.5, 2.5)  # back disc
 
     body = wheel + drum + ring

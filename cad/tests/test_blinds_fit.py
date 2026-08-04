@@ -108,3 +108,16 @@ def test_gear_mesh_geometry():
     assert P.lay_z - P.motor_z == P.spur_pinion_r + P.spur_wheel_r
     assert P.bevel_heel_x - P.drive_x == P.bevel_r
     assert P.drive_y - P.ring_heel_y == P.bevel_r
+
+
+def test_layshaft_accepts_5mm_reinforcing_rod():
+    """The printed compound gear stays connected around a clear 5mm bore."""
+    from build123d import Cylinder, Pos
+
+    from blinds_cad.gears import layshaft
+
+    gear = layshaft()
+    rod = Pos(0, 0, -14) * Cylinder(2.5, 38)
+
+    assert len(gear.solids()) == 1
+    assert (gear & rod).volume < 1e-6
