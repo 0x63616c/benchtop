@@ -57,7 +57,8 @@ fallback) with the motor horizontal:
   x=67..70 motor face (6×M3 BCD31), tail cradle, sprocket housing, and rear
   halves of both open 625ZZ seats. One structural room-side lid replaces the
   former two bearing caps and separate axle keeper. Two continuous full-height
-  ribs close both 625ZZ seats while its center boss retains the front MR105ZZ.
+  ribs embed 3 mm into both 625ZZ shells for a broad load path, then have the
+  bearing and shaft envelopes re-cut; its center boss retains the front MR105ZZ.
   Three lid screws form a non-rocking triangular clamp pattern into back-rooted
   heat-set columns. A local 2.4 mm-deep apron extends only below the z17 spur,
   covering its lower tooth envelope with 0.4 mm radial allowance and 0.53 mm

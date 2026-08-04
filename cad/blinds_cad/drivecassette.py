@@ -534,12 +534,16 @@ def cassette_lid():
         lid += _bearing_lid_shell(x)
         lid += box_between(
             x - P.cassette_lid_spine_w / 2,
-            P.lay_cap_y1 - 0.2,
+            P.lay_cap_y1 - P.cassette_lid_shell_embed,
             P.lay_z - P.lay_bearing_boss_d / 2,
             x + P.cassette_lid_spine_w / 2,
             P.cassette_lid_y0 + 0.1,
             P.lay_z + P.lay_bearing_boss_d / 2,
         )
+        # The spine is deliberately sunk into the shell for a broad load path;
+        # restore the exact bearing and shaft envelopes after the union.
+        lid -= _bearing_pocket(x)
+        lid -= _bearing_shaft_cut(x)
 
     for x, z in P.cassette_lid_screw_points:
         lid += _axis_y_cylinder(

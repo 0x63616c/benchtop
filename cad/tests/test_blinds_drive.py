@@ -233,20 +233,29 @@ def test_frame_shelf_and_upper_key_are_real_load_bearing_datums():
 def test_bearing_shells_join_full_height_rectangular_spines():
     from splitflap_cad.geo import box_between
 
-    from blinds_cad.drivecassette import cassette_lid
+    from blinds_cad.drivecassette import (
+        _bearing_lid_shell,
+        _bearing_pocket,
+        _bearing_shaft_cut,
+        cassette_lid,
+    )
     from blinds_cad.params import P
 
     lid = cassette_lid()
     for x in P.lay_bearing_centers_x:
         bridge = box_between(
             x - P.cassette_lid_spine_w / 2,
-            P.lay_cap_y1 - 0.2,
+            P.lay_cap_y1 - P.cassette_lid_shell_embed,
             P.lay_z - P.lay_bearing_boss_d / 2,
             x + P.cassette_lid_spine_w / 2,
             P.cassette_lid_y0 + 0.1,
             P.lay_z + P.lay_bearing_boss_d / 2,
         )
-        assert (lid & bridge).volume >= 0.99 * bridge.volume
+        shell = _bearing_lid_shell(x)
+        cuts = _bearing_pocket(x) + _bearing_shaft_cut(x)
+        assert P.cassette_lid_shell_embed >= 3.0
+        assert (shell & bridge).volume >= 30.0
+        assert (lid & cuts).volume < 1e-6
 
 
 def test_spur_teeth_sit_behind_a_local_lid_apron_without_resizing_the_mesh():

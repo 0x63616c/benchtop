@@ -232,6 +232,7 @@ class Params:
     cassette_lid_web_t: float = 2.5
     cassette_lid_rail: float = 7.0
     cassette_lid_spine_w: float = 7.0
+    cassette_lid_shell_embed: float = 3.0
     cassette_lid_sprocket_boss_wall: float = 3.0
     cassette_lid_fit: float = 0.3
     cassette_spur_apron_axial_clear: float = 0.5
