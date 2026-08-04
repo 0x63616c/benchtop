@@ -51,6 +51,23 @@ def test_sprocket_is_two_prints_on_a_real_5mm_shaft_and_two_bearings():
     )
 
 
+def test_sprocket_bevel_backing_disc_does_not_fill_the_active_teeth():
+    """The flat print face is a thin backing disc, not a tall cylindrical
+    base that leaves a seam through the active bevel tooth form."""
+    from blinds_cad.gears import bevel_ring
+    from blinds_cad.params import P
+    from blinds_cad.sprocket import sprocket_bevel
+
+    gear = sprocket_bevel()
+    raw = Rot(0, 0, P.bevel_ring_phase) * bevel_ring()
+    disc_z0 = raw.bounding_box().max.Z - P.spr_ring_back_overlap
+
+    assert len(gear.solids()) == 1
+    assert P.spr_ring_back_t <= 1.2
+    assert P.spr_ring_back_overlap < P.spr_ring_back_t
+    assert P.spr_bevel_pin_z + P.spr_pin_guide_d / 2 < disc_z0
+
+
 def test_drive_cassette_is_removable_and_all_four_mounts_are_supported():
     from blinds_cad.drivecassette import bearing_caps, drive_cassette
     from blinds_cad.enclosure import frame

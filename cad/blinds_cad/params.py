@@ -81,8 +81,12 @@ class Params:
     spr_rim_over: float = 0.7      # wheel OR beyond the pitch circle (pocket cup)
     spr_w: float = 6.4             # wheel width; 5 mm beads + 0.7 mm side rims
     spr_ball_clear: float = 1.0    # housing channel clearance over balls (#16)
-    spr_ring_back_d: float = 15.0  # rear disc joining the ring tooth roots
-    spr_ring_back_t: float = 3.2   # backs the teeth and locates near rear bearing
+    spr_ring_back_d: float = 12.0  # hidden inside tooth roots; no outer skirt seam
+    spr_ring_back_t: float = 1.2
+    spr_ring_back_overlap: float = 0.4
+    spr_bevel_hub_d: float = 8.0   # torque hub; stays inside crossing bevel
+    spr_bevel_hub_z0: float = -1.5
+    spr_bevel_pin_z: float = 0.0   # transverse guide exits only through hub sides
     spr_shaft_d: float = 5.0       # bought smooth steel shaft, not a printed axle
     spr_shaft_clear: float = 0.2
     spr_shaft_y0: float = 3.0
@@ -356,11 +360,6 @@ class Params:
     def ring_heel_y(self) -> float:
         """Sprocket ring-gear heel plane: bevel_r wall-side of the apex."""
         return self.drive_y - self.bevel_r  # 11
-
-    @property
-    def sprocket_back_y(self) -> float:
-        """Wall-side face of the sprocket's printed back disc."""
-        return self.ring_heel_y - self.spr_ring_back_t
 
     @property
     def frame_front_y(self) -> float:

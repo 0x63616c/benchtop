@@ -205,7 +205,9 @@ def sprocket_housing():
             wheel_y1 - wheel_y0,
         )
     )
-    ring_y0 = P.sprocket_back_y - 0.5
+    ring_y0 = (
+        _posed_sprocket_parts()["sprocket-bevel"].bounding_box().min.Y - 0.5
+    )
     ring_len = wheel_y0 - ring_y0
     block -= Pos(cx, (wheel_y0 + ring_y0) / 2, cz) * (
         Rot(90, 0, 0)

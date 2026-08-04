@@ -122,6 +122,11 @@ two MR105ZZ bearings, and the separate 5 mm steel shaft:
 
 ![Split sprocket shaft stack](../../research/img/blinds-sprocket-split-stack.png)
 
+The sprocket bevel's 1.2 mm backing disc is hidden inside the tooth roots;
+the Ø2.2 cross-pin guide exits through only the central hub:
+
+![Corrected sprocket bevel print](../../research/img/blinds-sprocket-bevel-print.png)
+
 Frame attachment: red = four frame-owned insert pads, gold = four cassette
 mount screws, blue = cassette pulled roomward for clarity:
 

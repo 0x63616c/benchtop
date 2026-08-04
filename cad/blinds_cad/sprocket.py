@@ -52,20 +52,25 @@ def chain_wheel():
 def sprocket_bevel():
     """Matched bevel ring with a broad rear disc for face-down printing."""
     ring = Rot(0, 0, P.bevel_ring_phase) * bevel_ring()
-    ring += Pos(0, 0, P.spr_ring_back_t / 2) * Cylinder(
+    tooth_back_z = ring.bounding_box().max.Z
+    disc_z0 = tooth_back_z - P.spr_ring_back_overlap
+    disc_z1 = disc_z0 + P.spr_ring_back_t
+    ring += Pos(0, 0, (disc_z0 + disc_z1) / 2) * Cylinder(
         P.spr_ring_back_d / 2,
         P.spr_ring_back_t,
     )
-    ring -= Pos(0, 0, -1) * Cylinder(
-        (P.spr_shaft_d + P.spr_shaft_clear) / 2,
-        12,
+    ring += Pos(0, 0, (P.spr_bevel_hub_z0 + disc_z1) / 2) * Cylinder(
+        P.spr_bevel_hub_d / 2,
+        disc_z1 - P.spr_bevel_hub_z0,
     )
-    ring -= support_free_cross_bore(
+    ring_bounds = ring.bounding_box()
+    ring -= Pos(0, 0, (ring_bounds.min.Z + ring_bounds.max.Z) / 2) * Cylinder(
+        (P.spr_shaft_d + P.spr_shaft_clear) / 2,
+        ring_bounds.size.Z + 2,
+    )
+    ring -= Pos(0, 0, P.spr_bevel_pin_z) * Rot(0, 90, 0) * Cylinder(
         P.spr_pin_guide_d / 2,
-        P.spr_bevel_pin_len + 2,
-        0,
-        0,
-        P.spr_ring_back_t / 2,
+        P.spr_bevel_hub_d + 2,
     )
     return ring
 
