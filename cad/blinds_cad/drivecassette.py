@@ -2,7 +2,7 @@
 
 The chassis carries every fixed drive feature and slides onto a keyed frame
 shelf.  One structural room-side lid closes both split 625ZZ seats, retains
-the sprocket shaft, and ties the mechanism together with four M3 screws.
+the sprocket shaft, and ties the mechanism together with three M3 screws.
 Only two lower screws attach the complete pod to the wall frame.
 """
 
