@@ -645,13 +645,19 @@ def drive_cassette():
         - P.cassette_lid_sprocket_boss_wall
         - fit,
         bearing_y0 - fit,
-        P.spr_z - (P.spr_bearing_d + 6.0) / 2 - fit,
+        P.spr_z
+        - P.spr_bearing_d / 2
+        - P.cassette_lid_sprocket_boss_wall
+        - fit,
         P.drive_x
         + P.spr_bearing_d / 2
         + P.cassette_lid_sprocket_boss_wall
         + fit,
         P.frame_front_y + fit,
-        P.spr_z + (P.spr_bearing_d + 6.0) / 2 + fit,
+        P.spr_z
+        + P.spr_bearing_d / 2
+        + P.cassette_lid_sprocket_boss_wall
+        + fit,
     )
     body -= _sprocket_shaft_cuts()
 
