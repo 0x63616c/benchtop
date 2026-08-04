@@ -57,6 +57,19 @@ class Params:
     holder_w: float = 23.9         # stack direction
     holder_h: float = 21.8         # off the carrier face
     cell_pitch: float = 24.5       # holder_w + 0.6 gap
+
+    # --- owned Bistook 3-slot holders (two per unit) ---
+    # Supplier drawing + owner measurements, 2026-08-03.  The plastic
+    # back has one centred 4.2 mm hole per cell slot.  Metal contacts can
+    # stand 4 mm proud but fold flat into the room-side wiring cavity.
+    holder3_l: float = 83.00
+    holder3_h: float = 66.59
+    holder3_body_d: float = 14.51
+    holder3_contact_d: float = 21.80
+    holder3_slot_pitch: float = 21.39
+    holder3_slot_edge: float = 11.90
+    holder3_hole_d: float = 4.20
+    holder3_gap: float = 3.00
     carrier_t: float = 1.6
     carrier_y0: float = 8.5        # carrier back face, behind the drive ring
     carrier_boss_d: float = 8.0    # M3 heat-set bosses off the back wall

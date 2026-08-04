@@ -1,13 +1,12 @@
-"""Battery bay references: 21700 cells, Bistook 1-slot PCB holders, and
-the battery CARRIER PCB they solder to.
+"""Battery bay references: 21700 cells and two owned Bistook 3-slot holders.
 
-Holders are listing-verified 83.1 × 23.9 × 21.8 (caliper on arrival);
-pins are solder-only, so the carrier board does the 2S3P busing +
-balance tap and hands power to the main PCB (XT30PW + JST-XH, #22).
+Each holder is 83.00 × 66.59 × 14.51 mm plastic with a 21.80 mm
+maximum contact envelope.  The three 4.2 mm mounting holes sit on the
+cell-slot centres.  The holders mount directly to the printed frame;
+their solder tabs are wired as two 1S3P banks in series.
 
-Local frame (whole bay): cell 0 axis through the origin, cells along
-+X, stacked in +Z at cell_pitch; the carrier back face at local
-y = -(carrier_t + holder_h - cell_d/2).
+Local frame: holder plastic back at y=0, lower-holder bottom at z=0.
+Cells run along +X and the second holder is stacked in +Z.
 
 View it: `just cad view blinds-cells`.
 """
@@ -24,30 +23,45 @@ def cell():
     return body + nub
 
 
+def _slot_centres():
+    for bank in range(2):
+        bank_z = bank * (P.holder3_h + P.holder3_gap)
+        for slot in range(3):
+            yield bank_z + P.holder3_slot_edge + slot * P.holder3_slot_pitch
+
+
 def cell_stack():
-    """The bay's 6 cells as one solid, stacked in +Z."""
+    """Six cells in the two bought three-slot holders."""
     stack = None
-    for i in range(P.cell_n):
-        c = Pos(0, 0, i * P.cell_pitch) * cell()
+    for z in _slot_centres():
+        c = Pos(0, P.holder3_body_d, z) * cell()
         stack = c if stack is None else stack + c
     return stack
 
 
 def _holder():
-    """One holder: U-cradle envelope, open toward +Y (cell drops in)."""
-    base_y = -(P.holder_h - P.cell_d / 2)  # cradle base relative to cell axis
-    body = Pos(0, base_y + P.holder_h / 2, 0) * Box(P.holder_l, P.holder_h, P.holder_w)
-    # cell trough with 0.25 clearance all round
-    body -= Rot(0, 90, 0) * Cylinder(P.cell_d / 2 + 0.25, P.holder_l + 2)
-    # open the top (+Y) so the trough is a U, not a bore
-    body -= Pos(0, P.cell_d / 2, 0) * Box(P.holder_l + 2, P.cell_d, P.cell_d - 2)
+    """One shallow three-cell tray, open toward the room (+Y)."""
+    body = Pos(0, P.holder3_body_d / 2, P.holder3_h / 2) * Box(
+        P.holder3_l, P.holder3_body_d, P.holder3_h
+    )
+    for slot in range(3):
+        z = P.holder3_slot_edge + slot * P.holder3_slot_pitch
+        # Three cell troughs, with the cell axes on the tray's front plane.
+        body -= Pos(0, P.holder3_body_d, z) * (
+            Rot(0, 90, 0) * Cylinder(P.cell_d / 2 + 0.25, P.holder3_l + 2)
+        )
+        # Supplier/owner-confirmed 4.2 mm through mounting hole.
+        body -= Pos(0, P.holder3_body_d / 2, z) * (
+            Rot(90, 0, 0) * Cylinder(P.holder3_hole_d / 2, P.holder3_body_d + 2)
+        )
     return body
 
 
 def holder_stack():
+    """The two plastic holders, separated by a printable wiring gap."""
     stack = None
-    for i in range(P.cell_n):
-        h = Pos(0, 0, i * P.cell_pitch) * _holder()
+    for bank in range(2):
+        h = Pos(0, 0, bank * (P.holder3_h + P.holder3_gap)) * _holder()
         stack = h if stack is None else stack + h
     return stack
 
