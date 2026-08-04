@@ -280,7 +280,9 @@ class Params:
     lay_cap_ear_offset: float = 12.5
     lay_cap_ear_d: float = 8.0
     lay_cap_clear_d: float = 3.4
-    lay_cap_insert_depth: float = 4.5
+    lay_cap_insert_d: float = 4.2   # repo-standard M3 heat-set bore
+    lay_cap_insert_depth: float = 3.0
+    lay_cap_top_z: float = 236.5    # upper ear edge; no structure above it
     drive_running_gap: float = 0.2
     lay_spacer_d: float = 8.0
     motor_spacer_d: float = 10.0

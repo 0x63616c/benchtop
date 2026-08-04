@@ -433,8 +433,8 @@ def _motor_bulkhead():
         P.drive_y,
         P.lay_z - P.lay_cap_ear_offset - P.lay_cap_ear_d / 2 - 0.2,
         P.lay_bearing_centers_x[0] + P.lay_bearing_boss_w / 2 + P.lay_cap_ear_d / 2,
-        P.lay_cap_y1 + 0.2,
-        P.lay_z + P.lay_cap_ear_offset + P.lay_cap_ear_d / 2 + 0.2,
+        P.frame_front_y + 0.2,
+        P.frame_z1 + 0.2,
     )
     return body
 
@@ -499,7 +499,7 @@ def _bearing_shaft_cut(x: float):
     )
 
 
-def _cap_ears(x: float, y0: float, y1: float, insert: bool):
+def _cap_ears(x: float, y0: float, y1: float):
     ears = None
     ear_x = x + 1.5 if x == P.lay_bearing_centers_x[0] else x
     for z in (P.lay_z - P.lay_cap_ear_offset, P.lay_z + P.lay_cap_ear_offset):
@@ -511,13 +511,32 @@ def _cap_ears(x: float, y0: float, y1: float, insert: bool):
             y1,
             z + P.lay_cap_ear_d / 2,
         )
-        diameter = P.m3_insert_d if insert else P.lay_cap_clear_d
-        depth = P.lay_cap_insert_depth + 0.2 if insert else y1 - y0 + 0.2
-        ear -= Pos(ear_x, y1 + 0.1, z) * (
-            Rot(90, 0, 0) * Cylinder(diameter / 2, depth)
-        )
         ears = ear if ears is None else ears + ear
     return ears
+
+
+def _cap_ear_cuts(x: float, y0: float, y1: float, insert: bool):
+    cuts = None
+    ear_x = x + 1.5 if x == P.lay_bearing_centers_x[0] else x
+    for z in (P.lay_z - P.lay_cap_ear_offset, P.lay_z + P.lay_cap_ear_offset):
+        if insert:
+            cut = _axis_y_cylinder(
+                P.lay_cap_insert_d / 2,
+                y1 - P.lay_cap_insert_depth,
+                P.lay_cap_insert_depth + 0.1,
+                ear_x,
+                z,
+            )
+        else:
+            cut = _axis_y_cylinder(
+                P.lay_cap_clear_d / 2,
+                y0 - 0.1,
+                y1 - y0 + 0.2,
+                ear_x,
+                z,
+            )
+        cuts = cut if cuts is None else cuts + cut
+    return cuts
 
 
 def _bearing_cap(x: float):
@@ -537,7 +556,8 @@ def _bearing_cap(x: float):
         P.lay_z + P.lay_bearing_boss_d / 2 + 0.1,
     )
     cap = full & front_clip
-    cap += _cap_ears(x, P.drive_y, P.lay_cap_y1, insert=False)
+    cap += _cap_ears(x, P.drive_y, P.lay_cap_y1)
+    cap -= _cap_ear_cuts(x, P.drive_y, P.lay_cap_y1, insert=False)
     cap -= _bearing_pocket(x)
     cap -= _bearing_shaft_cut(x)
     return cap
@@ -568,7 +588,7 @@ def drive_cassette():
         P.drive_lower_z0,
         P.saddle_x1,
         P.drive_y,
-        P.frame_z1,
+        P.lay_cap_top_z,
     )
     body += sprocket_housing()
     body += box_between(
@@ -585,7 +605,13 @@ def drive_cassette():
     body += _keeper_tap_bosses()
     for x in P.lay_bearing_centers_x:
         body += _rear_bearing_boss(x)
-        body += _cap_ears(x, P.drive_y - P.lay_cap_insert_depth, P.drive_y, insert=True)
+        body += _cap_ears(x, P.drive_y - P.lay_cap_insert_depth, P.drive_y)
+        body -= _cap_ear_cuts(
+            x,
+            P.drive_y - P.lay_cap_insert_depth,
+            P.drive_y,
+            insert=True,
+        )
         body -= _bearing_pocket(x)
         body -= _bearing_shaft_cut(x)
 

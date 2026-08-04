@@ -87,7 +87,7 @@ fallback) with the motor horizontal:
 | Four frame-to-wall anchors | Ø4.5 mm | Plain clearance for #8 wall screws |
 | Four frame cassette pads | Ø4.6 × 4.5 mm deep | M3 heat-set inserts |
 | Six frame battery-holder bosses | Ø4.6 × 4.5 mm deep | M3 heat-set inserts; holder holes are Ø4.2 clearance |
-| Four cassette bearing-cap ears | Ø4.6 × 4.5 mm deep | M3 heat-set inserts |
+| Four cassette bearing-cap ears | Ø4.2 × 3 mm deep | Repo-standard M3 heat-set inserts |
 | Four cassette axle-keeper columns | Ø2.6 × 8 mm deep | Printed M3 tapping pilots; no insert |
 
 ## Drive assembly and service order
@@ -102,8 +102,13 @@ fallback) with the motor horizontal:
    face, spacer, and pinion; install the six motor screws, then drill/tap the
    pinion pilot M3 and tighten the grub screw onto the D-flat.
 3. Drop the preassembled rod stack into the two open bearing seats and secure
-   both printed caps with four M3 screws into cassette heat-set inserts. No
-   shaft is threaded through a closed printed hole.
+   both printed caps with four M3 screws into cassette heat-set inserts. Each
+   cap has a true Ø3.4 through-hole; each cassette ear has an unobstructed
+   Ø4.2 × 3 mm insert pocket. Both cap/cassette halves share the same
+   Ø16.2 × 5.2 mm clearance seat for a 625ZZ bearing. The smaller opening
+   visible on the cap face passes the shaft/spacer while retaining the bearing.
+   No shaft is threaded through a closed printed hole, and both complete caps
+   withdraw straight roomward without passing under a cassette overhang.
 4. For the sprocket shaft, slide the rear MR105ZZ onto the Ø5×40 mm rod first.
    Add the separate bevel, cross-drill through its Ø2.2 guide, and install its
    Ø2×14 mm pin. Add the printed spacer, then the separate chain wheel and its
@@ -129,6 +134,12 @@ Assembled removable cassette:
 Exploded rod, bearings, gears, spacers, and caps:
 
 ![Exploded motor and gear cassette](../../research/img/blinds-drive-cassette-exploded.png)
+
+625ZZ bearing-cap detail: blue = removable caps, gold = the two identical
+625ZZ bearings, translucent grey = cassette. The former inner-cap overhang is
+open to the room side, and all four cap screw paths are complete:
+
+![625ZZ bearing seats and removable cap clearance](../../research/img/blinds-bearing-cap-clearance.png)
 
 Split sprocket stack: layshaft bevel, sprocket bevel, spacer, chain wheel,
 two MR105ZZ bearings, and the separate 5 mm steel shaft:

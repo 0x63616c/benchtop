@@ -184,6 +184,76 @@ def test_drive_cassette_is_removable_and_all_four_mounts_are_supported():
         assert (structure & frame_pad).volume >= 30.0, (x, z)
 
 
+def test_bearing_caps_have_full_m3_clearance_and_house_insert_pockets():
+    from blinds_cad.drivecassette import (
+        _axis_y_cylinder,
+        bearing_caps,
+        drive_cassette,
+    )
+    from blinds_cad.params import P
+    from splitflap_cad.params import P as SPLITFLAP_P
+
+    caps = bearing_caps()
+    cassette = drive_cassette()
+    assert P.lay_cap_insert_d == SPLITFLAP_P.fin_insert_d
+    assert P.lay_cap_insert_depth == SPLITFLAP_P.fin_insert_len
+
+    for bearing_x in P.lay_bearing_centers_x:
+        screw_x = (
+            bearing_x + 1.5
+            if bearing_x == P.lay_bearing_centers_x[0]
+            else bearing_x
+        )
+        for z in (P.lay_z - P.lay_cap_ear_offset, P.lay_z + P.lay_cap_ear_offset):
+            clearance = _axis_y_cylinder(
+                P.lay_cap_clear_d / 2,
+                P.drive_y - 0.1,
+                P.lay_cap_y1 - P.drive_y + 0.2,
+                screw_x,
+                z,
+            )
+            insert = _axis_y_cylinder(
+                P.lay_cap_insert_d / 2,
+                P.drive_y - P.lay_cap_insert_depth,
+                P.lay_cap_insert_depth + 0.1,
+                screw_x,
+                z,
+            )
+            assert (caps & clearance).volume < 1e-6
+            assert (cassette & insert).volume < 1e-6
+
+
+def test_both_split_seats_use_the_same_625zz_pocket():
+    from blinds_cad.drivecassette import _bearing_pocket, bearing_caps, drive_cassette
+    from blinds_cad.params import P
+
+    caps = bearing_caps()
+    cassette = drive_cassette()
+    for x in P.lay_bearing_centers_x:
+        pocket = _bearing_pocket(x)
+        bounds = pocket.bounding_box()
+        assert tuple(bounds.size) == pytest.approx(
+            (
+                P.lay_bearing_w + P.lay_bearing_clear,
+                P.lay_bearing_d + P.lay_bearing_clear,
+                P.lay_bearing_d + P.lay_bearing_clear,
+            )
+        )
+        assert (cassette & pocket).volume < 1e-6
+        assert (caps & pocket).volume < 1e-6
+
+
+def test_bearing_caps_have_an_open_roomward_installation_path():
+    from build123d import Pos
+
+    from blinds_cad.drivecassette import bearing_caps, drive_cassette
+
+    caps = bearing_caps()
+    cassette = drive_cassette()
+    for roomward_step in range(0, 15, 2):
+        assert ((Pos(0, roomward_step, 0) * caps) & cassette).volume < 1e-6
+
+
 @pytest.mark.slow
 def test_complete_drive_with_sprocket_and_keeper_withdraws_straight_out():
     """The complete cassette, keeper, and sprocket withdraw straight out."""
