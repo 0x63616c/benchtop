@@ -472,7 +472,7 @@ def _cassette_lid_web():
     # center upright but leaves the bearing and shaft completely clear.
     bearing_y0 = P.spr_bearing_centers_y[1] - P.spr_bearing_w / 2
     web += _axis_y_cylinder(
-        (P.spr_bearing_d + 6.0) / 2,
+        P.spr_bearing_d / 2 + P.cassette_lid_sprocket_boss_wall,
         bearing_y0 - 0.2,
         P.frame_front_y - bearing_y0 + 0.2,
         P.drive_x,
@@ -515,7 +515,9 @@ def cassette_lid():
         lid += box_between(
             x - P.cassette_lid_spine_w / 2,
             P.lay_cap_y1 - 0.2,
-            P.lay_z - P.lay_bearing_boss_d / 2 + 1.4,
+            P.lay_z
+            - P.lay_bearing_boss_d / 2
+            + P.cassette_lid_shell_overlap,
             x + P.cassette_lid_spine_w / 2,
             P.cassette_lid_y0 + 0.1,
             P.lay_z + P.lay_bearing_boss_d / 2,
@@ -638,10 +640,16 @@ def drive_cassette():
         )
     bearing_y0 = P.spr_bearing_centers_y[1] - P.spr_bearing_w / 2
     body -= box_between(
-        P.drive_x - (P.spr_bearing_d + 6.0) / 2 - fit,
+        P.drive_x
+        - P.spr_bearing_d / 2
+        - P.cassette_lid_sprocket_boss_wall
+        - fit,
         bearing_y0 - fit,
         P.spr_z - (P.spr_bearing_d + 6.0) / 2 - fit,
-        P.drive_x + (P.spr_bearing_d + 6.0) / 2 + fit,
+        P.drive_x
+        + P.spr_bearing_d / 2
+        + P.cassette_lid_sprocket_boss_wall
+        + fit,
         P.frame_front_y + fit,
         P.spr_z + (P.spr_bearing_d + 6.0) / 2 + fit,
     )

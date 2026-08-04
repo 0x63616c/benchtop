@@ -224,9 +224,7 @@ def test_frame_shelf_and_upper_key_are_real_load_bearing_datums():
 
     assert (structure & shelf).volume >= 0.99 * shelf.volume
     assert (structure & key).volume >= 0.99 * key.volume
-    assert P.drive_lower_z0 - P.drive_shelf_z1 == pytest.approx(
-        P.drive_cassette_fit
-    )
+    assert P.drive_lower_z0 == pytest.approx(P.drive_shelf_z1)
     assert (cassette & shelf).volume < 1e-6
     assert (cassette & key).volume < 1e-6
 

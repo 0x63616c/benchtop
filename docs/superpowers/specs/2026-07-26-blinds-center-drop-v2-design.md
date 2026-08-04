@@ -58,7 +58,7 @@ fallback) with the motor horizontal:
   halves of both open 625ZZ seats. One structural room-side lid replaces the
   former two bearing caps and separate axle keeper. Its two narrow spines close
   both 625ZZ seats while its center boss retains the front MR105ZZ. Four lid
-  screws enter back-rooted heat-set columns. The complete 89.2 × 41.0 × 80.6 mm
+  screws enter back-rooted heat-set columns. The complete 89.2 × 41.0 × 81.0 mm
   pod drops onto a frame shelf, engages one upper anti-torque key, and is
   clamped by only two lower screws. The shelf/key carry shear and torque; the
   screws do not.

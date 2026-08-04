@@ -232,6 +232,8 @@ class Params:
     cassette_lid_web_t: float = 2.5
     cassette_lid_rail: float = 7.0
     cassette_lid_spine_w: float = 7.0
+    cassette_lid_sprocket_boss_wall: float = 3.0
+    cassette_lid_shell_overlap: float = 1.4
     cassette_lid_fit: float = 0.3
     cassette_lid_screw_points: tuple = (
         (32.0, 207.0),
@@ -273,7 +275,7 @@ class Params:
     drive_cassette_fit: float = 0.4
     drive_tab_y0: float = 6.4
     drive_tab_y1: float = 11.5
-    drive_lower_z0: float = 159.9
+    drive_lower_z0: float = 159.5
     drive_lower_z1: float = 166.0
     drive_shelf_z0: float = 154.0
     drive_shelf_z1: float = 159.5
