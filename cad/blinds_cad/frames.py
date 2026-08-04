@@ -35,9 +35,9 @@ SPROCKET_IN_UNIT = Pos(P.drive_x, P.spr_wy, P.spr_z) * Rot(90, 0, 0)
 # Chain ghost is built unit-aligned (wheel axis +Y) — translate only.
 CHAIN_IN_UNIT = Pos(P.drive_x, P.spr_wy, P.spr_z)
 
-# Battery bay (cells + holders + carrier share one frame): cell 0 axis
-# through (drive_x, cell_axis_y, bay_z0), cells along +X, carrier at -y.
-BAY_IN_UNIT = Pos(P.drive_x, P.cell_axis_y, P.bay_z0)
+# Battery bay: bought holder plastic backs sit on the integral mounting
+# spine's room-side face.  Cells run across +X in two three-slot banks.
+BAY_IN_UNIT = Pos(P.drive_x, P.battery_mount_y, P.battery_z0)
 
 # Main PCB: flat on the floor bosses, board center.
 PCB_IN_UNIT = Pos(

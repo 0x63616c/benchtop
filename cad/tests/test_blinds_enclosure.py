@@ -88,16 +88,16 @@ def test_direct_wall_anchor_holes_are_open(enclosure_parts):
         assert (frame & gauge).volume < 1e-6, (x, z)
 
 
-def test_wall_anchors_do_not_cut_through_carrier_brackets():
+def test_wall_anchors_do_not_cut_through_battery_mount():
     from blinds_cad import enclosure as e
     from blinds_cad.params import P
 
-    brackets = e._carrier_bosses()
+    battery_mount = e._battery_mount_spine()
     for x, z in P.frame_wall_holes:
         gauge = Pos(x, P.frame_t / 2, z) * (
             Rot(90, 0, 0) * Cylinder(P.wall_screw_d / 2, P.frame_t + 2)
         )
-        assert (brackets & gauge).volume < 1e-6, (x, z)
+        assert (battery_mount & gauge).volume < 1e-6, (x, z)
 
 
 def test_sprocket_axle_is_captive_without_trapping_the_sleeve(enclosure_parts):
@@ -191,7 +191,7 @@ def test_projecting_features_have_structural_root_overlap():
         "pcb-tray": (e._pcb_tray(), 600.0),
         "motor-bulkhead": (e._bulkhead(), 500.0),
         "drive-cassette": (e._wrap_guide(), 1700.0),
-        "carrier-bosses": (e._carrier_bosses(), 150.0),
+        "battery-mount-spine": (e._battery_mount_spine(), 400.0),
         "sleeve-guides": (e._sleeve_guides(), 300.0),
     }
     for name, (feature, minimum) in rooted.items():

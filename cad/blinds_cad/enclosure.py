@@ -2,7 +2,7 @@
 
 Built in the UNIT frame.  This one print owns the wall anchors, motor
 bulkhead, layshaft saddles, motor-tail cradle, enclosed sprocket guide,
-PCB tray, battery-carrier bosses, and cosmetic-sleeve retainers.  It
+PCB tray, direct battery-holder spine, and cosmetic-sleeve retainers.  It
 prints wall-face down: X/Z are the 98 x 242 bed footprint and Y is only
 the 44 mm print height.
 
@@ -38,7 +38,7 @@ def frame():
     body += _tail_cradle()
     body += _wrap_guide()
     body += _floor_bosses()
-    body += _carrier_bosses()
+    body += _battery_mount_spine()
     body += _sleeve_guides()
     body += _sleeve_retainers()
 
@@ -373,54 +373,30 @@ def _floor_bosses():
     return bosses
 
 
-def _carrier_bosses():
-    """4× rooted M3 brackets for the battery carrier PCB.
+def _battery_mount_spine():
+    """Continuous direct mount for both bought three-cell holders.
 
-    Each round insert boss grows from a rectangular side-rail web.  The
-    web makes the load path obvious in the model and prevents a boss from
-    looking or slicing like a loose puck over a wall-anchor hole.
+    A full-height rectangular spine makes the wall-to-holder load path
+    visible and unambiguous.  It overlaps the bottom and middle backbone
+    rails, then presents six front-opening M3 heat-set pockets matching
+    the holders' moulded 4.2 mm through holes.
     """
-    w = P.holder_l + 0.4
-    hgt = (
-        (P.cell_n - 1) * P.cell_pitch
-        + P.holder_w
-        + P.carrier_edge_margin
+    x0 = P.drive_x - P.battery_mount_spine_w / 2
+    x1 = P.drive_x + P.battery_mount_spine_w / 2
+    spine = box_between(
+        x0,
+        0,
+        P.battery_mount_spine_z0,
+        x1,
+        P.battery_mount_y,
+        P.battery_mount_spine_z1,
     )
-    zc = P.bay_z0 + (P.cell_n - 1) * P.cell_pitch / 2
-    bosses = None
-    boss_y0 = P.frame_t - P.carrier_boss_embed
-    boss_len = P.carrier_y0 - boss_y0
-    insert_y0 = P.carrier_y0 - P.carrier_insert_depth
-    for sx in (-1, 1):
-        for sz in (-1, 1):
-            x = P.drive_x + sx * (w / 2 - P.carrier_hole_inset)
-            z = zc + sz * (hgt / 2 - P.carrier_hole_inset)
-            b = Pos(x, (boss_y0 + P.carrier_y0) / 2, z) * (
-                Rot(90, 0, 0)
-                * Cylinder(P.carrier_boss_d / 2, boss_len)
-            )
-            web_x0, web_x1 = (
-                (P.frame_x0, x + P.carrier_boss_d / 2)
-                if sx < 0
-                else (x - P.carrier_boss_d / 2, P.frame_x1)
-            )
-            b += box_between(
-                web_x0,
-                0,
-                z - P.carrier_boss_web_h / 2,
-                web_x1,
-                P.carrier_boss_web_depth,
-                z + P.carrier_boss_web_h / 2,
-            )
-            b -= Pos(x, (insert_y0 + P.carrier_y0) / 2, z) * (
-                Rot(90, 0, 0)
-                * Cylinder(
-                    P.m3_insert_d / 2,
-                    P.carrier_insert_depth + 0.2,
-                )
-            )
-            bosses = b if bosses is None else bosses + b
-    return bosses
+    for x, y, z in P.battery_mount_points:
+        spine -= Pos(x, y + 0.1, z) * (
+            Rot(90, 0, 0)
+            * Cylinder(P.m3_insert_d / 2, P.battery_insert_depth + 0.2)
+        )
+    return spine
 
 
 def _sleeve_guides():

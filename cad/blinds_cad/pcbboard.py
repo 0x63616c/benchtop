@@ -12,7 +12,7 @@ Solids stay separated so each fit question stays separate:
   * `board()`      — the laminate, 1.6mm, with corner holes
   * `components()` — one lumped keep-out above the laminate. 5.8mm
                      tall: XH-2.5 housings (5.75) are the ceiling and
-                     just clear the holder stack above (14.05)
+                     just clear the holder stack above (17.0)
   * `usbc()`, `button()` — the wall-penetrating parts
 
 The snap-off hall tab is not modelled: it leaves the panel before the

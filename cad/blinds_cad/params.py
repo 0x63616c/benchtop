@@ -45,18 +45,10 @@ class Params:
     jgb_screw_d: float = 3.0
     jgb_screw_depth: float = 5.0
 
-    # --- 21700 cell (Samsung 50E) in Bistook 1-slot PCB holder
-    # (BOM #19, Amazon B0BSC61X69 — listing-verified 3.27×0.94×0.86in;
-    # caliper on arrival). Holders solder to a battery CARRIER PCB that
-    # does the 2S3P busing + balance tap; XT30PW power + JST-XH balance
-    # to the main board (#22 adds the connector lines).
+    # --- 21700 cell (Samsung 50E) in two owned Bistook 3-slot holders ---
     cell_d: float = 21.7
     cell_len: float = 70.6
-    cell_n: int = 6                # 2S3P, one full-width stack again in v2
-    holder_l: float = 83.1         # along the cell
-    holder_w: float = 23.9         # stack direction
-    holder_h: float = 21.8         # off the carrier face
-    cell_pitch: float = 24.5       # holder_w + 0.6 gap
+    cell_n: int = 6                # 2S3P
 
     # --- owned Bistook 3-slot holders (two per unit) ---
     # Supplier drawing + owner measurements, 2026-08-03.  The plastic
@@ -70,15 +62,14 @@ class Params:
     holder3_slot_edge: float = 11.90
     holder3_hole_d: float = 4.20
     holder3_gap: float = 3.00
-    carrier_t: float = 1.6
-    carrier_y0: float = 8.5        # carrier back face, behind the drive ring
-    carrier_boss_d: float = 8.0    # M3 heat-set bosses off the back wall
-    carrier_hole_inset: float = 4.0
-    carrier_edge_margin: float = 2.0
-    carrier_boss_embed: float = 1.5  # positive root overlap into rear rails
-    carrier_insert_depth: float = 4.5
-    carrier_boss_web_h: float = 10.0
-    carrier_boss_web_depth: float = 5.0
+    battery_z0: float = 17.00       # lower holder bottom; PCB parts end at 13.4
+    battery_mount_y: float = 8.50   # holder plastic back / printed rail face
+    battery_mount_depth: float = 8.50
+    battery_mount_spine_w: float = 10.0
+    battery_mount_spine_z0: float = 8.0
+    battery_mount_spine_z1: float = 155.0
+    battery_boss_d: float = 8.0
+    battery_insert_depth: float = 4.5
 
     # --- bead chain (measured: 5mm ball, 6mm pitch) + sprocket (#16) ---
     chain_ball_d: float = 5.0
@@ -124,7 +115,7 @@ class Params:
                                    # (gearbox axis 182, can 163.5..200.5)
     bulkhead_x: float = 67.0       # gearbox face plane (motor tail lands at x≈4.8)
     bulkhead_t: float = 3.0        # vertical motor-mount rib (6×M3 into it)
-    bulkhead_z0: float = 164.0     # rib bottom — clears the carrier top (163.5)
+    bulkhead_z0: float = 164.0     # rib bottom — clears battery holders (153.18)
     pinion_x: float = 81.5         # spur mesh plane center (teeth x 78..85)
     saddle_x0: float = 86.0        # right layshaft U-saddle block x span
     saddle_x1: float = 92.0
@@ -137,8 +128,6 @@ class Params:
     guide_or: float = 17.0         # wrap-guide clearance radius envelope
     chain_slot: float = 7.0        # top-face slot square (ball 5 + joiner room)
 
-    # --- battery bay (one 6-holder stack on the carrier) ---
-    bay_z0: float = 26.5           # first cell axis — carrier bottom 13.55
                                    # clears the flat PCB's parts (top 13.4)
 
     # --- main PCB rev C (flat on the floor, components up) ---
@@ -255,9 +244,20 @@ class Params:
         return self.jgb_gear_len + self.jgb_can_len + self.jgb_term_len + self.jgb_enc_len
 
     @property
-    def cell_axis_y(self) -> float:
-        """Cell axis depth: carrier face + holder cradle height."""
-        return self.carrier_y0 + self.carrier_t + self.holder_h - self.cell_d / 2
+    def battery_mount_points(self) -> tuple:
+        """Six M3 insert centres matching the bought holders' 4.2 mm holes."""
+        return tuple(
+            (
+                self.drive_x,
+                self.battery_mount_y,
+                self.battery_z0
+                + bank * (self.holder3_h + self.holder3_gap)
+                + self.holder3_slot_edge
+                + slot * self.holder3_slot_pitch,
+            )
+            for bank in range(2)
+            for slot in range(3)
+        )
 
     # gear-train derived geometry
     @property

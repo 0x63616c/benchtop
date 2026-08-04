@@ -28,8 +28,10 @@ fallback) with the motor horizontal:
 - **Layout (tower), 98 × 44 × 242:**
   - PCB flat on the floor (z 6..7.6), components up, on 3× M3 bosses
     plus one plain support pillar under the USB edge.
-  - All 6 battery holders horizontal, full width, one stack
-    (z ≈ 14..160) — the v1-style rectangular carrier survives.
+  - Two owned Bistook three-cell holders rotate across the unit and stack
+    vertically (83.00 × 133.18 mm plus a 3 mm gap, z = 17..153.18).
+    Their six centred 4.2 mm holes screw directly to an integral frame
+    spine; there is no battery carrier PCB.
   - Motor horizontal along X near the top: gearbox face x=67, shaft
     +X, shaft axis (y 21, z 189), eccentric DOWN (gearbox axis z 182,
     can z 163.5..200.5).
@@ -50,15 +52,16 @@ fallback) with the motor horizontal:
   the gearbox face, layshaft U-saddle in the same rib) + a support-free
   half cradle near x≈11. Layshaft right end rides a second U-saddle at x 86..92;
   saddles open toward the back for insertion, retained by clips.
-- **Carrier PCB:** unchanged concept from v1 — rectangular, 6 holders,
-  2S3P busing, balance tap, XT30PW + JST-XH.
+- **Battery loom:** the two bought holders are wired as 1S3P banks and
+  series-linked for 2S3P. PACK+, midpoint, and PACK- go directly to the
+  main board's three-pin battery input. No carrier PCB is required.
 - **Main PCB rev C:** 88×32 lying flat. Buttons = the
   right-angle tactile the BOM already lists (C2837543), front edge,
   plungers through the front wall at z≈11.2. USB-C right-angle exits the
   front face beside them. Schematic, placement, and A* routing are complete.
 - **Enclosure (revised 2026-08-03):** a wall-mounted structural
   exoskeleton owns the motor bulkhead, layshaft saddles, fixed sprocket
-  axle, battery-carrier bosses, PCB tray, and four #8 wall anchors. A
+  axle, direct battery-holder spine, PCB tray, and four #8 wall anchors. A
   pair of rear load spines ties the upper drive cassette and motor
   bulkhead into the middle cross rail; battery bosses grow from visible
   side-rail brackets clear of the wall anchors, and all sleeve guides

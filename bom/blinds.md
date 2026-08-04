@@ -70,9 +70,10 @@ ever sees a static-prone install.
 | Part | Qty/unit | Unit $ | Source |
 |---|---|---|---|
 | Samsung 50E 21700 (2S3P) | 6 | $0 (owned ×48, balanced) | — |
-| 21700 PCB-mount holder, 1-slot ([B0BSC61X69](https://www.amazon.com/dp/B0BSC61X69), 10-pack $12.99) | 6 | $1.30 | Amazon, in stock |
+| Bistook 21700 holder, 3-slot (owned; 83 × 66.59 × 21.8 mm max) | 2 | $0 | Owned |
 
-Holders ×8 units = 48 slots → **5 packs = $64.95**
+Two holders per unit provide the six removable cell positions. They screw
+directly to the frame and are wired as two 1S3P banks; no carrier PCB is needed.
 
 ## Motor (tracked in #20)
 
@@ -133,7 +134,7 @@ upload, which is a follow-up.
 | Bucket | New spend |
 |---|---|
 | LCSC PCB parts (12 sets) | ~$190 |
-| 21700 holders (5×10-pack) | $64.95 |
+| 21700 holders | $0 (owned) |
 | Motors ×8 @ $11.98 (2 already ordered + 60rpm unit) | ~$114 |
 | Chain spares + joiners | $21.47 |
 | Rev A breadboard | $60.93 |
@@ -153,7 +154,7 @@ and the z10 bevel ring printed into the sprocket. Bought hardware:
 |---|---|---|
 | M5×40 button-head bolt + nut | 1 | fixed sprocket cross-axle; front-access head, captive wall-side nut |
 | M3×8 (into gearbox face) | 6 | motor → bulkhead rib, BCD31 |
-| M3×8 + heat-set (board, carrier) | 3 + 4 | rev C board bosses, carrier bosses |
+| M3×8 + heat-set (board, battery holders) | 3 + 6 | rev C board bosses, direct holder spine |
 | M3×8 (sleeve retention) | 2 | underside screws into the wall frame; sleeve remains non-structural |
 | M3×8 (axle keeper) | 4 | removable front bridge retains the axle independently of the sleeve |
 | Steel 1:1 bevel pair, m2-ish, Ø5/Ø6 bores | 0 (fallback) | only if the printed bevels wear — bores are standard |

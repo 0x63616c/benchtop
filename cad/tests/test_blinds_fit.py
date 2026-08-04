@@ -26,7 +26,7 @@ MESHES = {
 def posed():
     from blinds_cad import frames as F
     from blinds_cad.blindsunit import button, pcb_ghost, usbc
-    from blinds_cad.cells21700 import carrier, cell_stack, holder_stack
+    from blinds_cad.cells21700 import cell_stack, holder_stack
     from blinds_cad.cover import cap_front, cap_rear, sleeve
     from blinds_cad.enclosure import axle_keeper, frame
     from blinds_cad.gears import layshaft, pinion
@@ -47,7 +47,6 @@ def posed():
         "chain": F.CHAIN_IN_UNIT * chain_ghost(200),
         "cells": F.BAY_IN_UNIT * cell_stack(),
         "holders": F.BAY_IN_UNIT * holder_stack(),
-        "carrier": F.BAY_IN_UNIT * carrier(),
         "pcb": F.PCB_IN_UNIT * pcb_ghost(),
         "usbc": F.USBC_IN_UNIT * usbc(),
         "btn-up": F.btn_in_unit(P.btn_x2) * button(),
@@ -77,7 +76,7 @@ def test_envelope(posed):
     assert posed["cap-front"].bounding_box().max.Z == pytest.approx(P.enc_h)
     for name in (
         "motor", "pinion", "layshaft", "sprocket",
-        "cells", "holders", "carrier", "pcb",
+        "cells", "holders", "pcb",
     ):
         b = posed[name].bounding_box()
         assert b.min.X > 0 and b.max.X < P.enc_w, name

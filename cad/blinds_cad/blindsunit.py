@@ -1,14 +1,14 @@
 """Full blinds unit v2 — wall frame, working parts, and removable cover.
 
 The fit-proof view: motor + spur pinion + layshaft + sprocket(+ring) +
-chain + battery stack (cells in real holders on the carrier PCB) + the
+chain + battery stack (cells in two directly mounted bought holders) + the
 flat rev C main PCB envelope with its USB-C and front tactiles on the
 wall-mounted exoskeleton. The sleeve and cap halves are translucent.
 `just cad view blinds-unit`.
 """
 
 from . import frames as F
-from .cells21700 import carrier, cell_stack, holder_stack
+from .cells21700 import cell_stack, holder_stack
 from .cover import cap_front, cap_rear, sleeve
 from .enclosure import axle_keeper, frame
 from .gears import layshaft, pinion
@@ -40,7 +40,6 @@ def scene():
     s.add(chain_ghost(200), "chain", color="gray", alpha=0.5, loc=F.CHAIN_IN_UNIT)
     s.add(cell_stack(), "cells", color="teal", loc=F.BAY_IN_UNIT)
     s.add(holder_stack(), "holders", color="dimgray", alpha=0.9, loc=F.BAY_IN_UNIT)
-    s.add(carrier(), "carrier", color="darkgreen", loc=F.BAY_IN_UNIT)
     s.add(pcb_board(), "pcb", color="darkgreen", loc=F.PCB_IN_UNIT)
     s.add(components(), "pcb-parts", color="dimgray", alpha=0.4, loc=F.PCB_IN_UNIT)
     s.add(usbc(), "usbc", color="gold", loc=F.USBC_IN_UNIT)

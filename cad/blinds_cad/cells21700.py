@@ -51,7 +51,7 @@ def _holder():
             Rot(0, 90, 0) * Cylinder(P.cell_d / 2 + 0.25, P.holder3_l + 2)
         )
         # Supplier/owner-confirmed 4.2 mm through mounting hole.
-        body -= Pos(0, P.holder3_body_d / 2, z) * (
+        body -= Pos(0, P.holder3_body_d + 1, z) * (
             Rot(90, 0, 0) * Cylinder(P.holder3_hole_d / 2, P.holder3_body_d + 2)
         )
     return body
@@ -66,27 +66,10 @@ def holder_stack():
     return stack
 
 
-def carrier():
-    """Battery carrier PCB: spans the stack, holders solder to its +Y
-    face, M3 corner holes onto the shell's standoff bosses."""
-    w = P.holder_l + 0.4
-    h = (P.cell_n - 1) * P.cell_pitch + P.holder_w + 2.0
-    y_face = -(P.holder_h - P.cell_d / 2)  # holder base plane
-    zc = (P.cell_n - 1) * P.cell_pitch / 2
-    board = Pos(0, y_face - P.carrier_t / 2, zc) * Box(w, P.carrier_t, h)
-    for sx in (-1, 1):
-        for sz in (-1, 1):
-            board -= Pos(sx * (w / 2 - 4), y_face - P.carrier_t / 2, zc + sz * (h / 2 - 4)) * (
-                Rot(90, 0, 0) * Cylinder(1.6, P.carrier_t + 2)
-            )
-    return board
-
-
 def scene():
     from splitflap_cad.viewer import Scene
 
     s = Scene()
     s.add(cell_stack(), "cells", color="teal")
     s.add(holder_stack(), "holders", color="dimgray", alpha=0.9)
-    s.add(carrier(), "carrier", color="darkgreen")
     return s
