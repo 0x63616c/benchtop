@@ -80,7 +80,7 @@ def test_printable_builders_exist():
         "blinds-sprocket-bevel",
         "blinds-sprocket-spacer",
         "blinds-frame",
-        "blinds-axle-keeper",
+        "blinds-cassette-lid",
         "blinds-sleeve",
         "blinds-cap-rear",
         "blinds-cap-front",
@@ -88,7 +88,6 @@ def test_printable_builders_exist():
         "blinds-layshaft-spur",
         "blinds-layshaft-bevel",
         "blinds-drive-cassette",
-        "blinds-bearing-caps",
         "blinds-drive-spacers",
     }
 

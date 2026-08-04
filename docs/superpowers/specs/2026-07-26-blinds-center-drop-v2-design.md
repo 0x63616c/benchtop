@@ -53,12 +53,15 @@ fallback) with the motor horizontal:
   possible (bores stay standard).
   Overall motor-to-chain-wheel reduction is 17:14, or 1.214:1: the 14:17
   spur stage reduces speed and the 10:10 bevel stage is 1:1.
-- **Motor mount:** a separate four-screw cassette owns the x=67..70
-  motor face (6×M3 BCD31), tail cradle, and two open 625ZZ seats.
-  Preassemble the rod stack, drop both bearings into the seats, and secure
-  two split caps with four M3 screws. The complete cassette then screws onto
-  four insert pads on the permanent wall frame, so drive revisions do not
-  require reprinting the frame.
+- **Drive cassette (simplified 2026-08-04):** one stepped chassis owns the
+  x=67..70 motor face (6×M3 BCD31), tail cradle, sprocket housing, and rear
+  halves of both open 625ZZ seats. One structural room-side lid replaces the
+  former two bearing caps and separate axle keeper. Its two narrow spines close
+  both 625ZZ seats while its center boss retains the front MR105ZZ. Four lid
+  screws enter back-rooted heat-set columns. The complete 89.2 × 41.0 × 80.6 mm
+  pod drops onto a frame shelf, engages one upper anti-torque key, and is
+  clamped by only two lower screws. The shelf/key carry shear and torque; the
+  screws do not.
 - **Battery loom:** the two bought holders are wired as 1S3P banks and
   series-linked for 2S3P. PACK+, midpoint, and PACK- go directly to the
   main board's three-pin battery input. No carrier PCB is required.
@@ -66,20 +69,19 @@ fallback) with the motor horizontal:
   right-angle tactile the BOM already lists (C2837543), front edge,
   plungers through the front wall at z≈11.2. USB-C right-angle exits the
   front face beside them. Schematic, placement, and A* routing are complete.
-- **Enclosure (revised 2026-08-03):** a wall-mounted structural
-  exoskeleton owns four drive-cassette insert pads, the direct battery-holder
-  spine, PCB tray, and four #8 wall anchors. The removable cassette owns the
-  motor, gears, bearing seats, sprocket housing, smooth shaft, and keeper. A
-  pair of rear load spines ties the upper drive cassette pads into the
-  middle cross rail; battery bosses grow from visible
+- **Enclosure (revised 2026-08-04):** a wall-mounted structural
+  exoskeleton owns the keyed drive shelf, two lower cassette insert pads, the
+  direct battery-holder spine, PCB tray, and four #8 wall anchors. The
+  removable two-print pod owns the motor, gears, every bearing seat, and
+  sprocket housing. Rear load spines tie the drive region into the middle
+  cross rail; battery bosses grow from visible
   side-rail brackets clear of the wall anchors, and all sleeve guides
   have positive overlap into their supporting rails. A
   separate 0.8 mm open-back, open-top sleeve slides over it and is held
   by two underside M3 screws. Rear and front top-cap halves meet at the
-  chain plane, closing around both installed strands without threading.
-  A flat-printed, four-screw front keeper holds the front MR105ZZ bearing
-  without bridging over the sprocket cavity. Only the button and USB openings
-  remain in the sleeve front face; the shaft stops behind it.
+  chain plane, closing around both installed strands without threading. Only
+  the button and USB openings remain in the sleeve front face; the shaft and
+  structural cassette lid stop behind it.
   The French cleat and monolithic structural shell are removed.
 
 ### Fastener holes
@@ -87,10 +89,9 @@ fallback) with the motor horizontal:
 | Location | Printed hole | Hardware intent |
 |---|---:|---|
 | Four frame-to-wall anchors | Ø4.5 mm | Plain clearance for #8 wall screws |
-| Four frame cassette pads | Ø4.6 × 4.5 mm deep | M3 heat-set inserts |
+| Two frame cassette pads | Ø4.6 × 4.5 mm deep | M3 heat-set inserts; shelf/key carry the load |
 | Six frame battery-holder bosses | Ø4.6 × 4.5 mm deep | M3 heat-set inserts; holder holes are Ø4.2 clearance |
-| Four cassette bearing-cap ears | Ø4.2 × 3 mm deep | Repo-standard M3 heat-set inserts |
-| Four cassette axle-keeper columns | Ø2.6 × 8 mm deep | Printed M3 tapping pilots; no insert |
+| Four cassette lid columns | Ø4.2 × 4.8 mm deep | M3 heat-set inserts in Ø8 back-rooted columns |
 
 ## Drive assembly and service order
 
@@ -107,45 +108,37 @@ fallback) with the motor horizontal:
    single Ø7 circular tool opening in the right support; three fasteners are
    sufficient for this mount. Then drill/tap the pinion pilot M3 and tighten
    the grub screw onto the D-flat.
-3. Drop the preassembled rod stack into the two open bearing seats and secure
-   both printed caps with four M3 screws into cassette heat-set inserts. Each
-   cap has a true Ø3.4 through-hole; each cassette ear has an unobstructed
-   Ø4.2 × 3 mm insert pocket. Both cap/cassette halves share the same
-   Ø16.2 × 5.2 mm clearance seat for a 625ZZ bearing. The smaller opening
-   visible on the cap face passes the shaft/spacer while retaining the bearing.
-   No shaft is threaded through a closed printed hole, and both complete caps
-   withdraw straight roomward without passing under a cassette overhang.
+3. Drop the preassembled rod stack into the two open rear bearing seats. Both
+   chassis/lid halves share the same Ø16.2 × 5.2 mm clearance seat for each
+   625ZZ. No shaft is threaded through a closed printed hole.
 4. For the sprocket shaft, slide the rear MR105ZZ onto the Ø5×40 mm rod first.
    Add the separate bevel, cross-drill through its Ø2.2 guide, and install its
    Ø2×14 mm pin. Add the printed spacer, then the separate chain wheel and its
    Ø2×14 mm pin. Seat the rear bearing in the cassette, press the front MR105ZZ
-   into the keeper from behind, and fasten the keeper over the shaft end with
-   four M3 screws. Those screws enter Ø2.6 tapping pilots in four explicit Ø6
-   columns rooted at the cassette's print-bed/back face; they do not terminate
-   in the open gear tunnel. The complete motor/gear/sprocket module is now one
-   serviceable assembly.
-5. Seat that assembly straight onto the frame's four recessed pads and fasten
-   four M3 screws into the frame heat-set inserts. Refit the chain, then install
-   the sleeve and split top cap. For service, remove the sleeve/cap and lift off
-   the chain, remove the four cassette screws, and withdraw the complete module
-   straight roomward. A swept-clearance regression checks the full cassette,
-   sprocket, and keeper against the bare frame throughout that path.
+   into the lid from behind. Bring the single lid straight onto the chassis:
+   its two rearward spines close the layshaft seats and its center boss captures
+   the front sprocket bearing. Fasten four M3 screws through true Ø3.4 holes
+   into Ø4.2 × 4.8 mm heat-set pockets in four explicit Ø8 columns rooted at
+   the chassis back face. The motor/gear/sprocket pod is now self-contained.
+5. Lower the pod onto the frame shelf, engage the upper rear key, and fasten
+   only the two lower M3 screws into frame heat-set inserts. Refit the chain,
+   then install the sleeve and split top cap. For service, remove the
+   sleeve/cap and lift off the chain, remove two dock screws, and withdraw the
+   complete closed pod straight roomward. A swept-clearance regression checks
+   the chassis, lid, and sprocket hardware against the bare frame throughout
+   that path.
 
 ## Assembly visuals
 
-Assembled removable cassette:
+Tight two-print pod: light blue = stepped chassis, dark blue = single
+structural lid, orange/gold = gears and sprocket, silver = bought hardware:
 
-![Assembled motor and gear cassette](../../research/img/blinds-drive-cassette-assembled.png)
+![Assembled self-contained drive cassette](../../research/img/blinds-drive-cassette-v2-assembled.png)
 
-Exploded rod, bearings, gears, spacers, and caps:
+The lid pulls straight roomward as one part, exposing both 625ZZ split seats
+and the front MR105ZZ while the complete drivetrain remains in the chassis:
 
-![Exploded motor and gear cassette](../../research/img/blinds-drive-cassette-exploded.png)
-
-625ZZ bearing-cap detail: blue = removable caps, gold = the two identical
-625ZZ bearings, translucent grey = cassette. The former inner-cap overhang is
-open to the room side, and all four cap screw paths are complete:
-
-![625ZZ bearing seats and removable cap clearance](../../research/img/blinds-bearing-cap-clearance.png)
+![Single cassette lid exploded from chassis](../../research/img/blinds-drive-cassette-v2-exploded.png)
 
 Split sprocket stack: layshaft bevel, sprocket bevel, spacer, chain wheel,
 two MR105ZZ bearings, and the separate 5 mm steel shaft:
@@ -168,23 +161,10 @@ the Ø2.2 cross-pin guide exits through only the central hub:
 
 ![Corrected sprocket bevel print](../../research/img/blinds-sprocket-bevel-print.png)
 
-The keeper recess has 0.3 mm fit clearance and runs fully through the former
-1 mm spur-side wall/cap. The 90-degree gear tunnel opens toward the removable
-keeper instead of using a visible teardrop roof, and the 5 mm bead-chain paths
-are 8 mm wide (1.5 mm running clearance per side):
+Frame attachment: the continuous lower shelf and upper key locate the pod;
+the two lower M3 screws only clamp it to those datum surfaces:
 
-![Cassette keeper and gear clearances](../../research/img/blinds-drive-cassette-clearances.png)
-
-Axle-keeper attachment: blue = keeper pulled roomward, gold = four M3 screws,
-orange = four Ø6 back-rooted tapping columns visible through the translucent
-cassette. The paired upper columns move inward to clear both chain paths:
-
-![Axle keeper screws and cassette tap columns](../../research/img/blinds-axle-keeper-mounts.png)
-
-Frame attachment: red = four frame-owned insert pads, gold = four cassette
-mount screws, blue = cassette pulled roomward for clarity:
-
-![Cassette attachment to wall frame](../../research/img/blinds-drive-frame-mount.png)
+![Keyed two-screw cassette dock](../../research/img/blinds-drive-cassette-v2-dock.png)
 
 ## Rejected
 
@@ -207,7 +187,7 @@ mount screws, blue = cassette pulled roomward for clarity:
 
 ## Execution order
 
-params/frames rewrite → part modules (pinion, sprocket+ring, frame,
-sleeve, split cap) → fit-proof `blinds-unit` scene + zero-interference
-checks → regen goldens → PCB rev C re-place/re-route + DRC → tickets
-#21/#22 + BOM note.
+params/frames rewrite → part modules (pinion, sprocket+ring, keyed frame,
+two-print cassette pod, sleeve, split top cap) → fit-proof `blinds-unit` scene
++ zero-interference checks → regen goldens/exports → PCB rev C
+re-place/re-route + DRC → tickets #21/#22 + BOM note.

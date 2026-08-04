@@ -157,23 +157,23 @@ shaft running in two MR105ZZ bearings. Bought hardware:
 | M3×8 (into gearbox face) | 6 | motor → bulkhead rib, BCD31 |
 | M3×8 + heat-set (board, battery holders) | 3 + 6 | rev C board bosses, direct holder spine |
 | M3×8 (sleeve retention) | 2 | underside screws into the wall frame; sleeve remains non-structural |
-| M3×8 (shaft keeper) | 4 | removable front bridge retains the sprocket shaft's front bearing independently of the sleeve |
-| 625ZZ bearing (5×16×5 mm) | 2 | layshaft bearings retained by split printed caps |
+| M3×8 + heat-set (cassette lid) | 4 + 4 | one structural lid retains both 625ZZ bearings and the front MR105ZZ |
+| 625ZZ bearing (5×16×5 mm) | 2 | layshaft bearings retained by split seats in the chassis and single lid |
 | Ø5×38.5 mm steel rod | 1 | removable layshaft; cut/deburr from 5 mm stock |
-| MR105ZZ bearing (5×10×4 mm) | 2 | sprocket-shaft bearings; rear cassette seat + removable front keeper |
+| MR105ZZ bearing (5×10×4 mm) | 2 | sprocket-shaft bearings; rear chassis seat + front seat in the single lid |
 | Ø5×40 mm steel rod | 1 | rotating sprocket shaft; chain wheel and bevel pin to it |
 | Ø2×12 mm steel cross pin | 1 | locks the layshaft spur to its rod |
 | Ø2×14 mm steel cross pin | 3 | locks the layshaft bevel, sprocket bevel, and chain wheel to their rods |
 | M3 grub screw | 1 | locks the motor pinion through its printable/tappable pilot |
-| M3×8 + heat-set (drive cassette) | 4 + 4 | cassette → frame, and two bearing caps → cassette |
+| M3×8 + heat-set (cassette dock) | 2 + 2 | keyed shelf carries load; two screws only clamp the pod to the frame |
 | Steel 1:1 bevel pair, m2-ish, Ø5/Ø6 bores | 0 (fallback) | only if the printed bevels wear — bores are standard |
 
 Printed structural parts: `blinds-frame`, `blinds-drive-cassette`,
-`blinds-bearing-caps`, `blinds-drive-spacers`, `blinds-axle-keeper`,
+`blinds-cassette-lid`, `blinds-drive-spacers`,
 `blinds-sleeve`, `blinds-cap-rear`, and `blinds-cap-front`. Printed drive
 parts are `blinds-pinion`, `blinds-layshaft-spur`, `blinds-layshaft-bevel`,
 `blinds-sprocket`, `blinds-sprocket-bevel`, and `blinds-sprocket-spacer`.
-Print the frame and cassette wall-face down, the gears face/heel-down, and
-the spacers upright. Bambu Studio slow-test guards
+Print the frame and cassette wall-face down, the single lid room-face down,
+the gears face/heel-down, and the spacers upright. Bambu Studio slow-test guards
 slice all structural and drive parts on the P2S PETG profile with generated
 support disabled.

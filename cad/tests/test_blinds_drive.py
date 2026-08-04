@@ -196,6 +196,41 @@ def test_drive_cassette_is_removable_and_two_mounts_plus_key_are_supported():
         assert (structure & frame_pad).volume >= 30.0, (x, z)
 
 
+def test_frame_shelf_and_upper_key_are_real_load_bearing_datums():
+    from splitflap_cad.geo import box_between
+
+    from blinds_cad.drivecassette import drive_cassette
+    from blinds_cad.enclosure import frame
+    from blinds_cad.params import P
+
+    structure = frame()
+    cassette = drive_cassette()
+    shelf = box_between(
+        P.cradle_x0,
+        0,
+        P.drive_shelf_z0,
+        P.saddle_x1,
+        P.drive_mount_face_y,
+        P.drive_shelf_z1,
+    )
+    key = box_between(
+        P.drive_key_x - P.drive_key_w / 2,
+        0,
+        P.drive_key_z - P.drive_key_h / 2,
+        P.drive_key_x + P.drive_key_w / 2,
+        P.drive_key_y1,
+        P.drive_key_z + P.drive_key_h / 2,
+    )
+
+    assert (structure & shelf).volume >= 0.99 * shelf.volume
+    assert (structure & key).volume >= 0.99 * key.volume
+    assert P.drive_lower_z0 - P.drive_shelf_z1 == pytest.approx(
+        P.drive_cassette_fit
+    )
+    assert (cassette & shelf).volume < 1e-6
+    assert (cassette & key).volume < 1e-6
+
+
 def test_lid_has_four_m3_clearance_holes_and_body_has_insert_pockets():
     from blinds_cad.drivecassette import (
         _axis_y_cylinder,

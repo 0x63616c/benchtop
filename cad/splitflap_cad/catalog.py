@@ -206,11 +206,11 @@ MODELS = {
         "BLINDS printable wall-mounted structural exoskeleton",
         "blinds_cad.enclosure",
     ),
-    "blinds-axle-keeper": Model(
+    "blinds-cassette-lid": Model(
         "blinds",
-        "BLINDS removable flat-printing sprocket axle keeper",
+        "BLINDS single structural cassette lid for all shaft bearings",
         "blinds_cad.drivecassette",
-        "axle_keeper_scene",
+        "cassette_lid_scene",
     ),
     "blinds-sleeve": Model(
         "blinds",
@@ -326,8 +326,8 @@ PRINTABLE = {
         "blinds", "blinds_cad.drivecassette", "sprocket_spacer_print"
     ),
     "blinds-frame": Printable("blinds", "blinds_cad.enclosure", "frame"),
-    "blinds-axle-keeper": Printable(
-        "blinds", "blinds_cad.drivecassette", "axle_keeper"
+    "blinds-cassette-lid": Printable(
+        "blinds", "blinds_cad.drivecassette", "cassette_lid_print"
     ),
     "blinds-sleeve": Printable("blinds", "blinds_cad.cover", "sleeve"),
     "blinds-cap-rear": Printable("blinds", "blinds_cad.cover", "cap_rear"),
@@ -341,9 +341,6 @@ PRINTABLE = {
     ),
     "blinds-drive-cassette": Printable(
         "blinds", "blinds_cad.drivecassette", "drive_cassette"
-    ),
-    "blinds-bearing-caps": Printable(
-        "blinds", "blinds_cad.drivecassette", "bearing_caps_print"
     ),
     "blinds-drive-spacers": Printable(
         "blinds", "blinds_cad.drivecassette", "spacers_print"

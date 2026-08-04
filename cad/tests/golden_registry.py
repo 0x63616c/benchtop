@@ -164,10 +164,10 @@ def _blinds_frame():
     return frame()
 
 
-def _blinds_axle_keeper():
-    from blinds_cad.drivecassette import axle_keeper
+def _blinds_cassette_lid():
+    from blinds_cad.drivecassette import cassette_lid_print
 
-    return axle_keeper()
+    return cassette_lid_print()
 
 
 def _blinds_sleeve():
@@ -216,12 +216,6 @@ def _blinds_drive_cassette():
     from blinds_cad.drivecassette import drive_cassette
 
     return drive_cassette()
-
-
-def _blinds_bearing_caps():
-    from blinds_cad.drivecassette import bearing_caps_print
-
-    return bearing_caps_print()
 
 
 def _blinds_drive_spacers():
@@ -328,7 +322,7 @@ BREP_PARTS = {
     "blinds-sprocket-bevel": _blinds_sprocket_bevel,
     "blinds-sprocket-spacer": _blinds_sprocket_spacer,
     "blinds-frame": _blinds_frame,
-    "blinds-axle-keeper": _blinds_axle_keeper,
+    "blinds-cassette-lid": _blinds_cassette_lid,
     "blinds-sleeve": _blinds_sleeve,
     "blinds-cap-rear": _blinds_cap_rear,
     "blinds-cap-front": _blinds_cap_front,
@@ -337,7 +331,6 @@ BREP_PARTS = {
     "blinds-layshaft-spur": _blinds_layshaft_spur,
     "blinds-layshaft-bevel": _blinds_layshaft_bevel,
     "blinds-drive-cassette": _blinds_drive_cassette,
-    "blinds-bearing-caps": _blinds_bearing_caps,
     "blinds-drive-spacers": _blinds_drive_spacers,
     "gear-box-housing": _gearbox_housing,
     "gear-box-lid": _gearbox_lid,

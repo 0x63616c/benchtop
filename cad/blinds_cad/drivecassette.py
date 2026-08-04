@@ -551,13 +551,6 @@ def cassette_lid():
     return lid
 
 
-def bearing_caps():
-    """Compatibility view of the two shells now integrated into the lid."""
-    return _bearing_lid_shell(P.lay_bearing_centers_x[0]) + _bearing_lid_shell(
-        P.lay_bearing_centers_x[1]
-    )
-
-
 def drive_cassette():
     """One-piece stepped chassis containing the complete drive train."""
     body = box_between(
@@ -689,11 +682,6 @@ def cassette_lid_print():
     """Single lid with the broad room-side web flat on the print bed."""
     oriented = Rot(90, 0, 0) * cassette_lid()
     return Pos(0, 0, -oriented.bounding_box().min.Z) * oriented
-
-
-def bearing_caps_print():
-    """Deprecated compatibility alias for the integrated lid print."""
-    return cassette_lid_print()
 
 
 def spacers_print():
