@@ -962,8 +962,7 @@ class Params:
     gb_jig_output_bore_d: float = 5.6
 
     # --- circular JGB37 right-angle attachment ---
-    # Measured motor face, intentionally separate from the blinds model
-    # until the 31-vs-32mm bolt-circle discrepancy is re-measured.
+    # Motor face dimensions confirmed against the ASLONG factory drawing.
     gba_motor_d: float = 37.0
     gba_motor_gear_len: float = 24.0
     gba_motor_can_d: float = 33.0
@@ -975,7 +974,7 @@ class Params:
     gba_motor_shaft_d: float = 6.0
     gba_motor_shaft_flat: float = 5.4
     gba_motor_shaft_len: float = 15.0
-    gba_motor_screw_bcd: float = 32.0
+    gba_motor_screw_bcd: float = 31.0
     gba_motor_screw_n: int = 6
     gba_mount_screw_indices: tuple[int, ...] = (0, 3, 4, 5)
     gba_motor_screw_d: float = 3.0

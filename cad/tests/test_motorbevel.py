@@ -26,7 +26,7 @@ def test_measured_motor_reference_matches_the_attachment_contract():
     assert P.gba_motor_shaft_flat == 5.4
     assert P.gba_motor_shaft_len == 15
     assert P.gba_motor_screw_n == 6
-    assert P.gba_motor_screw_bcd == 32
+    assert P.gba_motor_screw_bcd == 31
     assert motor_bb.max.Z == pytest.approx(21)
 
 
