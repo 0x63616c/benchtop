@@ -150,6 +150,30 @@ def test_upper_bearing_cradle_is_solid_to_the_roof_down_print_face():
     assert (printable & support_probe).volume == pytest.approx(support_probe.volume)
 
 
+def test_two_rear_m3x40_screws_clamp_the_lid_and_base_to_the_motor():
+    parts = _parts()
+    lid = parts["lid"]
+    seat_z = P.gba_body_h
+
+    assert P.gba_long_screw_indices == (4, 5)
+    assert seat_z + P.gba_motor_screw_depth == P.gba_long_screw_len
+    for index in P.gba_long_screw_indices:
+        angle = radians(index * 360 / P.gba_motor_screw_n)
+        x = P.gba_motor_screw_bcd / 2 * cos(angle)
+        y = P.gba_motor_screw_bcd / 2 * sin(angle)
+        shank = Pos(x, y, seat_z - P.gba_screw_seat_t) * _cylinder(
+            P.gba_mount_clear_d / 2,
+            P.gba_screw_seat_t,
+        )
+        square_recess = Pos(x, y, seat_z) * _cylinder(
+            0.5,
+            P.gba_lid_t,
+        )
+
+        assert (lid & shank).volume < 1e-6
+        assert (lid & square_recess).volume < 1e-6
+
+
 def test_spacers_locate_the_mesh_and_output_projects_10mm():
     parts = _parts()
     input_spacer_bb = parts["input-spacer"].bounding_box()

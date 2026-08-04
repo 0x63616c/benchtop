@@ -116,8 +116,13 @@ def _split_boss_half(axis_z: float, upper: bool):
     return boss & clip
 
 
-def _cut_screw_windows(part, z0: float, height: float):
-    for index in P.gba_mount_screw_indices:
+def _cut_screw_windows(
+    part,
+    z0: float,
+    height: float,
+    indices: tuple[int, ...] | None = None,
+):
+    for index in indices or P.gba_mount_screw_indices:
         angle = index * 360 / P.gba_motor_screw_n
         window = Rot(0, 0, angle) * _box_at(
             P.gba_motor_screw_bcd / 2 - P.gba_screw_window_w / 2,
@@ -199,11 +204,45 @@ def lid():
         - _cylinder(seam_skirt_inner_r, P.gba_seam_step_h)
     )
     cap += seam_skirt
+    open_indices = tuple(
+        index
+        for index in P.gba_mount_screw_indices
+        if index not in P.gba_long_screw_indices
+    )
     cap = _cut_screw_windows(
         cap,
         -P.gba_seam_step_h - 0.5,
         cap_h + P.gba_lid_t + P.gba_seam_step_h + 1,
+        open_indices,
     )
+
+    # Two rear M3x40 screws clamp both enclosure halves into the motor.
+    # A 1mm bridge floor supports each recessed head at global z=35mm;
+    # the 6.2mm bridge is short enough to print roof-down without support.
+    window_z0 = -P.gba_seam_step_h - 0.5
+    window_top = cap_h - P.gba_screw_seat_t
+    cap = _cut_screw_windows(
+        cap,
+        window_z0,
+        window_top - window_z0,
+        P.gba_long_screw_indices,
+    )
+    cap = _cut_screw_windows(
+        cap,
+        cap_h,
+        P.gba_lid_t + 0.5,
+        P.gba_long_screw_indices,
+    )
+    for index in P.gba_long_screw_indices:
+        hole = _polar(
+            P.gba_motor_screw_bcd / 2,
+            index * 360 / P.gba_motor_screw_n,
+        )
+        cap -= hole * Pos(0, 0, window_top - 0.1) * _cylinder(
+            P.gba_mount_clear_d / 2,
+            P.gba_screw_seat_t + 0.2,
+        )
+
     cap += _bearing_pedestal(cap_h + P.gba_lid_t)
     cap += _split_boss_half(0, upper=True)
     cap -= _bearing_pocket(0)

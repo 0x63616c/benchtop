@@ -977,6 +977,8 @@ class Params:
     gba_motor_screw_bcd: float = 31.0
     gba_motor_screw_n: int = 6
     gba_mount_screw_indices: tuple[int, ...] = (0, 3, 4, 5)
+    gba_long_screw_indices: tuple[int, ...] = (4, 5)
+    gba_long_screw_len: float = 40.0
     gba_motor_screw_d: float = 3.0
     gba_motor_screw_depth: float = 5.0
 
@@ -990,6 +992,7 @@ class Params:
     gba_seam_clear: float = 0.15
     gba_mount_clear_d: float = 3.4
     gba_screw_window_w: float = 6.2
+    gba_screw_seat_t: float = 1.0
     gba_boss_clear_d: float = 12.4
     gba_output_boss_d: float = 19.0
     gba_output_nose: float = 0.5
