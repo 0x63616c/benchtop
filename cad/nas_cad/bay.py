@@ -41,7 +41,6 @@ def caddy():
 
     # Access holes line up with the two specified side holes on each side.
     drive_z = P.caddy_floor_t + P.drive_bottom_clear
-    drive_x = P.caddy_rail_t + P.drive_side_clear
     for x, direction in ((0, 1), (P.caddy_w, -1)):
         for y in (P.hdd_side_hole_rear_y, P.hdd_side_hole_front_y):
             body -= Pos(x, P.caddy_front_overhang + y, drive_z + P.hdd_side_hole_z) * Rot(
