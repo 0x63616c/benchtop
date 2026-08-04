@@ -382,7 +382,7 @@ def outer_spacer():
 @lru_cache(maxsize=1)
 def _sprocket_spacer_start():
     bevel = _posed_sprocket_parts()["sprocket-bevel"]
-    return bevel.bounding_box().max.Y + P.drive_running_gap
+    return bevel.bounding_box().max.Y + P.spr_spacer_axial_clear
 
 
 def sprocket_spacer():
@@ -390,7 +390,7 @@ def sprocket_spacer():
     wheel = _posed_sprocket_parts()["chain-wheel"]
     length = (
         wheel.bounding_box().min.Y
-        - P.drive_running_gap
+        - P.spr_spacer_axial_clear
         - _sprocket_spacer_start()
     )
     return _axis_y_tube(
@@ -398,6 +398,22 @@ def sprocket_spacer():
         P.spr_shaft_d + P.spr_shaft_clear,
         length,
     )
+
+
+def _motor_screw_centers():
+    """Six gearbox-face screw centres in the unit Y/Z plane."""
+    gearbox_z = P.motor_z - P.jgb_ecc
+    centers = []
+    for index in range(P.jgb_screw_n):
+        angle = math.radians(index * 360 / P.jgb_screw_n)
+        radius = P.jgb_screw_bcd / 2
+        centers.append(
+            (
+                P.drive_y + radius * math.cos(angle),
+                gearbox_z + radius * math.sin(angle),
+            )
+        )
+    return tuple(centers)
 
 
 def _motor_bulkhead():
@@ -417,15 +433,13 @@ def _motor_bulkhead():
         P.drive_y,
         P.motor_z,
     )
-    for index in range(P.jgb_screw_n):
-        angle = math.radians(index * 360 / P.jgb_screw_n)
-        radius = P.jgb_screw_bcd / 2
+    for y, z in _motor_screw_centers():
         body -= support_free_cross_bore(
-            P.m3_tap_d / 2,
+            P.jgb_screw_clear_d / 2,
             P.bulkhead_t + 2,
             P.bulkhead_x + P.bulkhead_t / 2,
-            P.drive_y + radius * math.cos(angle),
-            P.motor_z - P.jgb_ecc + radius * math.sin(angle),
+            y,
+            z,
         )
     # The front bearing cap replaces this slice of the old full bulkhead.
     body -= box_between(
@@ -622,6 +636,15 @@ def drive_cassette():
         P.saddle_x1 - P.saddle_x0 + 2,
         P.drive_y,
         P.motor_z,
+    )
+
+    access_y, access_z = _motor_screw_centers()[P.jgb_tool_access_index]
+    body -= _axis_x_cylinder(
+        P.jgb_tool_access_d / 2,
+        P.bulkhead_x + P.bulkhead_t,
+        P.saddle_x1 - P.bulkhead_x - P.bulkhead_t + 0.2,
+        access_y,
+        access_z,
     )
 
     body -= _keeper_keepout()

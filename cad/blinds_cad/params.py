@@ -43,7 +43,10 @@ class Params:
     jgb_screw_bcd: float = 31.0    # 6×M3 on the gearbox face
     jgb_screw_n: int = 6
     jgb_screw_d: float = 3.0
+    jgb_screw_clear_d: float = 3.5  # loose FDM clearance through cassette face
     jgb_screw_depth: float = 5.0
+    jgb_tool_access_index: int = 4  # lower-rear screw in +X side view
+    jgb_tool_access_d: float = 7.0  # driver access through right support
 
     # --- 21700 cell (Samsung 50E) in two owned Bistook 3-slot holders ---
     cell_d: float = 21.7
@@ -99,6 +102,7 @@ class Params:
     spr_wheel_pin_len: float = 14.0
     spr_bevel_pin_len: float = 14.0
     spr_spacer_d: float = 8.0
+    spr_spacer_axial_clear: float = 0.1
     spr_spacer_print_pitch: float = 12.0
 
     # --- gear train (all module 2, printed; steel bevels drop in later) ---

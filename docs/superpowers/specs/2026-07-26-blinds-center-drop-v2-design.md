@@ -51,6 +51,8 @@ fallback) with the motor horizontal:
   ~109mm/s chain (target 100); sprocket torque ≈ 0.6 × 17/14 × ~0.72
   gear efficiency ≈ 0.52Nm vs 0.39 needed. Steel bevel fallback still
   possible (bores stay standard).
+  Overall motor-to-chain-wheel reduction is 17:14, or 1.214:1: the 14:17
+  spur stage reduces speed and the 10:10 bevel stage is 1:1.
 - **Motor mount:** a separate four-screw cassette owns the x=67..70
   motor face (6×M3 BCD31), tail cradle, and two open 625ZZ seats.
   Preassemble the rod stack, drop both bearings into the seats, and secure
@@ -99,8 +101,12 @@ fallback) with the motor horizontal:
    rod together and install its Ø2×12 mm pin.
 2. Before fitting the motor, place the motor spacer and loose pinion in the
    cassette cavity. Insert the motor shaft from the left through the motor
-   face, spacer, and pinion; install the six motor screws, then drill/tap the
-   pinion pilot M3 and tighten the grub screw onto the D-flat.
+   face, spacer, and pinion. The six cassette bores are loose-FDM Ø3.5 mm M3
+   clearance, but the installed gears obscure part of the BCD31 pattern. Use
+   the directly reachable screws plus the lower-rear screw reached through the
+   single Ø7 circular tool opening in the right support; three fasteners are
+   sufficient for this mount. Then drill/tap the pinion pilot M3 and tighten
+   the grub screw onto the D-flat.
 3. Drop the preassembled rod stack into the two open bearing seats and secure
    both printed caps with four M3 screws into cassette heat-set inserts. Each
    cap has a true Ø3.4 through-hole; each cassette ear has an unobstructed
@@ -145,6 +151,17 @@ Split sprocket stack: layshaft bevel, sprocket bevel, spacer, chain wheel,
 two MR105ZZ bearings, and the separate 5 mm steel shaft:
 
 ![Split sprocket shaft stack](../../research/img/blinds-sprocket-split-stack.png)
+
+The sprocket spacer spans the complete bevel-to-wheel interval with only
+0.1 mm axial clearance at each mating face:
+
+![Sprocket spacer between bevel and chain wheel](../../research/img/blinds-sprocket-spacer-fit.png)
+
+Motor screw access: gold = six Ø3.5 mm M3 axes, blue = the single Ø7 circular
+driver opening through the lower right-support obstruction. Gear-covered axes
+remain visible here to explain why they are not service fasteners:
+
+![Motor screw and tool access](../../research/img/blinds-motor-screw-access.png)
 
 The sprocket bevel's 1.2 mm backing disc is hidden inside the tooth roots;
 the Ø2.2 cross-pin guide exits through only the central hub:

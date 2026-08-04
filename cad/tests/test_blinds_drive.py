@@ -42,13 +42,14 @@ def test_sprocket_is_two_prints_on_a_real_5mm_shaft_and_two_bearings():
     assert (parts["chain-wheel"] & parts["layshaft-bevel"]).volume < 1e-6
 
     assert (
-        parts["sprocket-bevel"].bounding_box().max.Y + P.drive_running_gap
+        parts["sprocket-bevel"].bounding_box().max.Y + P.spr_spacer_axial_clear
         == pytest.approx(parts["sprocket-spacer"].bounding_box().min.Y)
     )
     assert (
-        parts["sprocket-spacer"].bounding_box().max.Y + P.drive_running_gap
+        parts["sprocket-spacer"].bounding_box().max.Y + P.spr_spacer_axial_clear
         == pytest.approx(parts["chain-wheel"].bounding_box().min.Y)
     )
+    assert P.spr_spacer_axial_clear <= 0.1
 
 
 def test_sprocket_bevel_backing_disc_does_not_fill_the_active_teeth():
@@ -252,6 +253,44 @@ def test_bearing_caps_have_an_open_roomward_installation_path():
     cassette = drive_cassette()
     for roomward_step in range(0, 15, 2):
         assert ((Pos(0, roomward_step, 0) * caps) & cassette).volume < 1e-6
+
+
+def test_motor_mount_has_loose_m3_bores_and_one_lower_tool_access():
+    from blinds_cad.drivecassette import (
+        _axis_x_cylinder,
+        _motor_screw_centers,
+        drive_cassette,
+        drive_parts,
+    )
+    from blinds_cad.params import P
+
+    cassette = drive_cassette()
+    centers = _motor_screw_centers()
+    assert P.jgb_screw_clear_d >= 3.5
+    assert len(centers) == P.jgb_screw_n
+
+    for y, z in centers:
+        screw = _axis_x_cylinder(
+            P.jgb_screw_clear_d / 2,
+            P.bulkhead_x - 0.1,
+            P.bulkhead_t + 0.2,
+            y,
+            z,
+        )
+        assert (cassette & screw).volume < 1e-6
+
+    access_y, access_z = centers[P.jgb_tool_access_index]
+    tool = _axis_x_cylinder(
+        P.jgb_tool_access_d / 2,
+        P.bulkhead_x + P.bulkhead_t,
+        P.saddle_x1 - P.bulkhead_x - P.bulkhead_t + 0.2,
+        access_y,
+        access_z,
+    )
+    assert (cassette & tool).volume < 1e-6
+    parts = drive_parts()
+    assert (parts["pinion"] & tool).volume < 1e-6
+    assert (parts["layshaft-spur"] & tool).volume < 1e-6
 
 
 @pytest.mark.slow
