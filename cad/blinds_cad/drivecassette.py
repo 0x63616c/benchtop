@@ -680,7 +680,7 @@ def drive_cassette():
 
 def cassette_lid_print():
     """Single lid with the broad room-side web flat on the print bed."""
-    oriented = Rot(90, 0, 0) * cassette_lid()
+    oriented = Rot(-90, 0, 0) * cassette_lid()
     return Pos(0, 0, -oriented.bounding_box().min.Z) * oriented
 
 
