@@ -80,6 +80,16 @@ fallback) with the motor horizontal:
   remain in the sleeve front face; the shaft stops behind it.
   The French cleat and monolithic structural shell are removed.
 
+### Fastener holes
+
+| Location | Printed hole | Hardware intent |
+|---|---:|---|
+| Four frame-to-wall anchors | Ø4.5 mm | Plain clearance for #8 wall screws |
+| Four frame cassette pads | Ø4.6 × 4.5 mm deep | M3 heat-set inserts |
+| Six frame battery-holder bosses | Ø4.6 × 4.5 mm deep | M3 heat-set inserts; holder holes are Ø4.2 clearance |
+| Four cassette bearing-cap ears | Ø4.6 × 4.5 mm deep | M3 heat-set inserts |
+| Four cassette axle-keeper columns | Ø2.6 × 8 mm deep | Printed M3 tapping pilots; no insert |
+
 ## Drive assembly and service order
 
 1. Deburr the Ø5×38.5 mm rod. Slide on the heel-down bevel, use its
@@ -98,8 +108,11 @@ fallback) with the motor horizontal:
    Add the separate bevel, cross-drill through its Ø2.2 guide, and install its
    Ø2×14 mm pin. Add the printed spacer, then the separate chain wheel and its
    Ø2×14 mm pin. Seat the rear bearing in the cassette, press the front MR105ZZ
-   into the keeper from behind, and fasten the keeper over the shaft end. The
-   complete motor/gear/sprocket module is now one serviceable assembly.
+   into the keeper from behind, and fasten the keeper over the shaft end with
+   four M3 screws. Those screws enter Ø2.6 tapping pilots in four explicit Ø6
+   columns rooted at the cassette's print-bed/back face; they do not terminate
+   in the open gear tunnel. The complete motor/gear/sprocket module is now one
+   serviceable assembly.
 5. Seat that assembly straight onto the frame's four recessed pads and fasten
    four M3 screws into the frame heat-set inserts. Refit the chain, then install
    the sleeve and split top cap. For service, remove the sleeve/cap and lift off
@@ -126,6 +139,19 @@ The sprocket bevel's 1.2 mm backing disc is hidden inside the tooth roots;
 the Ø2.2 cross-pin guide exits through only the central hub:
 
 ![Corrected sprocket bevel print](../../research/img/blinds-sprocket-bevel-print.png)
+
+The keeper recess has 0.3 mm fit clearance and runs fully through the former
+1 mm spur-side wall/cap. The 90-degree gear tunnel opens toward the removable
+keeper instead of using a visible teardrop roof, and the 5 mm bead-chain paths
+are 8 mm wide (1.5 mm running clearance per side):
+
+![Cassette keeper and gear clearances](../../research/img/blinds-drive-cassette-clearances.png)
+
+Axle-keeper attachment: blue = keeper pulled roomward, gold = four M3 screws,
+orange = four Ø6 back-rooted tapping columns visible through the translucent
+cassette. The paired upper columns move inward to clear both chain paths:
+
+![Axle keeper screws and cassette tap columns](../../research/img/blinds-axle-keeper-mounts.png)
 
 Frame attachment: red = four frame-owned insert pads, gold = four cassette
 mount screws, blue = cassette pulled roomward for clarity:

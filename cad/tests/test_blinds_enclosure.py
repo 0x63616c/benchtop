@@ -149,9 +149,8 @@ def test_axle_keeper_screw_holes_have_closed_edge_ligaments():
     radius = P.keeper_screw_d / 2
     x0 = P.drive_x - P.keeper_outer_half_w
     x1 = P.drive_x + P.keeper_outer_half_w
-    for x in P.keeper_screw_x:
+    for x, z in P.keeper_screw_points:
         assert min(x - radius - x0, x1 - x - radius) >= P.keeper_hole_ligament
-    for z in P.keeper_screw_z:
         assert min(
             z - radius - P.keeper_z0,
             P.keeper_z1 - z - radius,

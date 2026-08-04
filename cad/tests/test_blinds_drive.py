@@ -68,6 +68,93 @@ def test_sprocket_bevel_backing_disc_does_not_fill_the_active_teeth():
     assert P.spr_bevel_pin_z + P.spr_pin_guide_d / 2 < disc_z0
 
 
+def test_keeper_recess_removes_the_spur_side_sliver_with_fit_clearance():
+    from splitflap_cad.geo import box_between
+
+    from blinds_cad.drivecassette import drive_cassette
+    from blinds_cad.params import P
+
+    old_sliver = box_between(
+        P.drive_x + P.keeper_outer_half_w,
+        P.keeper_y0,
+        P.keeper_z0,
+        P.bulkhead_x + P.bulkhead_t + P.keeper_fit,
+        P.frame_front_y,
+        P.frame_z1 + P.keeper_fit,
+    )
+
+    assert P.keeper_fit >= 0.3
+    assert (drive_cassette() & old_sliver).volume < 1e-6
+
+
+def test_chain_channels_have_at_least_1_5mm_clearance_per_side():
+    from blinds_cad.params import P
+
+    minimum_opening = P.chain_ball_d + 3.0
+    assert P.spr_ball_clear >= 1.5
+    assert P.chain_slot >= minimum_opening
+
+
+def test_layshaft_tunnel_is_open_to_room_side_without_a_triangular_roof():
+    from splitflap_cad.geo import box_between
+
+    from blinds_cad.drivecassette import _layshaft_tunnel
+    from blinds_cad.params import P
+
+    radius = P.bevel_r + P.cassette_layshaft_radial_clear
+    open_front = box_between(
+        P.drive_x - P.cassette_layshaft_tunnel_l / 2,
+        P.drive_y,
+        P.spr_z - radius,
+        P.drive_x + P.cassette_layshaft_tunnel_l / 2,
+        P.frame_front_y + 1,
+        P.spr_z + radius,
+    )
+
+    assert (open_front - _layshaft_tunnel()).volume < 1e-6
+
+
+def test_keeper_screws_enter_back_rooted_tap_columns():
+    from blinds_cad.drivecassette import (
+        _axis_y_cylinder,
+        drive_cassette,
+    )
+    from blinds_cad.params import P
+
+    cassette = drive_cassette()
+    column_length = P.keeper_y0 - P.drive_cassette_back_y
+    for x, z in P.keeper_screw_points:
+        outer = _axis_y_cylinder(
+            P.keeper_tap_boss_d / 2,
+            P.drive_cassette_back_y,
+            column_length,
+            x,
+            z,
+        )
+        pilot = _axis_y_cylinder(
+            P.m3_tap_d / 2,
+            P.drive_cassette_back_y - 0.1,
+            column_length + 0.2,
+            x,
+            z,
+        )
+        printable_column = outer - pilot
+
+        assert (cassette & printable_column).volume >= 0.98 * printable_column.volume
+
+
+def test_keeper_tap_columns_clear_the_widened_chain_channels():
+    from blinds_cad.params import P
+
+    chain_radius = P.chain_slot / 2
+    boss_radius = P.keeper_tap_boss_d / 2
+    upper_points = ((x, z) for x, z in P.keeper_screw_points if z > P.spr_z)
+    for x, _z in upper_points:
+        assert min(abs(x - strand_x) for strand_x in P.strand_x) >= (
+            chain_radius + boss_radius + P.drive_running_gap
+        )
+
+
 def test_drive_cassette_is_removable_and_all_four_mounts_are_supported():
     from blinds_cad.drivecassette import bearing_caps, drive_cassette
     from blinds_cad.enclosure import frame

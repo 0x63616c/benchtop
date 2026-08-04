@@ -18,7 +18,7 @@ from build123d import (
     Rot,
     Torus,
 )
-from splitflap_cad.geo import box_between, support_free_cross_bore
+from splitflap_cad.geo import box_between
 
 from .params import P
 
@@ -90,12 +90,14 @@ def axle_keeper():
         P.keeper_z1,
     )
 
-    for x in P.keeper_screw_x:
-        for z in P.keeper_screw_z:
-            body -= Pos(x, (P.keeper_y0 + y1) / 2, z) * (
-                Rot(90, 0, 0)
-                * Cylinder(P.keeper_screw_d / 2, y1 - P.keeper_y0 + 2)
-            )
+    for x, z in P.keeper_screw_points:
+        body -= _axis_y_cylinder(
+            P.keeper_screw_d / 2,
+            P.keeper_y0 - 1,
+            y1 - P.keeper_y0 + 2,
+            x,
+            z,
+        )
 
     bearing_y0 = P.spr_bearing_centers_y[1] - P.spr_bearing_w / 2
     body -= _axis_y_cylinder(
@@ -120,38 +122,74 @@ def _keeper_keepout():
     x0 = P.drive_x - P.keeper_outer_half_w
     x1 = P.drive_x + P.keeper_outer_half_w
     y1 = P.frame_front_y + 0.1
-    pocket = box_between(x0, P.keeper_y0, P.keeper_z0, x1, y1, P.keeper_z1)
+    fit = P.keeper_fit
+    pocket = box_between(
+        x0 - fit,
+        P.keeper_y0 - fit,
+        P.keeper_z0 - fit,
+        x1 + fit,
+        y1,
+        P.keeper_z1 + fit,
+    )
+    # The motor bulkhead used to leave a 1 mm wall beyond the keeper's
+    # spur-side edge and a tiny cap above it. Neither carries load; clear
+    # both completely so they cannot become a fragile slicer artifact.
+    pocket += box_between(
+        x1,
+        P.keeper_y0 - fit,
+        P.keeper_z0 - fit,
+        P.bulkhead_x + P.bulkhead_t + fit,
+        y1,
+        P.frame_z1 + fit,
+    )
     rib_y0 = P.keeper_y0 - P.keeper_rim
     pocket += box_between(
-        x0,
-        rib_y0,
-        P.keeper_z0,
-        x0 + P.keeper_side_rib,
-        P.keeper_y0,
-        P.keeper_z1,
+        x0 - fit,
+        rib_y0 - fit,
+        P.keeper_z0 - fit,
+        x0 + P.keeper_side_rib + fit,
+        P.keeper_y0 + fit,
+        P.keeper_z1 + fit,
     )
     pocket += box_between(
-        x1 - P.keeper_side_rib,
-        rib_y0,
-        P.keeper_z0,
-        x1,
-        P.keeper_y0,
-        P.keeper_z1,
+        x1 - P.keeper_side_rib - fit,
+        rib_y0 - fit,
+        P.keeper_z0 - fit,
+        x1 + fit,
+        P.keeper_y0 + fit,
+        P.keeper_z1 + fit,
     )
     return pocket
 
 
 def _keeper_tap_cuts():
     cuts = None
-    y = P.keeper_y0 - P.keeper_tap_depth / 2
-    for x in P.keeper_screw_x:
-        for z in P.keeper_screw_z:
-            cut = Pos(x, y, z) * (
-                Rot(90, 0, 0)
-                * Cylinder(P.m3_tap_d / 2, P.keeper_tap_depth + 0.2)
-            )
-            cuts = cut if cuts is None else cuts + cut
+    for x, z in P.keeper_screw_points:
+        cut = _axis_y_cylinder(
+            P.m3_tap_d / 2,
+            P.keeper_y0 - P.keeper_tap_depth,
+            P.keeper_tap_depth + 0.2,
+            x,
+            z,
+        )
+        cuts = cut if cuts is None else cuts + cut
     return cuts
+
+
+def _keeper_tap_bosses():
+    """Solid back-rooted columns retained through the open gear tunnel."""
+    bosses = None
+    length = P.keeper_y0 - P.drive_cassette_back_y
+    for x, z in P.keeper_screw_points:
+        boss = _axis_y_cylinder(
+            P.keeper_tap_boss_d / 2,
+            P.drive_cassette_back_y,
+            length,
+            x,
+            z,
+        )
+        bosses = boss if bosses is None else bosses + boss
+    return bosses
 
 
 def _sprocket_shaft_cuts():
@@ -175,13 +213,25 @@ def _sprocket_shaft_cuts():
 
 
 def _layshaft_tunnel():
-    return support_free_cross_bore(
-        P.bevel_r + P.cassette_layshaft_radial_clear,
+    """Round gear envelope open toward the room/print-growth side."""
+    radius = P.bevel_r + P.cassette_layshaft_radial_clear
+    x0 = P.drive_x - P.cassette_layshaft_tunnel_l / 2
+    tunnel = _axis_x_cylinder(
+        radius,
+        x0,
         P.cassette_layshaft_tunnel_l,
-        P.drive_x,
         P.drive_y,
         P.spr_z,
     )
+    tunnel += box_between(
+        x0,
+        P.drive_y,
+        P.spr_z - radius,
+        x0 + P.cassette_layshaft_tunnel_l,
+        P.frame_front_y + 1,
+        P.spr_z + radius,
+    )
+    return tunnel
 
 
 def sprocket_housing():
@@ -529,6 +579,10 @@ def drive_cassette():
         P.drive_tab_y0,
         P.frame_z1,
     )
+    # These columns are deliberately added after the gear-envelope cuts.
+    # Their selected positions clear the mechanism, and each remains a full
+    # print-bed-rooted path for an axle-keeper screw.
+    body += _keeper_tap_bosses()
     for x in P.lay_bearing_centers_x:
         body += _rear_bearing_boss(x)
         body += _cap_ears(x, P.drive_y - P.lay_cap_insert_depth, P.drive_y, insert=True)

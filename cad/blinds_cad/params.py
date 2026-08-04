@@ -80,7 +80,7 @@ class Params:
     spr_groove_w: float = 3.5      # cord groove — continuous joiner relief
     spr_rim_over: float = 0.7      # wheel OR beyond the pitch circle (pocket cup)
     spr_w: float = 6.4             # wheel width; 5 mm beads + 0.7 mm side rims
-    spr_ball_clear: float = 1.0    # housing channel clearance over balls (#16)
+    spr_ball_clear: float = 1.5    # housing channel clearance per ball side (#16)
     spr_ring_back_d: float = 12.0  # hidden inside tooth roots; no outer skirt seam
     spr_ring_back_t: float = 1.2
     spr_ring_back_overlap: float = 0.4
@@ -149,7 +149,7 @@ class Params:
     spr_wy: float = 34.8           # chain-wheel center depth; its rear face clears
                                    # the separate layshaft bevel by 0.8 mm
     guide_or: float = 17.0         # wrap-guide clearance radius envelope
-    chain_slot: float = 7.0        # top-face slot square (ball 5 + joiner room)
+    chain_slot: float = 8.0        # ball 5 + 1.5 mm running clearance per side
 
                                    # clears the flat PCB's parts (top 13.4)
 
@@ -219,12 +219,20 @@ class Params:
 
     keeper_y0: float = 38.3        # removable front MR105 bearing cap starts here
     keeper_z0: float = 203.0
-    keeper_z1: float = 237.0
+    keeper_z1: float = 240.5
     keeper_outer_half_w: float = 20.0
     keeper_side_rib: float = 3.0
-    keeper_screw_x: tuple = (34.0, 64.0)
-    keeper_screw_z: tuple = (207.0, 233.0)
+    # Explicit points avoid the chain channels: the upper pair moves inward
+    # while the lower pair stays outside the sprocket's swept envelope.
+    keeper_screw_points: tuple = (
+        (37.0, 207.0),
+        (61.0, 207.0),
+        (46.0, 236.5),
+        (52.0, 236.5),
+    )
     keeper_screw_d: float = 3.4
+    keeper_tap_boss_d: float = 6.0
+    keeper_fit: float = 0.3        # recess clearance around removable keeper
     keeper_hole_ligament: float = 2.0
     keeper_tap_depth: float = 8.0
     keeper_rim: float = 4.0
