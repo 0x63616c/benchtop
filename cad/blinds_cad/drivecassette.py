@@ -449,6 +449,26 @@ def _cassette_lid_web():
     # Bottom rail is the common load path.  Three narrow uprights retain the
     # sprocket bearing and reach the two split layshaft seats.
     web = box_between(x0, y0, z0, x1, y1, z0 + rail)
+    apron_x0 = (
+        P.pinion_x
+        - P.spur_w / 2
+        - P.gear_hub_len
+        - P.cassette_spur_apron_axial_clear
+    )
+    apron_x1 = P.pinion_x + P.spur_w / 2 + P.cassette_spur_apron_axial_clear
+    apron_z0 = (
+        P.lay_z
+        - P.spur_wheel_outer_r
+        - P.cassette_spur_apron_radial_clear
+    )
+    web += box_between(
+        apron_x0,
+        P.cassette_spur_apron_y0,
+        apron_z0,
+        apron_x1,
+        y1,
+        z0 + rail,
+    )
     web += box_between(x0, y0, z0, x0 + rail, y1, z1)
     web += box_between(
         P.drive_x - P.cassette_lid_spine_w / 2,

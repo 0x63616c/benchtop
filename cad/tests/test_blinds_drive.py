@@ -249,6 +249,44 @@ def test_bearing_shells_join_full_height_rectangular_spines():
         assert (lid & bridge).volume >= 0.99 * bridge.volume
 
 
+def test_spur_teeth_sit_behind_a_local_lid_apron_without_resizing_the_mesh():
+    from splitflap_cad.geo import box_between
+
+    from blinds_cad.drivecassette import cassette_lid, drive_parts
+    from blinds_cad.params import P
+
+    spur = drive_parts()["layshaft-spur"]
+    bounds = spur.bounding_box()
+    apron_x0 = (
+        P.pinion_x
+        - P.spur_w / 2
+        - P.gear_hub_len
+        - P.cassette_spur_apron_axial_clear
+    )
+    apron_x1 = P.pinion_x + P.spur_w / 2 + P.cassette_spur_apron_axial_clear
+    apron_z0 = (
+        P.lay_z
+        - P.spur_wheel_outer_r
+        - P.cassette_spur_apron_radial_clear
+    )
+    apron = box_between(
+        apron_x0,
+        P.cassette_spur_apron_y0,
+        apron_z0,
+        apron_x1,
+        P.frame_front_y,
+        P.cassette_lid_z0 + P.cassette_lid_rail,
+    )
+
+    assert P.spur_pinion_z == 14 and P.spur_wheel_z == 17
+    assert P.lay_z - P.motor_z == pytest.approx(
+        P.spur_pinion_r + P.spur_wheel_r
+    )
+    assert apron_z0 <= bounds.min.Z - P.cassette_spur_apron_radial_clear
+    assert P.cassette_spur_apron_y0 - bounds.max.Y >= P.drive_running_gap
+    assert (cassette_lid() & apron).volume >= 0.99 * apron.volume
+
+
 def test_lid_has_three_m3_clearance_holes_and_body_has_insert_pockets():
     from blinds_cad.drivecassette import (
         _axis_y_cylinder,

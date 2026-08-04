@@ -59,7 +59,10 @@ fallback) with the motor horizontal:
   former two bearing caps and separate axle keeper. Two continuous full-height
   ribs close both 625ZZ seats while its center boss retains the front MR105ZZ.
   Three lid screws form a non-rocking triangular clamp pattern into back-rooted
-  heat-set columns. The complete 89.2 × 41.0 × 81.0 mm
+  heat-set columns. A local 2.4 mm-deep apron extends only below the z17 spur,
+  covering its lower tooth envelope with 0.4 mm radial allowance and 0.53 mm
+  axial running clearance. The proven 14:17 ratio and 31 mm shaft spacing stay
+  unchanged. The complete 89.2 × 41.0 × 81.0 mm
   pod drops onto a frame shelf, engages one upper anti-torque key, and is
   clamped by only two lower screws. The shelf/key carry shear and torque; the
   screws do not.

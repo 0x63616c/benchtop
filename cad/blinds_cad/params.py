@@ -234,6 +234,9 @@ class Params:
     cassette_lid_spine_w: float = 7.0
     cassette_lid_sprocket_boss_wall: float = 3.0
     cassette_lid_fit: float = 0.3
+    cassette_spur_apron_axial_clear: float = 0.5
+    cassette_spur_apron_radial_clear: float = 0.4
+    cassette_spur_apron_y0: float = 40.5
     cassette_lid_screw_points: tuple = (
         (32.0, 207.0),
         (69.0, 236.5),
@@ -347,6 +350,11 @@ class Params:
     @property
     def spur_wheel_r(self) -> float:
         return self.gear_m * self.spur_wheel_z / 2  # 17
+
+    @property
+    def spur_wheel_outer_r(self) -> float:
+        """Nominal addendum radius used for the lid's spur apron."""
+        return self.gear_m * (self.spur_wheel_z + 2) / 2  # 19
 
     @property
     def bevel_r(self) -> float:
