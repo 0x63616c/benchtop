@@ -37,10 +37,10 @@ def _printable(name: str):
         from blinds_cad.drivecassette import drive_cassette
 
         return Rot(90, 0, 0) * drive_cassette()
-    if name == "bearing-caps":
-        from blinds_cad.drivecassette import bearing_caps_print
+    if name == "cassette-lid":
+        from blinds_cad.drivecassette import cassette_lid_print
 
-        return bearing_caps_print()
+        return cassette_lid_print()
     if name == "drive-spacers":
         from blinds_cad.drivecassette import spacers_print
 
@@ -68,7 +68,7 @@ def _printable(name: str):
     (
         "frame",
         "drive-cassette",
-        "bearing-caps",
+        "cassette-lid",
         "drive-spacers",
         "sprocket",
         "sprocket-bevel",

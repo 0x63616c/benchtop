@@ -70,7 +70,7 @@ def test_envelope(posed):
     assert posed["cap-rear"].bounding_box().max.Z == pytest.approx(P.enc_h)
     assert posed["cap-front"].bounding_box().max.Z == pytest.approx(P.enc_h)
     for name in (
-        "drive-cassette", "bearing-caps", "motor", "pinion",
+        "drive-cassette", "cassette-lid", "motor", "pinion",
         "layshaft-bevel", "layshaft-spur", "layshaft-rod", "chain-wheel",
         "sprocket-bevel", "sprocket-spacer", "sprocket-shaft",
         "rear-sprocket-bearing", "front-sprocket-bearing",

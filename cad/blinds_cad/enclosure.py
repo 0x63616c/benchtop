@@ -123,8 +123,19 @@ def _battery_mount_spine():
 
 
 def _drive_mounts():
-    """Four rooted insert pads for the removable motor/gear cassette."""
-    mounts = None
+    """Keyed shelf plus two clamp screws for the complete drive pod.
+
+    The shelf carries gravity, the upper key reacts drive torque, and the M3
+    screws only hold the cassette against those datum surfaces.
+    """
+    mounts = box_between(
+        P.cradle_x0,
+        0,
+        P.drive_shelf_z0,
+        P.saddle_x1,
+        P.drive_mount_face_y,
+        P.drive_shelf_z1,
+    )
     for x, y, z in P.drive_mount_points:
         pad = box_between(
             x - P.drive_mount_boss_d / 2,
@@ -138,7 +149,18 @@ def _drive_mounts():
             Rot(90, 0, 0)
             * Cylinder(P.m3_insert_d / 2, P.drive_mount_insert_depth + 0.2)
         )
-        mounts = pad if mounts is None else mounts + pad
+        mounts += pad
+
+    key_half_w = P.drive_key_w / 2
+    key_half_h = P.drive_key_h / 2
+    mounts += box_between(
+        P.drive_key_x - key_half_w,
+        0,
+        P.drive_key_z - key_half_h,
+        P.drive_key_x + key_half_w,
+        P.drive_key_y1,
+        P.drive_key_z + key_half_h,
+    )
     return mounts
 
 

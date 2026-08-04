@@ -13,13 +13,13 @@ from build123d import Cylinder, Pos, Rot
 @pytest.fixture(scope="module")
 def enclosure_parts():
     from blinds_cad.cover import cap_front, cap_rear, sleeve
-    from blinds_cad.drivecassette import axle_keeper, drive_cassette
+    from blinds_cad.drivecassette import cassette_lid, drive_cassette
     from blinds_cad.enclosure import frame
 
     return {
         "frame": frame(),
         "drive-cassette": drive_cassette(),
-        "axle-keeper": axle_keeper(),
+        "cassette-lid": cassette_lid(),
         "sleeve": sleeve(),
         "cap-rear": cap_rear(),
         "cap-front": cap_front(),
@@ -38,9 +38,9 @@ def test_cosmetic_parts_clear_the_structural_frame(enclosure_parts):
         assert overlap < 1e-6, f"frame x {name}: {overlap:.3f} mm3"
 
 
-def test_axle_keeper_seats_without_overlapping_drive_cassette(enclosure_parts):
+def test_cassette_lid_seats_without_overlapping_drive_cassette(enclosure_parts):
     overlap = (
-        enclosure_parts["drive-cassette"] & enclosure_parts["axle-keeper"]
+        enclosure_parts["drive-cassette"] & enclosure_parts["cassette-lid"]
     ).volume
     assert overlap < 1e-6
 
@@ -112,7 +112,7 @@ def test_sprocket_shaft_and_bearings_are_captive_inside_the_sleeve(
     from blinds_cad.params import P
 
     cassette = enclosure_parts["drive-cassette"]
-    keeper = enclosure_parts["axle-keeper"]
+    lid = enclosure_parts["cassette-lid"]
     sleeve = enclosure_parts["sleeve"]
     shaft = F.SPROCKET_SHAFT_IN_UNIT * sprocket_shaft()
     rear = F.REAR_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_mr105()
@@ -123,38 +123,39 @@ def test_sprocket_shaft_and_bearings_are_captive_inside_the_sleeve(
     assert shaft.bounding_box().max.Y < P.enc_d - P.sleeve_t
     for part in (shaft, rear, front):
         assert (cassette & part).volume < 1e-6
-        assert (keeper & part).volume < 1e-6
+        assert (lid & part).volume < 1e-6
         assert (sleeve & part).volume < 1e-6
 
 
 def test_parts_fit_the_p2s_in_their_documented_orientations(enclosure_parts):
     """P2S build volume is 256 mm cubed.  The frame prints wall-face
-    down, keeper and sleeve front-face down, and cap halves top-face down."""
+    down, cassette lid and sleeve front-face down, and cap halves top-face down."""
     frame = enclosure_parts["frame"].bounding_box()
-    keeper = enclosure_parts["axle-keeper"].bounding_box()
+    lid = enclosure_parts["cassette-lid"].bounding_box()
     sleeve = enclosure_parts["sleeve"].bounding_box()
     rear = enclosure_parts["cap-rear"].bounding_box()
     front = enclosure_parts["cap-front"].bounding_box()
 
     assert frame.size.X <= 256 and frame.size.Z <= 256 and frame.size.Y <= 50
-    assert keeper.size.X <= 256 and keeper.size.Z <= 256 and keeper.size.Y <= 10
+    assert lid.size.X <= 256 and lid.size.Z <= 256 and lid.size.Y <= 35
     assert sleeve.size.X <= 256 and sleeve.size.Z <= 256 and sleeve.size.Y <= 50
     for cap in (rear, front):
         assert cap.size.X <= 256 and cap.size.Y <= 256 and cap.size.Z <= 10
 
 
-def test_axle_keeper_screw_holes_have_closed_edge_ligaments():
+def test_cassette_lid_screw_holes_have_closed_edge_ligaments():
     from blinds_cad.params import P
 
-    radius = P.keeper_screw_d / 2
-    x0 = P.drive_x - P.keeper_outer_half_w
-    x1 = P.drive_x + P.keeper_outer_half_w
-    for x, z in P.keeper_screw_points:
-        assert min(x - radius - x0, x1 - x - radius) >= P.keeper_hole_ligament
+    radius = P.cassette_lid_screw_d / 2
+    for x, z in P.cassette_lid_screw_points:
         assert min(
-            z - radius - P.keeper_z0,
-            P.keeper_z1 - z - radius,
-        ) >= P.keeper_hole_ligament
+            x - radius - P.cassette_lid_x0,
+            P.cassette_lid_x1 - x - radius,
+        ) >= P.cassette_lid_hole_ligament
+        assert min(
+            z - radius - P.cassette_lid_z0,
+            P.cassette_lid_z1 - z - radius,
+        ) >= P.cassette_lid_hole_ligament
 
 
 def test_frame_guides_sleeve_with_running_clearance(enclosure_parts):

@@ -221,25 +221,29 @@ class Params:
     cassette_layshaft_tunnel_l: float = 36.0
     drive_removal_step: float = 2.0
 
-    keeper_y0: float = 38.3        # removable front MR105 bearing cap starts here
-    keeper_z0: float = 203.0
-    keeper_z1: float = 240.5
-    keeper_outer_half_w: float = 20.0
-    keeper_side_rib: float = 3.0
-    # Explicit points avoid the chain channels: the upper pair moves inward
-    # while the lower pair stays outside the sprocket's swept envelope.
-    keeper_screw_points: tuple = (
-        (37.0, 207.0),
-        (61.0, 207.0),
-        (46.0, 236.5),
-        (52.0, 236.5),
+    # One structural room-side lid replaces the separate sprocket keeper and
+    # two layshaft caps.  Its thin front web sits ahead of every rotating part;
+    # narrow rearward spines reach the two split 625ZZ seats.
+    cassette_lid_x0: float = 28.0
+    cassette_lid_x1: float = 94.0
+    cassette_lid_y0: float = 40.3
+    cassette_lid_z0: float = 203.0
+    cassette_lid_z1: float = 240.5
+    cassette_lid_web_t: float = 2.5
+    cassette_lid_rail: float = 7.0
+    cassette_lid_spine_w: float = 7.0
+    cassette_lid_fit: float = 0.3
+    cassette_lid_screw_points: tuple = (
+        (32.0, 207.0),
+        (90.0, 207.0),
+        (69.0, 236.5),
+        (90.0, 236.5),
     )
-    keeper_screw_d: float = 3.4
-    keeper_tap_boss_d: float = 6.0
-    keeper_fit: float = 0.3        # recess clearance around removable keeper
-    keeper_hole_ligament: float = 2.0
-    keeper_tap_depth: float = 8.0
-    keeper_rim: float = 4.0
+    cassette_lid_screw_d: float = 3.4
+    cassette_lid_boss_d: float = 8.0
+    cassette_lid_insert_d: float = 4.2
+    cassette_lid_insert_depth: float = 4.8
+    cassette_lid_hole_ligament: float = 2.0
 
     m3_tap_d: float = 2.6
     m3_insert_d: float = 4.6
@@ -256,15 +260,12 @@ class Params:
     sleeve_retainer_boss_d: float = 7.0
     sleeve_retainer_boss_h: float = 7.0
 
-    # Removable motor/gear cassette.  The frame presents four M3 insert
-    # pads at y=6; the cassette begins 0.4 mm in front and can be removed
-    # without reprinting the wall skeleton.
+    # Removable motor/gear cassette.  A shallow shelf and upper key carry
+    # weight and torque; just two lower M3 screws clamp it to the frame.
     drive_mount_face_y: float = 6.0
     drive_mount_points: tuple = (
-        (18.0, 6.0, 158.0),
-        (80.0, 6.0, 158.0),
-        (69.0, 6.0, 202.0),
-        (89.0, 6.0, 202.0),
+        (18.0, 6.0, 162.5),
+        (80.0, 6.0, 162.5),
     )
     drive_mount_boss_d: float = 8.0
     drive_mount_clear_d: float = 3.4
@@ -272,8 +273,16 @@ class Params:
     drive_cassette_fit: float = 0.4
     drive_tab_y0: float = 6.4
     drive_tab_y1: float = 12.0
-    drive_lower_z0: float = 154.0
-    drive_lower_z1: float = 162.0
+    drive_lower_z0: float = 159.9
+    drive_lower_z1: float = 166.0
+    drive_shelf_z0: float = 154.0
+    drive_shelf_z1: float = 159.5
+    drive_key_x: float = 89.0
+    drive_key_z: float = 229.0
+    drive_key_w: float = 6.0
+    drive_key_h: float = 6.0
+    drive_key_y1: float = 6.0
+    drive_key_socket_wall: float = 2.0
     drive_cassette_back_y: float = 3.4
     drive_bulkhead_z0: float = 160.0
     drive_housing_bridge_overlap: float = 2.0
@@ -281,12 +290,6 @@ class Params:
     lay_bearing_boss_w: float = 6.0
     lay_bearing_pocket_w: float = 5.2
     lay_cap_y1: float = 31.0
-    lay_cap_ear_offset: float = 12.5
-    lay_cap_ear_d: float = 8.0
-    lay_cap_ear_x_shift: float = 1.5
-    lay_cap_clear_d: float = 3.4
-    lay_cap_insert_d: float = 4.2   # repo-standard M3 heat-set bore
-    lay_cap_insert_depth: float = 3.0
     drive_running_gap: float = 0.2
     lay_spacer_d: float = 8.0
     motor_spacer_d: float = 10.0
@@ -358,11 +361,6 @@ class Params:
     def lay_z(self) -> float:
         """Layshaft axis height = spur mesh center distance above the motor."""
         return self.motor_z + self.spur_pinion_r + self.spur_wheel_r  # 220
-
-    @property
-    def lay_cap_top_z(self) -> float:
-        """Upper cap-ear edge; cassette structure stops here."""
-        return self.lay_z + self.lay_cap_ear_offset + self.lay_cap_ear_d / 2
 
     @property
     def spr_z(self) -> float:

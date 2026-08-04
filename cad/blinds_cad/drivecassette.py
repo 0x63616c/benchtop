@@ -1,10 +1,9 @@
-"""Removable motor/gear/sprocket cassette and bought layshaft hardware.
+"""Tight, self-contained motor/gear/sprocket cassette.
 
-The production layshaft is a 5 mm steel rod running in two 625ZZ
-bearings. The rod, separate gears, spacers, and bearings drop into open
-rear seats, then two printed front caps retain the completed stack. The same
-print owns the sprocket wrap guide, two shaft-bearing seats, and removable
-front keeper.
+The chassis carries every fixed drive feature and slides onto a keyed frame
+shelf.  One structural room-side lid closes both split 625ZZ seats, retains
+the sprocket shaft, and ties the mechanism together with four M3 screws.
+Only two lower screws attach the complete pod to the wall frame.
 """
 
 import math
@@ -65,124 +64,13 @@ def sprocket_shaft():
     return _axis_y_cylinder(P.spr_shaft_d / 2, 0, P.spr_shaft_len, 0, 0)
 
 
-def axle_keeper():
-    """Flat-printing front bridge retaining the shaft and front bearing."""
-    x0 = P.drive_x - P.keeper_outer_half_w
-    x1 = P.drive_x + P.keeper_outer_half_w
-    y1 = P.frame_front_y
-    body = box_between(x0, P.keeper_y0, P.keeper_z0, x1, y1, P.keeper_z1)
-
-    rib_y0 = P.keeper_y0 - P.keeper_rim
-    body += box_between(
-        x0,
-        rib_y0,
-        P.keeper_z0,
-        x0 + P.keeper_side_rib,
-        P.keeper_y0,
-        P.keeper_z1,
-    )
-    body += box_between(
-        x1 - P.keeper_side_rib,
-        rib_y0,
-        P.keeper_z0,
-        x1,
-        P.keeper_y0,
-        P.keeper_z1,
-    )
-
-    for x, z in P.keeper_screw_points:
-        body -= _axis_y_cylinder(
-            P.keeper_screw_d / 2,
-            P.keeper_y0 - 1,
-            y1 - P.keeper_y0 + 2,
-            x,
-            z,
-        )
-
-    bearing_y0 = P.spr_bearing_centers_y[1] - P.spr_bearing_w / 2
-    body -= _axis_y_cylinder(
-        (P.spr_bearing_d + P.spr_bearing_clear) / 2,
-        bearing_y0 - 0.1,
-        P.spr_bearing_w + 0.2,
-        P.drive_x,
-        P.spr_z,
-    )
-    body -= _axis_y_cylinder(
-        (P.spr_shaft_d + P.spr_shaft_clear) / 2,
-        P.keeper_y0 - 0.1,
-        y1 - P.keeper_y0 + 0.2,
-        P.drive_x,
-        P.spr_z,
-    )
-    return body
-
-
-def _keeper_keepout():
-    """Flush plate recess plus two anti-rattle side-rib sockets."""
-    x0 = P.drive_x - P.keeper_outer_half_w
-    x1 = P.drive_x + P.keeper_outer_half_w
-    y1 = P.frame_front_y + 0.1
-    fit = P.keeper_fit
-    pocket = box_between(
-        x0 - fit,
-        P.keeper_y0 - fit,
-        P.keeper_z0 - fit,
-        x1 + fit,
-        y1,
-        P.keeper_z1 + fit,
-    )
-    # The motor bulkhead used to leave a 1 mm wall beyond the keeper's
-    # spur-side edge and a tiny cap above it. Neither carries load; clear
-    # both completely so they cannot become a fragile slicer artifact.
-    pocket += box_between(
-        x1,
-        P.keeper_y0 - fit,
-        P.keeper_z0 - fit,
-        P.bulkhead_x + P.bulkhead_t + fit,
-        y1,
-        P.frame_z1 + fit,
-    )
-    rib_y0 = P.keeper_y0 - P.keeper_rim
-    pocket += box_between(
-        x0 - fit,
-        rib_y0 - fit,
-        P.keeper_z0 - fit,
-        x0 + P.keeper_side_rib + fit,
-        P.keeper_y0 + fit,
-        P.keeper_z1 + fit,
-    )
-    pocket += box_between(
-        x1 - P.keeper_side_rib - fit,
-        rib_y0 - fit,
-        P.keeper_z0 - fit,
-        x1 + fit,
-        P.keeper_y0 + fit,
-        P.keeper_z1 + fit,
-    )
-    return pocket
-
-
-def _keeper_tap_cuts():
-    cuts = None
-    for x, z in P.keeper_screw_points:
-        cut = _axis_y_cylinder(
-            P.m3_tap_d / 2,
-            P.keeper_y0 - P.keeper_tap_depth,
-            P.keeper_tap_depth + 0.2,
-            x,
-            z,
-        )
-        cuts = cut if cuts is None else cuts + cut
-    return cuts
-
-
-def _keeper_tap_bosses():
-    """Solid back-rooted columns retained through the open gear tunnel."""
+def _lid_insert_columns():
+    """Four back-rooted columns that make the single lid structural."""
     bosses = None
-    length = P.keeper_y0 - P.drive_cassette_back_y
-    for x, z in P.keeper_screw_points:
+    length = P.cassette_lid_y0 - P.drive_cassette_back_y
+    for x, z in P.cassette_lid_screw_points:
         boss = _axis_y_cylinder(
-            P.keeper_tap_boss_d / 2,
+            P.cassette_lid_boss_d / 2,
             P.drive_cassette_back_y,
             length,
             x,
@@ -190,6 +78,20 @@ def _keeper_tap_bosses():
         )
         bosses = boss if bosses is None else bosses + boss
     return bosses
+
+
+def _lid_insert_cuts():
+    cuts = None
+    for x, z in P.cassette_lid_screw_points:
+        cut = _axis_y_cylinder(
+            P.cassette_lid_insert_d / 2,
+            P.cassette_lid_y0 - P.cassette_lid_insert_depth,
+            P.cassette_lid_insert_depth + 0.1,
+            x,
+            z,
+        )
+        cuts = cut if cuts is None else cuts + cut
+    return cuts
 
 
 def _sprocket_shaft_cuts():
@@ -441,14 +343,14 @@ def _motor_bulkhead():
             y,
             z,
         )
-    # The front bearing cap replaces this slice of the old full bulkhead.
+    # The lid's left split-bearing shell replaces this room-side slice.
     body -= box_between(
         P.lay_bearing_centers_x[0] - P.lay_bearing_boss_w / 2 - 0.2,
         P.drive_y,
-        P.lay_z - P.lay_cap_ear_offset - P.lay_cap_ear_d / 2 - 0.2,
-        P.lay_bearing_centers_x[0] + P.lay_bearing_boss_w / 2 + P.lay_cap_ear_d / 2,
+        P.lay_z - P.lay_bearing_boss_d / 2 - 0.2,
+        P.lay_bearing_centers_x[0] + P.lay_bearing_boss_w / 2 + 0.2,
         P.frame_front_y + 0.2,
-        P.frame_z1 + 0.2,
+        P.lay_z + P.lay_bearing_boss_d / 2 + 0.2,
     )
     return body
 
@@ -513,57 +415,8 @@ def _bearing_shaft_cut(x: float):
     )
 
 
-def _cap_ear_centers(x: float):
-    ear_x = (
-        x + P.lay_cap_ear_x_shift
-        if x == P.lay_bearing_centers_x[0]
-        else x
-    )
-    return tuple(
-        (ear_x, P.lay_z + direction * P.lay_cap_ear_offset)
-        for direction in (-1, 1)
-    )
-
-
-def _cap_ears(x: float, y0: float, y1: float):
-    ears = None
-    for ear_x, z in _cap_ear_centers(x):
-        ear = box_between(
-            ear_x - P.lay_cap_ear_d / 2,
-            y0,
-            z - P.lay_cap_ear_d / 2,
-            ear_x + P.lay_cap_ear_d / 2,
-            y1,
-            z + P.lay_cap_ear_d / 2,
-        )
-        ears = ear if ears is None else ears + ear
-    return ears
-
-
-def _cap_ear_cuts(x: float, y0: float, y1: float, insert: bool):
-    cuts = None
-    for ear_x, z in _cap_ear_centers(x):
-        if insert:
-            cut = _axis_y_cylinder(
-                P.lay_cap_insert_d / 2,
-                y1 - P.lay_cap_insert_depth,
-                P.lay_cap_insert_depth + 0.1,
-                ear_x,
-                z,
-            )
-        else:
-            cut = _axis_y_cylinder(
-                P.lay_cap_clear_d / 2,
-                y0 - 0.1,
-                y1 - y0 + 0.2,
-                ear_x,
-                z,
-            )
-        cuts = cut if cuts is None else cuts + cut
-    return cuts
-
-
-def _bearing_cap(x: float):
+def _bearing_lid_shell(x: float):
+    """Room-side half of one 625ZZ split seat, without separate ears."""
     full = _axis_x_cylinder(
         P.lay_bearing_boss_d / 2,
         x - P.lay_bearing_boss_w / 2,
@@ -580,22 +433,133 @@ def _bearing_cap(x: float):
         P.lay_z + P.lay_bearing_boss_d / 2 + 0.1,
     )
     cap = full & front_clip
-    cap += _cap_ears(x, P.drive_y, P.lay_cap_y1)
-    cap -= _cap_ear_cuts(x, P.drive_y, P.lay_cap_y1, insert=False)
     cap -= _bearing_pocket(x)
     cap -= _bearing_shaft_cut(x)
     return cap
 
 
+def _cassette_lid_web():
+    """Minimal front truss joining the sprocket seat and layshaft shells."""
+    x0, x1 = P.cassette_lid_x0, P.cassette_lid_x1
+    y0 = P.cassette_lid_y0
+    y1 = y0 + P.cassette_lid_web_t
+    z0, z1 = P.cassette_lid_z0, P.cassette_lid_z1
+    rail = P.cassette_lid_rail
+
+    # Bottom rail is the common load path.  Three narrow uprights retain the
+    # sprocket bearing and reach the two split layshaft seats.
+    web = box_between(x0, y0, z0, x1, y1, z0 + rail)
+    web += box_between(x0, y0, z0, x0 + rail, y1, z1)
+    web += box_between(
+        P.drive_x - P.cassette_lid_spine_w / 2,
+        y0,
+        z0,
+        P.drive_x + P.cassette_lid_spine_w / 2,
+        y1,
+        P.spr_z,
+    )
+    for x in P.lay_bearing_centers_x:
+        web += box_between(
+            x - P.cassette_lid_spine_w / 2,
+            y0,
+            z0,
+            x + P.cassette_lid_spine_w / 2,
+            y1,
+            z1,
+        )
+
+    # Full-depth boss around the front MR105 bearing.  It is tied into the
+    # center upright but leaves the bearing and shaft completely clear.
+    bearing_y0 = P.spr_bearing_centers_y[1] - P.spr_bearing_w / 2
+    web += _axis_y_cylinder(
+        (P.spr_bearing_d + 6.0) / 2,
+        bearing_y0 - 0.2,
+        P.frame_front_y - bearing_y0 + 0.2,
+        P.drive_x,
+        P.spr_z,
+    )
+    web -= _axis_y_cylinder(
+        (P.spr_bearing_d + P.spr_bearing_clear) / 2,
+        bearing_y0 - 0.3,
+        P.spr_bearing_w + 0.6,
+        P.drive_x,
+        P.spr_z,
+    )
+    web -= _axis_y_cylinder(
+        (P.spr_shaft_d + P.spr_shaft_clear) / 2,
+        bearing_y0 + P.spr_bearing_w - 0.1,
+        P.frame_front_y - bearing_y0 - P.spr_bearing_w + 0.3,
+        P.drive_x,
+        P.spr_z,
+    )
+
+    # The chain leaves vertically; do not bridge across either live strand.
+    chain_r = P.chain_ball_d / 2 + P.spr_ball_clear
+    for x in P.strand_x:
+        web -= box_between(
+            x - chain_r,
+            bearing_y0 - 0.5,
+            P.spr_z - 1,
+            x + chain_r,
+            P.frame_front_y + 0.5,
+            z1 + 1,
+        )
+    return web
+
+
+def cassette_lid():
+    """One removable lid retaining every shaft and bearing in the pod."""
+    lid = _cassette_lid_web()
+    for x in P.lay_bearing_centers_x:
+        lid += _bearing_lid_shell(x)
+        lid += box_between(
+            x - P.cassette_lid_spine_w / 2,
+            P.lay_cap_y1 - 0.2,
+            P.lay_z - P.lay_bearing_boss_d / 2 + 1.4,
+            x + P.cassette_lid_spine_w / 2,
+            P.cassette_lid_y0 + 0.1,
+            P.lay_z + P.lay_bearing_boss_d / 2,
+        )
+
+    for x, z in P.cassette_lid_screw_points:
+        lid += _axis_y_cylinder(
+            P.cassette_lid_boss_d / 2,
+            P.cassette_lid_y0,
+            P.cassette_lid_web_t,
+            x,
+            z,
+        )
+        lid -= _axis_y_cylinder(
+            P.cassette_lid_screw_d / 2,
+            P.cassette_lid_y0 - 0.1,
+            P.cassette_lid_web_t + 0.2,
+            x,
+            z,
+        )
+
+    # The lower-right column rises immediately below the right split seat.
+    # Relieve only the rear shell around it; the bearing pocket keeps a full
+    # wall and the room-side screw boss remains untouched.
+    lower_right_x, lower_right_z = P.cassette_lid_screw_points[1]
+    lid -= _axis_y_cylinder(
+        P.cassette_lid_boss_d / 2 + P.cassette_lid_fit,
+        P.drive_y - 0.2,
+        P.lay_cap_y1 - P.drive_y + 0.4,
+        lower_right_x,
+        lower_right_z,
+    )
+    return lid
+
+
 def bearing_caps():
-    """Two removable front bearing halves in assembled coordinates."""
-    return _bearing_cap(P.lay_bearing_centers_x[0]) + _bearing_cap(
+    """Compatibility view of the two shells now integrated into the lid."""
+    return _bearing_lid_shell(P.lay_bearing_centers_x[0]) + _bearing_lid_shell(
         P.lay_bearing_centers_x[1]
     )
 
 
 def drive_cassette():
-    """One-piece motor mount and rear bearing cradle, separate from frame."""
+    """One-piece stepped chassis containing the complete drive train."""
     body = box_between(
         P.cradle_x0,
         P.drive_cassette_back_y,
@@ -612,30 +576,32 @@ def drive_cassette():
         P.drive_lower_z0,
         P.saddle_x1,
         P.drive_y,
-        P.lay_cap_top_z,
+        P.cassette_lid_z1 - P.cassette_lid_boss_d / 2,
     )
     body += sprocket_housing()
     body += box_between(
         P.drive_x + P.cassette_half_w - P.drive_housing_bridge_overlap,
         P.drive_cassette_back_y,
-        P.keeper_z0,
+        P.cassette_lid_z0,
         P.bulkhead_x + P.bulkhead_t,
         P.drive_tab_y0,
         P.frame_z1,
     )
-    # These columns are deliberately added after the gear-envelope cuts.
-    # Their selected positions clear the mechanism, and each remains a full
-    # print-bed-rooted path for an axle-keeper screw.
-    body += _keeper_tap_bosses()
+
+    # A small reinforced socket wraps the frame's upper anti-torque key.
+    key_half_w = P.drive_key_w / 2
+    key_half_h = P.drive_key_h / 2
+    body += box_between(
+        P.drive_key_x - key_half_w - P.drive_key_socket_wall,
+        P.drive_cassette_back_y,
+        P.drive_key_z - key_half_h - P.drive_key_socket_wall,
+        P.drive_key_x + key_half_w + P.drive_key_socket_wall,
+        P.drive_tab_y1,
+        P.drive_key_z + key_half_h + P.drive_key_socket_wall,
+    )
+
     for x in P.lay_bearing_centers_x:
         body += _rear_bearing_boss(x)
-        body += _cap_ears(x, P.drive_y - P.lay_cap_insert_depth, P.drive_y)
-        body -= _cap_ear_cuts(
-            x,
-            P.drive_y - P.lay_cap_insert_depth,
-            P.drive_y,
-            insert=True,
-        )
         body -= _bearing_pocket(x)
         body -= _bearing_shaft_cut(x)
 
@@ -657,9 +623,51 @@ def drive_cassette():
         access_z,
     )
 
-    body -= _keeper_keepout()
-    body -= _keeper_tap_cuts()
+    # The lid lives in a shallow room-side plane.  Only its two narrow
+    # layshaft spines reach rearward; the rest stays ahead of all gears.
+    fit = P.cassette_lid_fit
+    body -= box_between(
+        P.cassette_lid_x0 - fit,
+        P.cassette_lid_y0 - fit,
+        P.cassette_lid_z0 - fit,
+        P.cassette_lid_x1 + fit,
+        P.frame_front_y + fit,
+        P.cassette_lid_z1 + fit,
+    )
+    for x in P.lay_bearing_centers_x:
+        body -= box_between(
+            x - P.cassette_lid_spine_w / 2 - fit,
+            P.lay_cap_y1 - fit,
+            P.lay_z - P.lay_bearing_boss_d / 2 - fit,
+            x + P.cassette_lid_spine_w / 2 + fit,
+            P.cassette_lid_y0 + fit,
+            P.lay_z + P.lay_bearing_boss_d / 2 + fit,
+        )
+    bearing_y0 = P.spr_bearing_centers_y[1] - P.spr_bearing_w / 2
+    body -= box_between(
+        P.drive_x - (P.spr_bearing_d + 6.0) / 2 - fit,
+        bearing_y0 - fit,
+        P.spr_z - (P.spr_bearing_d + 6.0) / 2 - fit,
+        P.drive_x + (P.spr_bearing_d + 6.0) / 2 + fit,
+        P.frame_front_y + fit,
+        P.spr_z + (P.spr_bearing_d + 6.0) / 2 + fit,
+    )
     body -= _sprocket_shaft_cuts()
+
+    # Add these after every moving-envelope and lid-fit cut: each selected
+    # position is clear of the mechanism and remains rooted at the rear wall.
+    body += _lid_insert_columns()
+    body -= _lid_insert_cuts()
+
+    # Upper frame key: 0.4 mm clearance on all insertion faces.
+    body -= box_between(
+        P.drive_key_x - key_half_w - P.drive_cassette_fit,
+        0,
+        P.drive_key_z - key_half_h - P.drive_cassette_fit,
+        P.drive_key_x + key_half_w + P.drive_cassette_fit,
+        P.drive_key_y1 + P.drive_cassette_fit,
+        P.drive_key_z + key_half_h + P.drive_cassette_fit,
+    )
 
     for x, _y, z in P.drive_mount_points:
         body -= box_between(
@@ -677,10 +685,15 @@ def drive_cassette():
     return body
 
 
-def bearing_caps_print():
-    """Both caps with their split faces on the print bed."""
-    oriented = Rot(90, 0, 0) * bearing_caps()
+def cassette_lid_print():
+    """Single lid with the broad room-side web flat on the print bed."""
+    oriented = Rot(90, 0, 0) * cassette_lid()
     return Pos(0, 0, -oriented.bounding_box().min.Z) * oriented
+
+
+def bearing_caps_print():
+    """Deprecated compatibility alias for the integrated lid print."""
+    return cassette_lid_print()
 
 
 def spacers_print():
@@ -721,7 +734,7 @@ def drive_parts():
     starts = _spacer_starts()
     return {
         "drive-cassette": drive_cassette(),
-        "axle-keeper": axle_keeper(),
+        "cassette-lid": cassette_lid(),
         "chain-wheel": F.SPROCKET_WHEEL_IN_UNIT * chain_wheel(),
         "sprocket-bevel": F.SPROCKET_BEVEL_IN_UNIT * sprocket_bevel(),
         "sprocket-spacer": F.sprocket_axis_in_unit(_sprocket_spacer_start())
@@ -731,7 +744,6 @@ def drive_parts():
         "front-sprocket-bearing": F.FRONT_SPROCKET_BEARING_IN_UNIT
         * sprocket_bearing_mr105(),
         "sprocket-shaft": F.SPROCKET_SHAFT_IN_UNIT * sprocket_shaft(),
-        "bearing-caps": bearing_caps(),
         "motor": F.MOTOR_IN_UNIT * jgb37(),
         "pinion": gears["pinion"],
         "motor-spacer": F.MOTOR_SPACER_IN_UNIT * motor_spacer(),
@@ -751,14 +763,13 @@ def drive_parts():
 
 _DRIVE_STYLE = {
     "drive-cassette": ("lightsteelblue", 0.8),
-    "axle-keeper": ("steelblue", 0.8),
+    "cassette-lid": ("steelblue", 0.8),
     "chain-wheel": ("orange", 1.0),
     "sprocket-bevel": ("gold", 1.0),
     "sprocket-spacer": ("darkorange", 1.0),
     "rear-sprocket-bearing": ("silver", 1.0),
     "front-sprocket-bearing": ("silver", 1.0),
     "sprocket-shaft": ("dimgray", 1.0),
-    "bearing-caps": ("steelblue", 0.8),
     "motor": ("silver", 1.0),
     "pinion": ("tomato", 1.0),
     "motor-spacer": ("darkorange", 1.0),
@@ -788,10 +799,10 @@ def scene():
     return add_drive_to_scene(Scene())
 
 
-def axle_keeper_scene():
+def cassette_lid_scene():
     from splitflap_cad.viewer import Scene
 
-    return Scene().add(axle_keeper(), "axle-keeper", color="steelblue")
+    return Scene().add(cassette_lid(), "cassette-lid", color="steelblue")
 
 
 def sprocket_spacer_scene():
