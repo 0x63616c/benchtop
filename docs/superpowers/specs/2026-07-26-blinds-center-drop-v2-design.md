@@ -56,9 +56,10 @@ fallback) with the motor horizontal:
 - **Drive cassette (simplified 2026-08-04):** one stepped chassis owns the
   x=67..70 motor face (6×M3 BCD31), tail cradle, sprocket housing, and rear
   halves of both open 625ZZ seats. One structural room-side lid replaces the
-  former two bearing caps and separate axle keeper. Its two narrow spines close
-  both 625ZZ seats while its center boss retains the front MR105ZZ. Four lid
-  screws enter back-rooted heat-set columns. The complete 89.2 × 41.0 × 81.0 mm
+  former two bearing caps and separate axle keeper. Two continuous full-height
+  ribs close both 625ZZ seats while its center boss retains the front MR105ZZ.
+  Three lid screws form a non-rocking triangular clamp pattern into back-rooted
+  heat-set columns. The complete 89.2 × 41.0 × 81.0 mm
   pod drops onto a frame shelf, engages one upper anti-torque key, and is
   clamped by only two lower screws. The shelf/key carry shear and torque; the
   screws do not.
@@ -91,7 +92,7 @@ fallback) with the motor horizontal:
 | Four frame-to-wall anchors | Ø4.5 mm | Plain clearance for #8 wall screws |
 | Two frame cassette pads | Ø4.6 × 4.5 mm deep | M3 heat-set inserts; shelf/key carry the load |
 | Six frame battery-holder bosses | Ø4.6 × 4.5 mm deep | M3 heat-set inserts; holder holes are Ø4.2 clearance |
-| Four cassette lid columns | Ø4.2 × 4.8 mm deep | M3 heat-set inserts in Ø8 back-rooted columns |
+| Three cassette lid columns | Ø4.2 × 4.8 mm deep | M3 heat-set inserts in Ø8 back-rooted columns |
 
 ## Drive assembly and service order
 
@@ -117,8 +118,8 @@ fallback) with the motor horizontal:
    Ø2×14 mm pin. Seat the rear bearing in the cassette, press the front MR105ZZ
    into the lid from behind. Bring the single lid straight onto the chassis:
    its two rearward spines close the layshaft seats and its center boss captures
-   the front sprocket bearing. Fasten four M3 screws through true Ø3.4 holes
-   into Ø4.2 × 4.8 mm heat-set pockets in four explicit Ø8 columns rooted at
+   the front sprocket bearing. Fasten three M3 screws through true Ø3.4 holes
+   into Ø4.2 × 4.8 mm heat-set pockets in three explicit Ø8 columns rooted at
    the chassis back face. The motor/gear/sprocket pod is now self-contained.
 5. Lower the pod onto the frame shelf, engage the upper rear key, and fasten
    only the two lower M3 screws into frame heat-set inserts. Refit the chain,

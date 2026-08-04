@@ -233,11 +233,9 @@ class Params:
     cassette_lid_rail: float = 7.0
     cassette_lid_spine_w: float = 7.0
     cassette_lid_sprocket_boss_wall: float = 3.0
-    cassette_lid_shell_overlap: float = 1.4
     cassette_lid_fit: float = 0.3
     cassette_lid_screw_points: tuple = (
         (32.0, 207.0),
-        (90.0, 207.0),
         (69.0, 236.5),
         (90.0, 236.5),
     )

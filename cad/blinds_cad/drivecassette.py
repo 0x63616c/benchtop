@@ -65,7 +65,7 @@ def sprocket_shaft():
 
 
 def _lid_insert_columns():
-    """Four back-rooted columns that make the single lid structural."""
+    """Three back-rooted columns that make the single lid structural."""
     bosses = None
     length = P.cassette_lid_y0 - P.drive_cassette_back_y
     for x, z in P.cassette_lid_screw_points:
@@ -515,9 +515,7 @@ def cassette_lid():
         lid += box_between(
             x - P.cassette_lid_spine_w / 2,
             P.lay_cap_y1 - 0.2,
-            P.lay_z
-            - P.lay_bearing_boss_d / 2
-            + P.cassette_lid_shell_overlap,
+            P.lay_z - P.lay_bearing_boss_d / 2,
             x + P.cassette_lid_spine_w / 2,
             P.cassette_lid_y0 + 0.1,
             P.lay_z + P.lay_bearing_boss_d / 2,
@@ -539,17 +537,6 @@ def cassette_lid():
             z,
         )
 
-    # The lower-right column rises immediately below the right split seat.
-    # Relieve only the rear shell around it; the bearing pocket keeps a full
-    # wall and the room-side screw boss remains untouched.
-    lower_right_x, lower_right_z = P.cassette_lid_screw_points[1]
-    lid -= _axis_y_cylinder(
-        P.cassette_lid_boss_d / 2 + P.cassette_lid_fit,
-        P.drive_y - 0.2,
-        P.lay_cap_y1 - P.drive_y + 0.4,
-        lower_right_x,
-        lower_right_z,
-    )
     return lid
 
 

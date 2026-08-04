@@ -157,7 +157,7 @@ shaft running in two MR105ZZ bearings. Bought hardware:
 | M3×8 (into gearbox face) | 6 | motor → bulkhead rib, BCD31 |
 | M3×8 + heat-set (board, battery holders) | 3 + 6 | rev C board bosses, direct holder spine |
 | M3×8 (sleeve retention) | 2 | underside screws into the wall frame; sleeve remains non-structural |
-| M3×8 + heat-set (cassette lid) | 4 + 4 | one structural lid retains both 625ZZ bearings and the front MR105ZZ |
+| M3×8 + heat-set (cassette lid) | 3 + 3 | triangular clamp pattern; one structural lid retains both 625ZZ bearings and the front MR105ZZ |
 | 625ZZ bearing (5×16×5 mm) | 2 | layshaft bearings retained by split seats in the chassis and single lid |
 | Ø5×38.5 mm steel rod | 1 | removable layshaft; cut/deburr from 5 mm stock |
 | MR105ZZ bearing (5×10×4 mm) | 2 | sprocket-shaft bearings; rear chassis seat + front seat in the single lid |

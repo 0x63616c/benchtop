@@ -115,7 +115,7 @@ def test_layshaft_tunnel_is_open_to_room_side_without_a_triangular_roof():
     assert (open_front - _layshaft_tunnel()).volume < 1e-6
 
 
-def test_four_lid_screws_enter_back_rooted_insert_columns():
+def test_three_lid_screws_enter_back_rooted_insert_columns():
     from blinds_cad.drivecassette import (
         _axis_y_cylinder,
         drive_cassette,
@@ -123,6 +123,7 @@ def test_four_lid_screws_enter_back_rooted_insert_columns():
     from blinds_cad.params import P
 
     cassette = drive_cassette()
+    assert len(P.cassette_lid_screw_points) == 3
     column_length = P.cassette_lid_y0 - P.drive_cassette_back_y
     for x, z in P.cassette_lid_screw_points:
         outer = _axis_y_cylinder(
@@ -229,7 +230,26 @@ def test_frame_shelf_and_upper_key_are_real_load_bearing_datums():
     assert (cassette & key).volume < 1e-6
 
 
-def test_lid_has_four_m3_clearance_holes_and_body_has_insert_pockets():
+def test_bearing_shells_join_full_height_rectangular_spines():
+    from splitflap_cad.geo import box_between
+
+    from blinds_cad.drivecassette import cassette_lid
+    from blinds_cad.params import P
+
+    lid = cassette_lid()
+    for x in P.lay_bearing_centers_x:
+        bridge = box_between(
+            x - P.cassette_lid_spine_w / 2,
+            P.lay_cap_y1 - 0.2,
+            P.lay_z - P.lay_bearing_boss_d / 2,
+            x + P.cassette_lid_spine_w / 2,
+            P.cassette_lid_y0 + 0.1,
+            P.lay_z + P.lay_bearing_boss_d / 2,
+        )
+        assert (lid & bridge).volume >= 0.99 * bridge.volume
+
+
+def test_lid_has_three_m3_clearance_holes_and_body_has_insert_pockets():
     from blinds_cad.drivecassette import (
         _axis_y_cylinder,
         cassette_lid,
