@@ -189,9 +189,9 @@ def test_projecting_features_have_structural_root_overlap():
     backbone = e._backbone()
     rooted = {
         "pcb-tray": (e._pcb_tray(), 600.0),
-        "motor-bulkhead": (e._bulkhead(), 500.0),
         "drive-cassette": (e._wrap_guide(), 1700.0),
-        "battery-mount-spine": (e._battery_mount_spine(), 400.0),
+        "battery-mount-spine": (e._battery_mount_spine(), 390.0),
+        "drive-mounts": (e._drive_mounts(), 100.0),
         "sleeve-guides": (e._sleeve_guides(), 300.0),
     }
     for name, (feature, minimum) in rooted.items():

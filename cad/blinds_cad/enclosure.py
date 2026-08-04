@@ -33,12 +33,10 @@ def frame():
     """Complete load-bearing wall frame, ready for the slide-on cover."""
     body = _backbone()
     body += _pcb_tray()
-    body += _bulkhead()
-    body += _right_saddle()
-    body += _tail_cradle()
     body += _wrap_guide()
     body += _floor_bosses()
     body += _battery_mount_spine()
+    body += _drive_mounts()
     body += _sleeve_guides()
     body += _sleeve_retainers()
 
@@ -178,100 +176,6 @@ def _axle_hardware_cuts():
     return cuts
 
 
-def _bulkhead():
-    """Vertical motor-mount rib at the gearbox face: 6×M3 into the face,
-    boss through-hole, and the layshaft's left U-saddle."""
-    y0 = 0
-    y1 = P.frame_front_y
-    rib = box_between(
-        P.bulkhead_x,
-        y0,
-        P.bulkhead_z0,
-        P.bulkhead_x + P.bulkhead_t,
-        y1,
-        P.frame_z1,
-    )
-    # boss through-hole on the SHAFT axis
-    rib -= _support_free_cross_bore(
-        P.jgb_boss_d / 2 + 0.75,
-        P.bulkhead_t + 2,
-        P.bulkhead_x + P.bulkhead_t / 2,
-        P.drive_y,
-        P.motor_z,
-    )
-    # 6×M3 tap holes on the GEARBOX axis (7 below the shaft — ecc down)
-    for i in range(P.jgb_screw_n):
-        a = math.radians(i * 360 / P.jgb_screw_n)
-        r = P.jgb_screw_bcd / 2
-        rib -= _support_free_cross_bore(
-            P.m3_tap_d / 2,
-            P.bulkhead_t + 2,
-            P.bulkhead_x + P.bulkhead_t / 2,
-            P.drive_y + r * math.cos(a),
-            P.motor_z - P.jgb_ecc + r * math.sin(a),
-        )
-    rib -= _saddle_cut(P.bulkhead_x - 1, P.bulkhead_x + P.bulkhead_t + 1)
-    return rib
-
-
-def _right_saddle():
-    """Layshaft right U-saddle grown directly from the wall grid."""
-    block = box_between(
-        P.saddle_x0,
-        0,
-        P.saddle_z0,
-        P.saddle_x1,
-        P.saddle_y1,
-        P.frame_z1,
-    )
-    return block - _saddle_cut(P.saddle_x0 - 1, P.saddle_x1 + 1)
-
-
-def _saddle_cut(x0, x1):
-    """Layshaft bore + back-opening slot between the given x planes."""
-    r = P.saddle_bore / 2
-    cut = _support_free_cross_bore(
-        r,
-        x1 - x0,
-        (x0 + x1) / 2,
-        P.drive_y,
-        P.lay_z,
-    )
-    cut += box_between(
-        x0,
-        P.frame_t - 0.2,
-        P.lay_z - r,
-        x1,
-        P.drive_y,
-        P.lay_z + r,
-    )
-    return cut
-
-
-def _tail_cradle():
-    """Back-grown half cradle steadying the motor near its encoder end.
-
-    Stopping at the can centre makes the circular pocket support-free
-    when the whole frame prints wall-face down.
-    """
-    gz = P.motor_z - P.jgb_ecc  # gearbox/can axis
-    cradle = box_between(
-        P.cradle_x0,
-        0,
-        P.bulkhead_z0 - 1.0,
-        P.cradle_x1,
-        P.drive_y,
-        gz + P.jgb_gear_d / 2 + P.cradle_shell,
-    )
-    cradle -= Pos(
-        (P.cradle_x0 + P.cradle_x1) / 2, P.drive_y, gz
-    ) * (
-        Rot(0, 90, 0)
-        * Cylinder(P.jgb_gear_d / 2 + 0.35, P.cradle_x1 - P.cradle_x0 + 2)
-    )
-    return cradle
-
-
 def _wrap_guide():
     """Back-grown drive cassette around the sprocket and bevel pair.
 
@@ -397,6 +301,26 @@ def _battery_mount_spine():
             * Cylinder(P.m3_insert_d / 2, P.battery_insert_depth + 0.2)
         )
     return spine
+
+
+def _drive_mounts():
+    """Four rooted insert pads for the removable motor/gear cassette."""
+    mounts = None
+    for x, y, z in P.drive_mount_points:
+        pad = box_between(
+            x - P.drive_mount_boss_d / 2,
+            0,
+            z - P.drive_mount_boss_d / 2,
+            x + P.drive_mount_boss_d / 2,
+            y,
+            z + P.drive_mount_boss_d / 2,
+        )
+        pad -= Pos(x, y + 0.1, z) * (
+            Rot(90, 0, 0)
+            * Cylinder(P.m3_insert_d / 2, P.drive_mount_insert_depth + 0.2)
+        )
+        mounts = pad if mounts is None else mounts + pad
+    return mounts
 
 
 def _sleeve_guides():

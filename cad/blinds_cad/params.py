@@ -67,7 +67,7 @@ class Params:
     battery_mount_depth: float = 8.50
     battery_mount_spine_w: float = 10.0
     battery_mount_spine_z0: float = 8.0
-    battery_mount_spine_z1: float = 155.0
+    battery_mount_spine_z1: float = 153.18
     battery_boss_d: float = 8.0
     battery_insert_depth: float = 4.5
 
@@ -103,6 +103,17 @@ class Params:
     lay_rod_bore_d: float = 5.2    # optional 5mm steel reinforcement rod
     lay_hub_d: float = 16.0        # bevel-end hub
     saddle_bore: float = 8.4       # U-saddle bores in rib + right block
+
+    # Production layshaft: bought 5 mm rod in two 625ZZ bearings.  The
+    # old Ø8 printed shaft becomes separate pinned gears + spacers.
+    lay_rod_d: float = 5.0
+    lay_rod_clear: float = 0.2
+    lay_rod_x0: float = 54.0
+    lay_rod_x1: float = 92.5
+    lay_bearing_d: float = 16.0
+    lay_bearing_w: float = 5.0
+    lay_bearing_clear: float = 0.2
+    lay_bearing_centers_x: tuple = (69.0, 89.0)
 
     # --- enclosure ---
     enc_w: float = 98.0            # <=100 rule
@@ -213,13 +224,42 @@ class Params:
     sleeve_t: float = 0.8          # two 0.4mm lines; cosmetic only
     sleeve_h: float = 240.5        # open top; caps finish at enc_h
     sleeve_fit: float = 0.4        # frame-to-sleeve running clearance
-    sleeve_guide_bands: tuple = ((18.0, 28.0), (205.0, 215.0))
+    sleeve_guide_bands: tuple = ((18.0, 28.0), (140.0, 150.0))
     sleeve_guide_embed: float = 3.0  # root width inside each side rail
     sleeve_retainer_xy: tuple = ((18.0, 4.5), (80.0, 4.5))
     sleeve_retainer_d: float = 3.4 # M3 clearance in the sleeve bottom
     sleeve_retainer_boss_d: float = 7.0
     sleeve_retainer_boss_h: float = 7.0
     sleeve_retainer_boss_z: float = 5.0
+
+    # Removable motor/gear cassette.  The frame presents four M3 insert
+    # pads at y=6; the cassette begins 0.4 mm in front and can be removed
+    # without reprinting the wall skeleton.
+    drive_mount_face_y: float = 6.0
+    drive_mount_points: tuple = (
+        (18.0, 6.0, 158.0),
+        (80.0, 6.0, 158.0),
+        (69.0, 6.0, 202.0),
+        (89.0, 6.0, 202.0),
+    )
+    drive_mount_boss_d: float = 8.0
+    drive_mount_clear_d: float = 3.4
+    drive_mount_insert_depth: float = 4.5
+    drive_cassette_fit: float = 0.4
+    drive_tab_y0: float = 6.4
+    drive_tab_y1: float = 12.0
+    drive_lower_z0: float = 154.0
+    drive_lower_z1: float = 162.0
+    drive_cassette_back_y: float = 3.4
+    drive_bulkhead_z0: float = 160.0
+    lay_bearing_boss_d: float = 20.0
+    lay_bearing_boss_w: float = 6.0
+    lay_bearing_pocket_w: float = 5.2
+    lay_cap_y1: float = 31.0
+    lay_cap_ear_offset: float = 12.5
+    lay_cap_ear_d: float = 8.0
+    lay_cap_clear_d: float = 3.4
+    lay_cap_insert_depth: float = 4.5
 
     cap_t: float = 1.2
     cap_skirt: float = 4.0
