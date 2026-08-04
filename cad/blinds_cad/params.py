@@ -283,10 +283,10 @@ class Params:
     lay_cap_y1: float = 31.0
     lay_cap_ear_offset: float = 12.5
     lay_cap_ear_d: float = 8.0
+    lay_cap_ear_x_shift: float = 1.5
     lay_cap_clear_d: float = 3.4
     lay_cap_insert_d: float = 4.2   # repo-standard M3 heat-set bore
     lay_cap_insert_depth: float = 3.0
-    lay_cap_top_z: float = 236.5    # upper ear edge; no structure above it
     drive_running_gap: float = 0.2
     lay_spacer_d: float = 8.0
     motor_spacer_d: float = 10.0
@@ -358,6 +358,11 @@ class Params:
     def lay_z(self) -> float:
         """Layshaft axis height = spur mesh center distance above the motor."""
         return self.motor_z + self.spur_pinion_r + self.spur_wheel_r  # 220
+
+    @property
+    def lay_cap_top_z(self) -> float:
+        """Upper cap-ear edge; cassette structure stops here."""
+        return self.lay_z + self.lay_cap_ear_offset + self.lay_cap_ear_d / 2
 
     @property
     def spr_z(self) -> float:

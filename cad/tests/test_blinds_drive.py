@@ -188,24 +188,19 @@ def test_drive_cassette_is_removable_and_all_four_mounts_are_supported():
 def test_bearing_caps_have_full_m3_clearance_and_house_insert_pockets():
     from blinds_cad.drivecassette import (
         _axis_y_cylinder,
+        _cap_ear_centers,
         bearing_caps,
         drive_cassette,
     )
     from blinds_cad.params import P
-    from splitflap_cad.params import P as SPLITFLAP_P
 
     caps = bearing_caps()
     cassette = drive_cassette()
-    assert P.lay_cap_insert_d == SPLITFLAP_P.fin_insert_d
-    assert P.lay_cap_insert_depth == SPLITFLAP_P.fin_insert_len
+    assert P.lay_cap_insert_d == 4.2
+    assert P.lay_cap_insert_depth == 3.0
 
     for bearing_x in P.lay_bearing_centers_x:
-        screw_x = (
-            bearing_x + 1.5
-            if bearing_x == P.lay_bearing_centers_x[0]
-            else bearing_x
-        )
-        for z in (P.lay_z - P.lay_cap_ear_offset, P.lay_z + P.lay_cap_ear_offset):
+        for screw_x, z in _cap_ear_centers(bearing_x):
             clearance = _axis_y_cylinder(
                 P.lay_cap_clear_d / 2,
                 P.drive_y - 0.1,

@@ -513,10 +513,21 @@ def _bearing_shaft_cut(x: float):
     )
 
 
+def _cap_ear_centers(x: float):
+    ear_x = (
+        x + P.lay_cap_ear_x_shift
+        if x == P.lay_bearing_centers_x[0]
+        else x
+    )
+    return tuple(
+        (ear_x, P.lay_z + direction * P.lay_cap_ear_offset)
+        for direction in (-1, 1)
+    )
+
+
 def _cap_ears(x: float, y0: float, y1: float):
     ears = None
-    ear_x = x + 1.5 if x == P.lay_bearing_centers_x[0] else x
-    for z in (P.lay_z - P.lay_cap_ear_offset, P.lay_z + P.lay_cap_ear_offset):
+    for ear_x, z in _cap_ear_centers(x):
         ear = box_between(
             ear_x - P.lay_cap_ear_d / 2,
             y0,
@@ -531,8 +542,7 @@ def _cap_ears(x: float, y0: float, y1: float):
 
 def _cap_ear_cuts(x: float, y0: float, y1: float, insert: bool):
     cuts = None
-    ear_x = x + 1.5 if x == P.lay_bearing_centers_x[0] else x
-    for z in (P.lay_z - P.lay_cap_ear_offset, P.lay_z + P.lay_cap_ear_offset):
+    for ear_x, z in _cap_ear_centers(x):
         if insert:
             cut = _axis_y_cylinder(
                 P.lay_cap_insert_d / 2,
