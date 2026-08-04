@@ -18,7 +18,7 @@ from build123d import (
     Rot,
     Torus,
 )
-from splitflap_cad.geo import box_between
+from splitflap_cad.geo import box_between, support_free_cross_bore
 
 from .params import P
 
