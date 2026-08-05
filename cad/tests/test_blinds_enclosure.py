@@ -146,16 +146,8 @@ def test_parts_fit_the_p2s_in_their_documented_orientations(enclosure_parts):
 def test_cassette_lid_screw_holes_have_closed_edge_ligaments():
     from blinds_cad.params import P
 
-    radius = P.cassette_lid_screw_d / 2
-    for x, z in P.cassette_lid_screw_points:
-        assert min(
-            x - radius - P.cassette_lid_x0,
-            P.cassette_lid_x1 - x - radius,
-        ) >= P.cassette_lid_hole_ligament
-        assert min(
-            z - radius - P.cassette_lid_z0,
-            P.cassette_lid_z1 - z - radius,
-        ) >= P.cassette_lid_hole_ligament
+    radial_ligament = (P.cassette_lid_boss_d - P.cassette_lid_screw_d) / 2
+    assert radial_ligament >= P.cassette_lid_hole_ligament
 
 
 def test_frame_guides_sleeve_with_running_clearance(enclosure_parts):

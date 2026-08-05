@@ -54,16 +54,16 @@ fallback) with the motor horizontal:
   Overall motor-to-chain-wheel reduction is 17:14, or 1.214:1: the 14:17
   spur stage reduces speed and the 10:10 bevel stage is 1:1.
 - **Drive cassette (simplified 2026-08-04):** one stepped chassis owns the
-  x=67..70 motor face (6×M3 BCD31), tail cradle, sprocket housing, and rear
+  x=67..70 motor face (6×M3 BCD31), rectangular floor, sprocket housing, and rear
   halves of both open 625ZZ seats. One structural room-side lid replaces the
   former two bearing caps and separate axle keeper. Two continuous full-height
   ribs embed 3 mm into both 625ZZ shells for a broad load path, then have the
   bearing and shaft envelopes re-cut; its center boss retains the front 625ZZ.
-  Three lid screws form a non-rocking triangular clamp pattern into back-rooted
-  heat-set columns. A local 2.4 mm-deep apron extends only below the z17 spur,
-  covering its lower tooth envelope with 0.4 mm radial allowance and 0.53 mm
-  axial running clearance. The proven 14:17 ratio and 31 mm shaft spacing stay
-  unchanged. The complete 89.2 × 41.0 × 81.0 mm
+  Matching 4.7 mm chassis/lid floors use rectangular motor/pinion clearances,
+  a 0.5 mm-clear layshaft-spur window, and a full-depth Ø16.2 sprocket-bearing
+  bore. Nine lid screws cover the original two-row grid plus the expanded
+  corners. The proven 14:17 ratio and 31 mm shaft spacing stay unchanged. The
+  complete 89.2 × 41.6 × 86.5 mm
   pod drops onto a frame shelf, engages one upper anti-torque key, and is
   clamped by only two lower screws. The rear 625ZZ sits behind a 0.2 mm captive
   shoulder; its adjacent bevel has a flush, 0.2 mm-trimmed heel. The shelf/key
@@ -123,8 +123,8 @@ fallback) with the motor horizontal:
    Ø2×14 mm pin. Seat the rear bearing in the cassette, press the front 625ZZ
    into the lid from behind. Bring the single lid straight onto the chassis:
    its two rearward spines close the layshaft seats and its center boss captures
-   the front sprocket bearing. Fasten three M3 screws through true Ø3.4 holes
-   into Ø4.2 × 4.8 mm heat-set pockets in three explicit Ø8 columns rooted at
+   the front sprocket bearing. Fasten nine M3 screws through true Ø3.4 holes
+   into Ø4.2 × 9.6 mm heat-set pockets in nine explicit Ø8 columns rooted at
    the chassis back face. The motor/gear/sprocket pod is now self-contained.
 5. Lower the pod onto the frame shelf, engage the upper rear key, and fasten
    only the two lower M3 screws into frame heat-set inserts. Refit the chain,

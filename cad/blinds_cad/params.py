@@ -46,7 +46,7 @@ class Params:
     jgb_screw_clear_d: float = 3.5  # loose FDM clearance through cassette face
     jgb_screw_depth: float = 5.0
     jgb_tool_access_index: int = 4  # lower-rear screw in +X side view
-    jgb_tool_access_d: float = 7.0  # driver access through right support
+    jgb_tool_access_d: float = 8.0  # driver access through right support
 
     # --- 21700 cell (Samsung 50E) in two owned Bistook 3-slot holders ---
     cell_d: float = 21.7
@@ -148,8 +148,7 @@ class Params:
     pinion_x: float = 81.5         # spur mesh plane center (teeth x 78..85)
     saddle_x0: float = 86.0        # right layshaft U-saddle block x span
     saddle_x1: float = 92.0
-    cradle_x0: float = 8.0         # support-free motor tail cradle x span
-    cradle_x1: float = 14.0
+    cradle_x0: float = 8.0         # cassette lower/floor left edge
     cradle_shell: float = 2.0      # material beyond the motor pocket
     spr_wy: float = 34.4           # chain-wheel center depth; its rear face clears
                                    # the separate layshaft bevel by 0.4 mm
@@ -223,31 +222,40 @@ class Params:
     drive_removal_step: float = 2.0
 
     # One structural room-side lid replaces the separate sprocket keeper and
-    # two layshaft caps.  Its thin front web sits ahead of every rotating part;
-    # narrow rearward spines reach the two split 625ZZ seats.
-    cassette_lid_x0: float = 28.0
+    # two layshaft caps. Matching 4.7 mm rectangular floors close the lid and
+    # chassis; explicit windows clear hardware and rearward spines reach the
+    # two split 625ZZ seats.
+    cassette_lid_x0: float = 8.0
     cassette_lid_x1: float = 94.0
     cassette_lid_y0: float = 40.3
-    cassette_lid_z0: float = 203.0
+    cassette_lid_z0: float = 154.0
     cassette_lid_z1: float = 240.5
     cassette_lid_web_t: float = 2.7
-    cassette_lid_rail: float = 7.0
+    cassette_lid_rear_t: float = 2.0
+    drive_floor_y0: float = 1.4
+    drive_floor_pocket_clear: float = 0.2
+    drive_cassette_upper_web_z0: float = 203.0
+    drive_cassette_back_web_t: float = 2.7
     cassette_lid_spine_w: float = 7.0
     cassette_lid_shell_embed: float = 3.0
     cassette_sprocket_bearing_wall: float = 3.0
     cassette_lid_fit: float = 0.3
-    cassette_spur_apron_axial_clear: float = 0.5
-    cassette_spur_apron_radial_clear: float = 0.4
-    cassette_spur_apron_y0: float = 40.5
+    cassette_spur_window_clear: float = 0.5
     cassette_lid_screw_points: tuple = (
-        (32.0, 207.0),
+        (12.0, 158.0),
+        (90.0, 158.0),
+        (29.0, 205.0),
+        (69.0, 205.0),
+        (90.0, 205.0),
+        (12.0, 236.5),
+        (29.0, 236.5),
         (69.0, 236.5),
         (90.0, 236.5),
     )
     cassette_lid_screw_d: float = 3.4
     cassette_lid_boss_d: float = 8.0
     cassette_lid_insert_d: float = 4.2
-    cassette_lid_insert_depth: float = 4.8
+    cassette_lid_insert_depth: float = 9.6
     cassette_lid_hole_ligament: float = 2.0
 
     m3_tap_d: float = 2.6
@@ -292,7 +300,7 @@ class Params:
     drive_bulkhead_z0: float = 160.0
     drive_housing_bridge_overlap: float = 2.0
     lay_bearing_boss_d: float = 20.0
-    lay_bearing_boss_w: float = 6.0
+    lay_bearing_boss_w: float = 6.8  # 0.8 mm axial wall each side of 5.2 pocket
     lay_bearing_pocket_w: float = 5.2
     lay_cap_y1: float = 31.0
     drive_running_gap: float = 0.2
@@ -354,11 +362,6 @@ class Params:
         return self.gear_m * self.spur_wheel_z / 2  # 17
 
     @property
-    def spur_wheel_outer_r(self) -> float:
-        """Nominal addendum radius used for the lid's spur apron."""
-        return self.gear_m * (self.spur_wheel_z + 2) / 2  # 19
-
-    @property
     def bevel_r(self) -> float:
         return self.gear_m * self.bevel_z / 2  # 10
 
@@ -392,6 +395,11 @@ class Params:
     def frame_front_y(self) -> float:
         """Front face of the frame, behind the cosmetic sleeve."""
         return self.enc_d - self.sleeve_t - self.sleeve_fit  # 42.8
+
+    @property
+    def cassette_lid_seat_y(self) -> float:
+        """Rear face of the thick rectangular lid floor."""
+        return self.cassette_lid_y0 - self.cassette_lid_rear_t
 
     @property
     def strand_x(self) -> tuple:

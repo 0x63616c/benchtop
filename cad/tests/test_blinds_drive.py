@@ -72,6 +72,25 @@ def test_both_sprocket_625zz_bearings_fit_entirely_inside_the_pod():
             assert (parts[bearing] & parts[moving]).volume < 1e-6
 
 
+def test_sprocket_bearing_bore_passes_through_floor_and_lid():
+    from blinds_cad.drivecassette import _axis_y_cylinder, drive_parts
+    from blinds_cad.params import P
+
+    parts = drive_parts()
+    bore = _axis_y_cylinder(
+        (P.spr_bearing_d + P.spr_bearing_clear) / 2,
+        P.drive_floor_y0 - 0.1,
+        P.cassette_lid_y0
+        + P.cassette_lid_web_t
+        - P.drive_floor_y0
+        + 0.2,
+        P.drive_x,
+        P.spr_z,
+    )
+    assert (parts["drive-cassette"] & bore).volume < 1e-6
+    assert (parts["cassette-lid"] & bore).volume < 1e-6
+
+
 def test_sprocket_bevel_backing_disc_does_not_fill_the_active_teeth():
     """The flat print face is a thin backing disc, not a tall cylindrical
     base that leaves a seam through the active bevel tooth form."""
@@ -107,7 +126,7 @@ def test_complete_pod_hugs_the_real_hardware_envelope():
 
     assert size[0] <= 90.0
     assert size[1] <= 42.5
-    assert size[2] <= 81.0
+    assert size[2] <= 87.0
 
 
 def test_chain_channels_have_at_least_1_5mm_clearance_per_side():
@@ -137,7 +156,7 @@ def test_layshaft_tunnel_is_open_to_room_side_without_a_triangular_roof():
     assert (open_front - _layshaft_tunnel()).volume < 1e-6
 
 
-def test_three_lid_screws_enter_back_rooted_insert_columns():
+def test_lid_screws_cover_the_grid_and_outer_corners():
     from blinds_cad.drivecassette import (
         _axis_y_cylinder,
         drive_cassette,
@@ -145,8 +164,19 @@ def test_three_lid_screws_enter_back_rooted_insert_columns():
     from blinds_cad.params import P
 
     cassette = drive_cassette()
-    assert len(P.cassette_lid_screw_points) == 3
-    column_length = P.cassette_lid_y0 - P.drive_cassette_back_y
+    grid = {
+        (x, z)
+        for x in (29.0, 69.0, 90.0)
+        for z in (205.0, 236.5)
+    }
+    corners = {
+        (12.0, 158.0),
+        (90.0, 158.0),
+        (12.0, 236.5),
+        (90.0, 236.5),
+    }
+    assert set(P.cassette_lid_screw_points) == grid | corners
+    column_length = P.cassette_lid_seat_y - P.drive_cassette_back_y
     for x, z in P.cassette_lid_screw_points:
         outer = _axis_y_cylinder(
             P.cassette_lid_boss_d / 2,
@@ -157,7 +187,7 @@ def test_three_lid_screws_enter_back_rooted_insert_columns():
         )
         insert = _axis_y_cylinder(
             P.cassette_lid_insert_d / 2,
-            P.cassette_lid_y0 - P.cassette_lid_insert_depth,
+            P.cassette_lid_seat_y - P.cassette_lid_insert_depth,
             P.cassette_lid_insert_depth + 0.1,
             x,
             z,
@@ -180,12 +210,28 @@ def test_lid_columns_clear_chain_and_rotating_hardware():
         column = _axis_y_cylinder(
             P.cassette_lid_boss_d / 2,
             P.drive_cassette_back_y,
-            P.cassette_lid_y0 - P.drive_cassette_back_y,
+            P.cassette_lid_seat_y - P.drive_cassette_back_y,
             x,
             z,
         )
         for name in rotating:
             assert (column & parts[name]).volume < 1e-6, (x, z, name)
+
+
+def test_lid_columns_clear_both_vertical_chain_runs():
+    from blinds_cad.params import P
+
+    boss_r = P.cassette_lid_boss_d / 2
+    chain_r = P.chain_ball_d / 2 + P.spr_ball_clear
+    chain_z0 = P.spr_z - 1
+    for x, z in P.cassette_lid_screw_points:
+        below_chain_run = z + boss_r <= chain_z0
+        for strand_x in P.strand_x:
+            beside_chain_run = (
+                x + boss_r <= strand_x - chain_r
+                or x - boss_r >= strand_x + chain_r
+            )
+            assert below_chain_run or beside_chain_run, (x, z, strand_x)
 
 
 def test_drive_cassette_is_removable_and_two_mounts_plus_key_are_supported():
@@ -245,10 +291,17 @@ def test_frame_shelf_and_upper_key_are_real_load_bearing_datums():
         P.drive_key_z + P.drive_key_h / 2,
     )
 
-    assert (structure & shelf).volume >= 0.99 * shelf.volume
+    seated_shelf = shelf - cassette
+    assert seated_shelf.volume >= 0.20 * shelf.volume
+    assert (cassette & shelf).volume >= 0.70 * shelf.volume
+    assert (structure & seated_shelf).volume >= 0.99 * seated_shelf.volume
+    assert ((structure + cassette) & shelf).volume >= 0.99 * shelf.volume
     assert (structure & key).volume >= 0.99 * key.volume
     assert P.drive_lower_z0 == pytest.approx(P.drive_shelf_z1)
-    assert (cassette & shelf).volume < 1e-6
+    assert (cassette & shelf).volume == pytest.approx(
+        shelf.volume - seated_shelf.volume,
+        abs=1e-6,
+    )
     assert (cassette & key).volume < 1e-6
 
 
@@ -280,7 +333,122 @@ def test_bearing_shells_join_full_height_rectangular_spines():
         assert (lid & cuts).volume < 1e-6
 
 
-def test_spur_teeth_sit_behind_a_local_lid_apron_without_resizing_the_mesh():
+def test_lid_web_is_a_solid_rectangle():
+    from splitflap_cad.geo import box_between
+
+    from blinds_cad.drivecassette import (
+        _axis_y_cylinder,
+        _cassette_lid_web,
+        _posed_gears,
+    )
+    from blinds_cad.params import P
+
+    web = _cassette_lid_web()
+    floor_depth = (
+        P.drive_cassette_back_y
+        + P.drive_cassette_back_web_t
+        - P.drive_floor_y0
+    )
+    assert P.cassette_lid_web_t + P.cassette_lid_rear_t == pytest.approx(
+        floor_depth
+    )
+    rectangle = box_between(
+        P.cassette_lid_x0,
+        P.cassette_lid_y0,
+        P.cassette_lid_z0,
+        P.cassette_lid_x1,
+        P.cassette_lid_y0 + P.cassette_lid_web_t,
+        P.cassette_lid_z1,
+    )
+    bearing_opening = _axis_y_cylinder(
+        (P.spr_bearing_d + P.spr_bearing_clear) / 2,
+        P.cassette_lid_seat_y - 0.1,
+        P.cassette_lid_web_t + P.cassette_lid_rear_t + 0.2,
+        P.drive_x,
+        P.spr_z,
+    )
+    spur = _posed_gears()["layshaft-spur"].bounding_box()
+    clear = P.cassette_spur_window_clear
+    spur_window = box_between(
+        spur.min.X - clear,
+        P.cassette_lid_seat_y - 0.1,
+        spur.min.Z - clear,
+        spur.max.X + clear,
+        P.cassette_lid_y0 + P.cassette_lid_web_t + 0.1,
+        spur.max.Z + clear,
+    )
+    printable_rectangle = rectangle - bearing_opening - spur_window
+    assert (web & printable_rectangle).volume >= 0.99 * printable_rectangle.volume
+
+
+def test_cassette_has_a_full_depth_rectangular_floor():
+    from splitflap_cad.geo import box_between
+
+    from blinds_cad.drivecassette import (
+        _layshaft_spur_window,
+        _posed_gears,
+        _posed_motor,
+        _sprocket_shaft_cuts,
+        drive_cassette,
+    )
+    from blinds_cad.params import P
+
+    cassette = drive_cassette()
+    rectangle = box_between(
+        P.cassette_lid_x0,
+        P.drive_floor_y0,
+        P.drive_shelf_z0,
+        P.cassette_lid_x1,
+        P.drive_cassette_back_y + P.drive_cassette_back_web_t,
+        P.cassette_lid_z1,
+    )
+    clear = P.drive_floor_pocket_clear
+    openings = _sprocket_shaft_cuts()
+    openings += _layshaft_spur_window(
+        P.drive_floor_y0 - 0.1,
+        P.frame_front_y + 0.1,
+    )
+    motor = _posed_motor().bounding_box()
+    pinion = _posed_gears()["pinion"].bounding_box()
+    floor_y1 = P.drive_cassette_back_y + P.drive_cassette_back_web_t
+    openings += box_between(
+        motor.min.X - clear,
+        P.drive_floor_y0 - 0.1,
+        motor.min.Z - clear,
+        P.bulkhead_x + clear,
+        floor_y1 + 0.1,
+        motor.max.Z + clear,
+    )
+    openings += box_between(
+        pinion.min.X - clear,
+        P.drive_floor_y0 - 0.1,
+        pinion.min.Z - clear,
+        pinion.max.X + clear,
+        floor_y1 + 0.1,
+        pinion.max.Z + clear,
+    )
+    for x, _y, z in P.drive_mount_points:
+        openings += box_between(
+            x - P.drive_mount_boss_d / 2 - P.drive_cassette_fit,
+            0,
+            z - P.drive_mount_boss_d / 2 - P.drive_cassette_fit,
+            x + P.drive_mount_boss_d / 2 + P.drive_cassette_fit,
+            P.drive_tab_y0,
+            z + P.drive_mount_boss_d / 2 + P.drive_cassette_fit,
+        )
+    openings += box_between(
+        P.drive_key_x - P.drive_key_w / 2 - P.drive_cassette_fit,
+        0,
+        P.drive_key_z - P.drive_key_h / 2 - P.drive_cassette_fit,
+        P.drive_key_x + P.drive_key_w / 2 + P.drive_cassette_fit,
+        P.drive_key_y1 + P.drive_cassette_fit,
+        P.drive_key_z + P.drive_key_h / 2 + P.drive_cassette_fit,
+    )
+    printable_floor = rectangle - openings
+    assert (cassette & printable_floor).volume >= 0.99 * printable_floor.volume
+
+
+def test_spur_gear_has_a_clear_window_through_the_lid():
     from splitflap_cad.geo import box_between
 
     from blinds_cad.drivecassette import cassette_lid, drive_parts
@@ -288,37 +456,26 @@ def test_spur_teeth_sit_behind_a_local_lid_apron_without_resizing_the_mesh():
 
     spur = drive_parts()["layshaft-spur"]
     bounds = spur.bounding_box()
-    apron_x0 = (
-        P.pinion_x
-        - P.spur_w / 2
-        - P.gear_hub_len
-        - P.cassette_spur_apron_axial_clear
-    )
-    apron_x1 = P.pinion_x + P.spur_w / 2 + P.cassette_spur_apron_axial_clear
-    apron_z0 = (
-        P.lay_z
-        - P.spur_wheel_outer_r
-        - P.cassette_spur_apron_radial_clear
-    )
-    apron = box_between(
-        apron_x0,
-        P.cassette_spur_apron_y0,
-        apron_z0,
-        apron_x1,
-        P.frame_front_y,
-        P.cassette_lid_z0 + P.cassette_lid_rail,
+    clear = P.cassette_spur_window_clear
+    window = box_between(
+        bounds.min.X - clear,
+        P.cassette_lid_seat_y - 0.1,
+        bounds.min.Z - clear,
+        bounds.max.X + clear,
+        P.cassette_lid_y0 + P.cassette_lid_web_t + 0.1,
+        bounds.max.Z + clear,
     )
 
     assert P.spur_pinion_z == 14 and P.spur_wheel_z == 17
     assert P.lay_z - P.motor_z == pytest.approx(
         P.spur_pinion_r + P.spur_wheel_r
     )
-    assert apron_z0 <= bounds.min.Z - P.cassette_spur_apron_radial_clear
-    assert P.cassette_spur_apron_y0 - bounds.max.Y >= P.drive_running_gap
-    assert (cassette_lid() & apron).volume >= 0.99 * apron.volume
+    assert clear >= P.drive_running_gap
+    assert (cassette_lid() & window).volume < 1e-6
+    assert (cassette_lid() & spur).volume < 1e-6
 
 
-def test_lid_has_three_m3_clearance_holes_and_body_has_insert_pockets():
+def test_lid_m3_clearance_holes_and_body_insert_pockets_match_all_bosses():
     from blinds_cad.drivecassette import (
         _axis_y_cylinder,
         cassette_lid,
@@ -328,20 +485,21 @@ def test_lid_has_three_m3_clearance_holes_and_body_has_insert_pockets():
 
     lid = cassette_lid()
     cassette = drive_cassette()
+    assert P.cassette_lid_screw_d == 3.4
     assert P.cassette_lid_insert_d == 4.2
-    assert P.cassette_lid_insert_depth >= 4.5
+    assert P.cassette_lid_insert_depth == 9.6
 
     for x, z in P.cassette_lid_screw_points:
         clearance = _axis_y_cylinder(
             P.cassette_lid_screw_d / 2,
-            P.cassette_lid_y0 - 0.1,
-            P.frame_front_y - P.cassette_lid_y0 + 0.2,
+            P.cassette_lid_seat_y - 0.1,
+            P.frame_front_y - P.cassette_lid_seat_y + 0.2,
             x,
             z,
         )
         insert = _axis_y_cylinder(
             P.cassette_lid_insert_d / 2,
-            P.cassette_lid_y0 - P.cassette_lid_insert_depth,
+            P.cassette_lid_seat_y - P.cassette_lid_insert_depth,
             P.cassette_lid_insert_depth + 0.1,
             x,
             z,
@@ -356,6 +514,8 @@ def test_both_split_seats_use_the_same_625zz_pocket():
 
     lid = cassette_lid()
     cassette = drive_cassette()
+    axial_wall = (P.lay_bearing_boss_w - P.lay_bearing_pocket_w) / 2
+    assert axial_wall == pytest.approx(0.8)
     for x in P.lay_bearing_centers_x:
         pocket = _bearing_pocket(x)
         bounds = pocket.bounding_box()
@@ -393,6 +553,7 @@ def test_motor_mount_has_loose_m3_bores_and_one_lower_tool_access():
     cassette = drive_cassette()
     centers = _motor_screw_centers()
     assert P.jgb_screw_clear_d >= 3.5
+    assert P.jgb_tool_access_d == 8.0
     assert len(centers) == P.jgb_screw_n
 
     for y, z in centers:

@@ -27,6 +27,13 @@ def frame():
     body += _sleeve_guides()
     body += _sleeve_retainers()
 
+    # The cassette floor now reaches 2 mm farther wallward than the old dock.
+    # Cut its exact seated envelope so the frame retains material inside the
+    # cassette's motor, gear, and mount windows instead of opening a crude box.
+    from .drivecassette import drive_cassette
+
+    body -= drive_cassette()
+
     # Four direct-to-wall #8 anchor holes through the rear rails.
     for x, z in P.frame_wall_holes:
         body -= Pos(x, P.frame_t / 2, z) * (
