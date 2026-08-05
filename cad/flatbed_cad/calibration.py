@@ -10,44 +10,31 @@ remain as a backup identifier. Everything in ``calibration_kit`` is oriented
 flat on Z=0 and exports as one multi-body STL.
 """
 
-from pathlib import Path
-
 from build123d import (
-    Align,
     Box,
     Compound,
     Cylinder,
-    Plane,
     Pos,
-    Text,
-    TextAlign,
-    extrude,
 )
 
 from splitflap_cad.viewer import Scene
 
 from .frames import UPRIGHT_ON_BASE
+from .geo import engrave_text
 from .params import P
-
-
-_FONT = Path(__file__).resolve().parent.parent / "fonts" / P.label_font
 
 
 def _engrave(body, labels: tuple[str, str], ys: tuple[float, float]):
     """Engrave two centered lines into the upward print face."""
     for label, y in zip(labels, ys, strict=True):
-        glyphs = Text(
+        body = engrave_text(
+            body,
             label,
-            font_size=P.label_size,
-            font_path=str(_FONT),
-            align=(Align.CENTER, Align.CENTER),
-            text_align=(TextAlign.CENTER, TextAlign.CENTER),
+            x=0,
+            y=y,
+            top=P.panel_t,
+            size=P.label_size,
         )
-        cut = extrude(
-            Plane.XY.offset(P.panel_t - P.label_depth) * Pos(0, y) * glyphs,
-            amount=P.label_depth + 0.1,
-        )
-        body -= cut
     return body
 
 

@@ -4,6 +4,7 @@ import pytest
 
 from flatbed_cad.calibration import base_coupon, calibration_kit, upright_coupon
 from flatbed_cad.frames import UPRIGHT_ON_BASE
+from flatbed_cad.insert_test import insert_test_plate
 from flatbed_cad.params import P
 
 
@@ -48,3 +49,15 @@ def test_assembled_tabs_finish_flush_without_interference():
     assert (base & upright).volume == pytest.approx(0, abs=1e-6)
     assert upright.bounding_box().min.Z == pytest.approx(0, abs=1e-6)
     assert upright.bounding_box().max.Z == pytest.approx(P.panel_t + P.upright_h)
+
+
+def test_insert_plate_brackets_m3x3_bores_and_leaves_a_floor():
+    plate = insert_test_plate()
+    bounds = plate.bounding_box()
+
+    assert P.insert_bore_ds == (4.0, 4.1, 4.2, 4.3, 4.4)
+    assert P.insert_floor_t == pytest.approx(1.6)
+    assert bounds.min.Z == pytest.approx(0)
+    assert bounds.max.Z == pytest.approx(P.insert_plate_t)
+    assert bounds.size.X == pytest.approx(P.insert_plate_w)
+    assert bounds.size.Y == pytest.approx(P.insert_plate_h)

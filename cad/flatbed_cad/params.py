@@ -38,10 +38,22 @@ class Params:
 
     # Engraved two-line labels on the upward print face.
     label_font: str = "GeistMono-Medium.ttf"
-    label_size: float = 2.5
+    label_size: float = 3.5
     label_depth: float = 0.4
-    base_label_ys: tuple[float, float] = (8.5, 5.0)
-    upright_label_ys: tuple[float, float] = (14.0, 10.5)
+    base_label_ys: tuple[float, float] = (8.5, 4.0)
+    upright_label_ys: tuple[float, float] = (14.0, 9.5)
+
+    # Separate broad-face heat-set-insert test for the user's 3 mm-long M3
+    # inserts. Blind bores leave a solid floor so installation matches a part.
+    insert_plate_w: float = 76.0
+    insert_plate_h: float = 24.0
+    insert_plate_t: float = 5.0
+    insert_bore_ds: tuple[float, ...] = (4.0, 4.1, 4.2, 4.3, 4.4)
+    insert_bore_depth: float = 3.4
+    insert_pitch: float = 14.0
+    insert_hole_y: float = 1.0
+    insert_label_y: float = -7.0
+    insert_title_y: float = 9.0
 
     # Ten bodies in two compact print rows.
     coupon_gap: float = 3.0
@@ -50,6 +62,10 @@ class Params:
     @property
     def coupon_pitch(self) -> float:
         return self.base_w + self.coupon_gap
+
+    @property
+    def insert_floor_t(self) -> float:
+        return self.insert_plate_t - self.insert_bore_depth
 
 
 P = Params()

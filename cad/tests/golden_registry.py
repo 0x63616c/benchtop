@@ -326,6 +326,12 @@ def _flatbed_calibration_kit():
     return calibration_kit()
 
 
+def _flatbed_insert_test():
+    from flatbed_cad.insert_test import insert_test_plate
+
+    return insert_test_plate()
+
+
 # name -> builder. All in their own local frames.
 BREP_PARTS = {
     "flap": _flap,
@@ -379,6 +385,7 @@ BREP_PARTS = {
     "nas-door": _nas_door,
     "nas-bay-frame": _nas_bay_frame,
     "flatbed-calibration-kit": _flatbed_calibration_kit,
+    "flatbed-insert-test": _flatbed_insert_test,
 }
 
 FINGERPRINT_ONLY = {}

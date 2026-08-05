@@ -32,3 +32,12 @@ hand, the nut stays put, and the tightened corner remains square without
 cracking or obvious play.
 
 Use `just cad view flatbed-nut-joint` to inspect the assembled middle variant.
+
+## Separate M3 insert plate
+
+`flatbed-insert-test` is a separate 76 x 24 x 5 mm plate for the 3 mm-long
+M3 heat-set inserts. Its five blind bores are 3.4 mm deep and range from 4.0
+through 4.4 mm in 0.1 mm steps. Each is engraved with its diameter; a 1.6 mm
+floor remains beneath the insert. Print it with the material and slicer profile
+used by the future part, then choose the smallest bore that accepts the insert
+without cracking, excessive bulging, or spinning after cooling.

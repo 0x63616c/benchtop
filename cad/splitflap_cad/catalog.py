@@ -292,6 +292,11 @@ MODELS = {
         "flatbed_cad.calibration",
         "assembled_scene",
     ),
+    "flatbed-insert-test": Model(
+        "flatbed",
+        "FLATBED engraved five-size M3x3 heat-set-insert bore plate",
+        "flatbed_cad.insert_test",
+    ),
 }
 
 # saved file stem -> model name, for ctl's save auto-focus.
@@ -380,6 +385,9 @@ PRINTABLE = {
     "nas-bay-frame": Printable("nas", "nas_cad.bay", "bay_frame"),
     "flatbed-calibration-kit": Printable(
         "flatbed", "flatbed_cad.calibration", "calibration_kit"
+    ),
+    "flatbed-insert-test": Printable(
+        "flatbed", "flatbed_cad.insert_test", "insert_test_plate"
     ),
 }
 

@@ -93,6 +93,7 @@ def test_printable_builders_exist():
         "nas-door",
         "nas-bay-frame",
         "flatbed-calibration-kit",
+        "flatbed-insert-test",
     }
 
 
