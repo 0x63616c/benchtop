@@ -10,40 +10,39 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class Params:
     # Nominal sheet-like panel construction.
-    panel_t: float = 5.0
+    panel_t: float = 2.0
 
-    # Cross-lap coupons. Clearance is the total slot oversize, not per side.
-    lap_len: float = 50.0
-    lap_w: float = 14.0
-    lap_clearances: tuple[float, ...] = (0.10, 0.20, 0.30)
-    lap_marker_d: float = 1.5
-    lap_pair_gap: float = 2.0
-    lap_row_gap: float = 3.0
+    # Five base coupons. Only the slot's panel-thickness direction varies;
+    # its tab-length direction stays generously clear and is not under test.
+    panel_clearances: tuple[float, ...] = (0.10, 0.15, 0.20, 0.25, 0.30)
+    clearance_hole_ds: tuple[float, ...] = (3.2, 3.3, 3.4, 3.5, 3.6)
+    base_w: float = 24.0
+    base_d: float = 24.0
+    tab_w: float = 5.0
+    tab_len: float = 2.0  # passes through the base and finishes flush
+    tab_pitch: float = 12.0
+    tab_end_clearance: float = 0.4
 
-    # M3 fastener coupon. These are starting values spanning the repo's
-    # existing 4.2 mm M3 heat-set bore idiom. The intended insert is a short
-    # M3 insert installed from the broad printed face, never into a 5 mm edge.
-    fastener_w: float = 70.0
-    fastener_h: float = 28.0
-    fastener_boss_h: float = 2.0
-    fastener_boss_d: float = 10.0
-    insert_bore_ds: tuple[float, ...] = (4.0, 4.2, 4.4)
-    insert_bore_depth: float = 4.5
-    clearance_hole_ds: tuple[float, ...] = (3.2, 3.4, 3.6)
-    fastener_pitch: float = 22.0
-    fastener_row_y: float = 7.0
-    fastener_marker_d: float = 1.2
+    # Five upright coupons. Nominal DIN 934 M3 nuts are about 5.5 mm across
+    # flats and 2.4 mm thick; this ladder deliberately brackets both values.
+    nut_pocket_ws: tuple[float, ...] = (5.6, 5.7, 5.8, 5.9, 6.0)
+    nut_pocket_ds: tuple[float, ...] = (2.5, 2.6, 2.7, 2.8, 2.9)
+    upright_w: float = 22.0
+    upright_h: float = 22.0
+    nut_center_y: float = 4.5  # M3x8 reaches through the 2 mm base and nut
+    bolt_stem_w: float = 3.8
 
-    # One compact, palm-scale print layout.
-    layout_gap: float = 3.0
+    # One-to-five witness holes identify matching values after STL export.
+    marker_d: float = 1.2
+    marker_pitch: float = 2.2
+
+    # Ten bodies in two compact print rows.
+    coupon_gap: float = 3.0
+    row_gap: float = 3.0
 
     @property
-    def lap_slot_depth(self) -> float:
-        return self.lap_w / 2
-
-    @property
-    def fastener_t(self) -> float:
-        return self.panel_t + self.fastener_boss_h
+    def coupon_pitch(self) -> float:
+        return self.base_w + self.coupon_gap
 
 
 P = Params()

@@ -283,8 +283,14 @@ MODELS = {
     # --- Flatbed project (flat-print mechanical assemblies) ---
     "flatbed-calibration": Model(
         "flatbed",
-        "FLATBED palm-scale lap, M3 clearance, and heat-set insert test kit",
+        "FLATBED five-way 2mm panel, M3 hole, and captive-nut test kit",
         "flatbed_cad.calibration",
+    ),
+    "flatbed-nut-joint": Model(
+        "flatbed",
+        "FLATBED middle captive-nut T-slot corner assembled at 90 degrees",
+        "flatbed_cad.calibration",
+        "assembled_scene",
     ),
 }
 
