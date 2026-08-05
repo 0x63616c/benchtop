@@ -320,6 +320,12 @@ def _nas_bay_frame():
     return bay_frame()
 
 
+def _flatbed_calibration_kit():
+    from flatbed_cad.calibration import calibration_kit
+
+    return calibration_kit()
+
+
 # name -> builder. All in their own local frames.
 BREP_PARTS = {
     "flap": _flap,
@@ -372,6 +378,7 @@ BREP_PARTS = {
     "nas-caddy": _nas_caddy,
     "nas-door": _nas_door,
     "nas-bay-frame": _nas_bay_frame,
+    "flatbed-calibration-kit": _flatbed_calibration_kit,
 }
 
 FINGERPRINT_ONLY = {}

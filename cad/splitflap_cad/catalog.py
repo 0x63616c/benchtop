@@ -70,6 +70,7 @@ PROJECTS = {
     "box-corner": "storage-box corner brace",
     "gear-box": "compact right-angle gearbox",
     "nas": "parametric printable network-attached storage enclosure",
+    "flatbed": "flat-printed panels with slotted and screwed assembly",
 }
 
 
@@ -279,6 +280,12 @@ MODELS = {
     "nas-storage": Model(
         "nas", "NAS animated six-across vertical-drive storage block", "nas_cad.nas"
     ),
+    # --- Flatbed project (flat-print mechanical assemblies) ---
+    "flatbed-calibration": Model(
+        "flatbed",
+        "FLATBED palm-scale lap, M3 clearance, and heat-set insert test kit",
+        "flatbed_cad.calibration",
+    ),
 }
 
 # saved file stem -> model name, for ctl's save auto-focus.
@@ -365,6 +372,9 @@ PRINTABLE = {
     "nas-caddy": Printable("nas", "nas_cad.bay", "caddy"),
     "nas-door": Printable("nas", "nas_cad.bay", "door"),
     "nas-bay-frame": Printable("nas", "nas_cad.bay", "bay_frame"),
+    "flatbed-calibration-kit": Printable(
+        "flatbed", "flatbed_cad.calibration", "calibration_kit"
+    ),
 }
 
 

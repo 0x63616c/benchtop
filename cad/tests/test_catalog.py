@@ -92,6 +92,7 @@ def test_printable_builders_exist():
         "nas-caddy",
         "nas-door",
         "nas-bay-frame",
+        "flatbed-calibration-kit",
     }
 
 
