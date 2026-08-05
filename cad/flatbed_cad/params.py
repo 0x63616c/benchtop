@@ -38,10 +38,10 @@ class Params:
 
     # Engraved two-line labels on the upward print face.
     label_font: str = "GeistMono-Medium.ttf"
-    label_size: float = 3.5
+    label_size: float = 5.0
     label_depth: float = 0.4
     base_label_ys: tuple[float, float] = (8.5, 4.0)
-    upright_label_ys: tuple[float, float] = (14.0, 9.5)
+    upright_label_ys: tuple[float, float] = (14.0, 9.0)
 
     # Separate broad-face heat-set-insert test for the user's 3 mm-long M3
     # inserts. Blind bores leave a solid floor so installation matches a part.
