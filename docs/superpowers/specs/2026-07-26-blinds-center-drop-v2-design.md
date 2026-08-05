@@ -44,7 +44,7 @@ fallback) with the motor horizontal:
   to it with Ø2 cross pins and located by three printed axial spacers.
   The bevel meshes a separate rear-disc-down z10 bevel ring. That gear and a
   separately face-down 12-pocket chain wheel are cross-pinned to a bought
-  Ø5×40 mm steel shaft, separated by a printed tube, and run in two MR105ZZ
+  Ø5×40 mm steel shaft, separated by a printed tube, and run in two 625ZZ
   bearings. There is no tall printed drum bridge and the wheel is clear of
   the layshaft gear envelope. Net:
   111rpm × 14/17 ≈ 91rpm →
@@ -58,15 +58,16 @@ fallback) with the motor horizontal:
   halves of both open 625ZZ seats. One structural room-side lid replaces the
   former two bearing caps and separate axle keeper. Two continuous full-height
   ribs embed 3 mm into both 625ZZ shells for a broad load path, then have the
-  bearing and shaft envelopes re-cut; its center boss retains the front MR105ZZ.
+  bearing and shaft envelopes re-cut; its center boss retains the front 625ZZ.
   Three lid screws form a non-rocking triangular clamp pattern into back-rooted
   heat-set columns. A local 2.4 mm-deep apron extends only below the z17 spur,
   covering its lower tooth envelope with 0.4 mm radial allowance and 0.53 mm
   axial running clearance. The proven 14:17 ratio and 31 mm shaft spacing stay
   unchanged. The complete 89.2 × 41.0 × 81.0 mm
   pod drops onto a frame shelf, engages one upper anti-torque key, and is
-  clamped by only two lower screws. The shelf/key carry shear and torque; the
-  screws do not.
+  clamped by only two lower screws. The rear 625ZZ sits behind a 0.2 mm captive
+  shoulder; its adjacent bevel has a flush, 0.2 mm-trimmed heel. The shelf/key
+  carry shear and torque; the screws do not.
 - **Battery loom:** the two bought holders are wired as 1S3P banks and
   series-linked for 2S3P. PACK+, midpoint, and PACK- go directly to the
   main board's three-pin battery input. No carrier PCB is required.
@@ -116,10 +117,10 @@ fallback) with the motor horizontal:
 3. Drop the preassembled rod stack into the two open rear bearing seats. Both
    chassis/lid halves share the same Ø16.2 × 5.2 mm clearance seat for each
    625ZZ. No shaft is threaded through a closed printed hole.
-4. For the sprocket shaft, slide the rear MR105ZZ onto the Ø5×40 mm rod first.
+4. For the sprocket shaft, slide the rear 625ZZ onto the Ø5×40 mm rod first.
    Add the separate bevel, cross-drill through its Ø2.2 guide, and install its
    Ø2×14 mm pin. Add the printed spacer, then the separate chain wheel and its
-   Ø2×14 mm pin. Seat the rear bearing in the cassette, press the front MR105ZZ
+   Ø2×14 mm pin. Seat the rear bearing in the cassette, press the front 625ZZ
    into the lid from behind. Bring the single lid straight onto the chassis:
    its two rearward spines close the layshaft seats and its center boss captures
    the front sprocket bearing. Fasten three M3 screws through true Ø3.4 holes
@@ -141,12 +142,12 @@ structural lid, orange/gold = gears and sprocket, silver = bought hardware:
 ![Assembled self-contained drive cassette](../../research/img/blinds-drive-cassette-v2-assembled.png)
 
 The lid pulls straight roomward as one part, exposing both 625ZZ split seats
-and the front MR105ZZ while the complete drivetrain remains in the chassis:
+and the front 625ZZ while the complete drivetrain remains in the chassis:
 
 ![Single cassette lid exploded from chassis](../../research/img/blinds-drive-cassette-v2-exploded.png)
 
 Split sprocket stack: layshaft bevel, sprocket bevel, spacer, chain wheel,
-two MR105ZZ bearings, and the separate 5 mm steel shaft:
+two 625ZZ bearings, and the separate 5 mm steel shaft:
 
 ![Split sprocket shaft stack](../../research/img/blinds-sprocket-split-stack.png)
 

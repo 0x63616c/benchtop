@@ -108,18 +108,18 @@ def test_sprocket_shaft_and_bearings_are_captive_inside_the_sleeve(
     """The smooth 5 mm shaft is captured by chassis and lid bearings.
     It stops behind the cosmetic sleeve, so the sleeve needs no axle hole."""
     from blinds_cad import frames as F
-    from blinds_cad.drivecassette import sprocket_bearing_mr105, sprocket_shaft
+    from blinds_cad.drivecassette import sprocket_bearing_625zz, sprocket_shaft
     from blinds_cad.params import P
 
     cassette = enclosure_parts["drive-cassette"]
     lid = enclosure_parts["cassette-lid"]
     sleeve = enclosure_parts["sleeve"]
     shaft = F.SPROCKET_SHAFT_IN_UNIT * sprocket_shaft()
-    rear = F.REAR_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_mr105()
-    front = F.FRONT_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_mr105()
+    rear = F.REAR_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_625zz()
+    front = F.FRONT_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_625zz()
 
-    assert shaft.bounding_box().min.Y < rear.bounding_box().min.Y
-    assert shaft.bounding_box().max.Y > front.bounding_box().max.Y
+    assert shaft.bounding_box().min.Y <= rear.bounding_box().min.Y
+    assert shaft.bounding_box().max.Y == pytest.approx(front.bounding_box().max.Y)
     assert shaft.bounding_box().max.Y < P.enc_d - P.sleeve_t
     for part in (shaft, rear, front):
         assert (cassette & part).volume < 1e-6

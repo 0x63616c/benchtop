@@ -86,18 +86,19 @@ class Params:
     spr_ball_clear: float = 1.5    # housing channel clearance per ball side (#16)
     spr_ring_back_d: float = 12.0  # hidden inside tooth roots; no outer skirt seam
     spr_ring_back_t: float = 1.2
-    spr_ring_back_overlap: float = 0.4
+    spr_ring_back_overlap: float = 1.2
+    spr_ring_heel_trim: float = 0.2
     spr_bevel_hub_d: float = 8.0   # torque hub; stays inside crossing bevel
     spr_bevel_hub_z0: float = -1.5
-    spr_bevel_pin_z: float = 0.0   # transverse guide exits only through hub sides
+    spr_bevel_pin_z: float = -0.2  # transverse guide exits only through hub sides
     spr_shaft_d: float = 5.0       # bought smooth steel shaft, not a printed axle
     spr_shaft_clear: float = 0.2
     spr_shaft_y0: float = 3.0
     spr_shaft_len: float = 40.0
-    spr_bearing_d: float = 10.0    # two MR105ZZ bearings, 5x10x4 mm
-    spr_bearing_w: float = 4.0
+    spr_bearing_d: float = 16.0    # same 625ZZ bearings as the layshaft
+    spr_bearing_w: float = 5.0
     spr_bearing_clear: float = 0.2
-    spr_bearing_centers_y: tuple = (5.6, 40.5)
+    spr_bearing_centers_y: tuple = (6.1, 40.5)
     spr_pin_guide_d: float = 2.2
     spr_wheel_pin_len: float = 14.0
     spr_bevel_pin_len: float = 14.0
@@ -150,8 +151,8 @@ class Params:
     cradle_x0: float = 8.0         # support-free motor tail cradle x span
     cradle_x1: float = 14.0
     cradle_shell: float = 2.0      # material beyond the motor pocket
-    spr_wy: float = 34.8           # chain-wheel center depth; its rear face clears
-                                   # the separate layshaft bevel by 0.8 mm
+    spr_wy: float = 34.4           # chain-wheel center depth; its rear face clears
+                                   # the separate layshaft bevel by 0.4 mm
     guide_or: float = 17.0         # wrap-guide clearance radius envelope
     chain_slot: float = 8.0        # ball 5 + 1.5 mm running clearance per side
 
@@ -229,11 +230,11 @@ class Params:
     cassette_lid_y0: float = 40.3
     cassette_lid_z0: float = 203.0
     cassette_lid_z1: float = 240.5
-    cassette_lid_web_t: float = 2.5
+    cassette_lid_web_t: float = 2.7
     cassette_lid_rail: float = 7.0
     cassette_lid_spine_w: float = 7.0
     cassette_lid_shell_embed: float = 3.0
-    cassette_lid_sprocket_boss_wall: float = 3.0
+    cassette_sprocket_bearing_wall: float = 3.0
     cassette_lid_fit: float = 0.3
     cassette_spur_apron_axial_clear: float = 0.5
     cassette_spur_apron_radial_clear: float = 0.4

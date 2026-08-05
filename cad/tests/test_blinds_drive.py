@@ -23,18 +23,18 @@ def test_layshaft_uses_a_real_5mm_rod_and_two_625zz_bearings():
     assert rod_bounds.min.X == pytest.approx(0)
 
 
-def test_sprocket_is_two_prints_on_a_real_5mm_shaft_and_two_bearings():
-    from blinds_cad.drivecassette import drive_parts, sprocket_bearing_mr105
+def test_sprocket_uses_the_same_625zz_bearings_as_the_layshaft():
+    from blinds_cad.drivecassette import drive_parts, sprocket_bearing_625zz
     from blinds_cad.params import P
 
     parts = drive_parts()
-    bearing_bounds = sprocket_bearing_mr105().bounding_box()
+    bearing_bounds = sprocket_bearing_625zz().bounding_box()
     shaft_bounds = parts["sprocket-shaft"].bounding_box()
 
     assert P.spr_shaft_d == 5.0
-    assert P.spr_bearing_d == 10.0
-    assert P.spr_bearing_w == 4.0
-    assert tuple(bearing_bounds.size) == pytest.approx((10.0, 4.0, 10.0))
+    assert P.spr_bearing_d == P.lay_bearing_d == 16.0
+    assert P.spr_bearing_w == P.lay_bearing_w == 5.0
+    assert tuple(bearing_bounds.size) == pytest.approx((16.0, 5.0, 16.0))
     assert shaft_bounds.size.Y == pytest.approx(40.0)
     assert len(parts["chain-wheel"].solids()) == 1
     assert len(parts["sprocket-bevel"].solids()) == 1
@@ -52,6 +52,26 @@ def test_sprocket_is_two_prints_on_a_real_5mm_shaft_and_two_bearings():
     assert P.spr_spacer_axial_clear <= 0.1
 
 
+def test_both_sprocket_625zz_bearings_fit_entirely_inside_the_pod():
+    from blinds_cad.drivecassette import drive_parts
+
+    parts = drive_parts()
+    cassette = parts["drive-cassette"].bounding_box()
+    lid = parts["cassette-lid"].bounding_box()
+    shaft = parts["sprocket-shaft"].bounding_box()
+    rear = parts["rear-sprocket-bearing"].bounding_box()
+    front = parts["front-sprocket-bearing"].bounding_box()
+
+    assert cassette.min.Y <= rear.min.Y < rear.max.Y <= cassette.max.Y
+    assert lid.min.Y <= front.min.Y < front.max.Y <= lid.max.Y
+    assert shaft.min.Y <= rear.min.Y
+    assert shaft.max.Y == pytest.approx(front.max.Y)
+
+    for bearing in ("rear-sprocket-bearing", "front-sprocket-bearing"):
+        for moving in ("sprocket-bevel", "sprocket-spacer", "chain-wheel"):
+            assert (parts[bearing] & parts[moving]).volume < 1e-6
+
+
 def test_sprocket_bevel_backing_disc_does_not_fill_the_active_teeth():
     """The flat print face is a thin backing disc, not a tall cylindrical
     base that leaves a seam through the active bevel tooth form."""
@@ -61,11 +81,13 @@ def test_sprocket_bevel_backing_disc_does_not_fill_the_active_teeth():
 
     gear = sprocket_bevel()
     raw = Rot(0, 0, P.bevel_ring_phase) * bevel_ring()
-    disc_z0 = raw.bounding_box().max.Z - P.spr_ring_back_overlap
+    trimmed_heel_z = raw.bounding_box().max.Z - P.spr_ring_heel_trim
+    disc_z0 = trimmed_heel_z - P.spr_ring_back_overlap
 
     assert len(gear.solids()) == 1
     assert P.spr_ring_back_t <= 1.2
-    assert P.spr_ring_back_overlap < P.spr_ring_back_t
+    assert P.spr_ring_back_overlap == P.spr_ring_back_t
+    assert gear.bounding_box().max.Z == pytest.approx(trimmed_heel_z)
     assert P.spr_bevel_pin_z + P.spr_pin_guide_d / 2 < disc_z0
 
 

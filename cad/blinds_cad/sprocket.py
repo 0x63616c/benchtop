@@ -1,7 +1,7 @@
 """Split bead-chain sprocket for the removable blinds cassette.
 
 The chain wheel and its m2 z10 bevel are independent flat-printing parts.
-Both are cross-pinned to a bought 5 mm steel shaft running in two MR105ZZ
+Both are cross-pinned to a bought 5 mm steel shaft running in two 625ZZ
 bearings.  There is no printed shaft and no tall wheel-to-gear bridge.
 
 Pocket geometry unchanged from #16: pitch circle Ø≈22.9 (12 × 6mm
@@ -17,7 +17,7 @@ View it: `just cad view blinds-sprocket` (chain ghost included).
 import math
 
 from build123d import Box, Cylinder, Pos, Rot, Sphere, Torus
-from splitflap_cad.geo import support_free_cross_bore
+from splitflap_cad.geo import box_between, support_free_cross_bore
 
 from .params import P
 from .gears import bevel_ring
@@ -52,7 +52,16 @@ def chain_wheel():
 def sprocket_bevel():
     """Matched bevel ring with a broad rear disc for face-down printing."""
     ring = Rot(0, 0, P.bevel_ring_phase) * bevel_ring()
-    tooth_back_z = ring.bounding_box().max.Z
+    raw_bounds = ring.bounding_box()
+    tooth_back_z = raw_bounds.max.Z - P.spr_ring_heel_trim
+    ring &= box_between(
+        raw_bounds.min.X - 0.1,
+        raw_bounds.min.Y - 0.1,
+        raw_bounds.min.Z - 0.1,
+        raw_bounds.max.X + 0.1,
+        raw_bounds.max.Y + 0.1,
+        tooth_back_z,
+    )
     disc_z0 = tooth_back_z - P.spr_ring_back_overlap
     disc_z1 = disc_z0 + P.spr_ring_back_t
     ring += Pos(0, 0, (disc_z0 + disc_z1) / 2) * Cylinder(
@@ -113,7 +122,7 @@ def chain_ghost(run_len: float = 120.0):
 
 def scene():
     from . import frames as F
-    from .drivecassette import sprocket_bearing_mr105, sprocket_shaft
+    from .drivecassette import sprocket_bearing_625zz, sprocket_shaft
     from splitflap_cad.viewer import Scene
 
     return (
@@ -121,8 +130,8 @@ def scene():
         .add(F.SPROCKET_WHEEL_IN_UNIT * chain_wheel(), "chain-wheel", color="orange")
         .add(F.SPROCKET_BEVEL_IN_UNIT * sprocket_bevel(), "sprocket-bevel", color="gold")
         .add(F.SPROCKET_SHAFT_IN_UNIT * sprocket_shaft(), "5mm-shaft", color="dimgray")
-        .add(F.REAR_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_mr105(), "rear-bearing", color="silver")
-        .add(F.FRONT_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_mr105(), "front-bearing", color="silver")
+        .add(F.REAR_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_625zz(), "rear-bearing", color="silver")
+        .add(F.FRONT_SPROCKET_BEARING_IN_UNIT * sprocket_bearing_625zz(), "front-bearing", color="silver")
         .add(F.CHAIN_IN_UNIT * chain_ghost(), "chain", color="gray", alpha=0.5)
     )
 

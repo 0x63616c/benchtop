@@ -46,8 +46,8 @@ def bearing_625zz():
     return outer - bore
 
 
-def sprocket_bearing_mr105():
-    """Display-only MR105ZZ envelope, local axis +Y from y=0..4."""
+def sprocket_bearing_625zz():
+    """Display-only 625ZZ envelope, local axis +Y from y=0..5."""
     outer = _axis_y_cylinder(P.spr_bearing_d / 2, 0, P.spr_bearing_w, 0, 0)
     bore = _axis_y_cylinder(
         P.spr_shaft_d / 2,
@@ -95,7 +95,7 @@ def _lid_insert_cuts():
 
 
 def _sprocket_shaft_cuts():
-    """Smooth-shaft bore plus the rear MR105 bearing seat."""
+    """Smooth-shaft bore plus the rear 625ZZ bearing seat."""
     cuts = _axis_y_cylinder(
         (P.spr_shaft_d + P.spr_shaft_clear) / 2,
         P.spr_shaft_y0 - 0.5,
@@ -107,7 +107,7 @@ def _sprocket_shaft_cuts():
     cuts += _axis_y_cylinder(
         (P.spr_bearing_d + P.spr_bearing_clear) / 2,
         bearing_y0,
-        P.spr_bearing_w + 0.2,
+        P.spr_bearing_w + 0.1,
         P.drive_x,
         P.spr_z,
     )
@@ -158,7 +158,8 @@ def sprocket_housing():
         )
     )
     ring_y0 = (
-        _posed_sprocket_parts()["sprocket-bevel"].bounding_box().min.Y - 0.5
+        _posed_sprocket_parts()["sprocket-bevel"].bounding_box().min.Y
+        - P.drive_running_gap
     )
     ring_len = wheel_y0 - ring_y0
     block -= Pos(cx, (wheel_y0 + ring_y0) / 2, cz) * (
@@ -488,13 +489,13 @@ def _cassette_lid_web():
             z1,
         )
 
-    # Full-depth boss around the front MR105 bearing.  It is tied into the
+    # Full-depth boss around the front 625ZZ bearing.  It is tied into the
     # center upright but leaves the bearing and shaft completely clear.
     bearing_y0 = P.spr_bearing_centers_y[1] - P.spr_bearing_w / 2
     web += _axis_y_cylinder(
-        P.spr_bearing_d / 2 + P.cassette_lid_sprocket_boss_wall,
+        P.spr_bearing_d / 2 + P.cassette_sprocket_bearing_wall,
         bearing_y0 - 0.2,
-        P.frame_front_y - bearing_y0 + 0.2,
+        P.spr_bearing_w + 0.2,
         P.drive_x,
         P.spr_z,
     )
@@ -508,20 +509,23 @@ def _cassette_lid_web():
     web -= _axis_y_cylinder(
         (P.spr_shaft_d + P.spr_shaft_clear) / 2,
         bearing_y0 + P.spr_bearing_w - 0.1,
-        P.frame_front_y - bearing_y0 - P.spr_bearing_w + 0.3,
+        0.3,
         P.drive_x,
         P.spr_z,
     )
 
-    # The chain leaves vertically; do not bridge across either live strand.
+    # The chain leaves vertically behind the lid.  Notch only the rear lip of
+    # the bearing boss where the real running envelope reaches it; carrying
+    # that notch through the room-side face would split the 625ZZ ring.
     chain_r = P.chain_ball_d / 2 + P.spr_ball_clear
+    chain_y1 = P.spr_wy + chain_r
     for x in P.strand_x:
         web -= box_between(
             x - chain_r,
             bearing_y0 - 0.5,
             P.spr_z - 1,
             x + chain_r,
-            P.frame_front_y + 0.5,
+            chain_y1,
             z1 + 1,
         )
     return web
@@ -653,21 +657,21 @@ def drive_cassette():
     body -= box_between(
         P.drive_x
         - P.spr_bearing_d / 2
-        - P.cassette_lid_sprocket_boss_wall
+        - P.cassette_sprocket_bearing_wall
         - fit,
         bearing_y0 - fit,
         P.spr_z
         - P.spr_bearing_d / 2
-        - P.cassette_lid_sprocket_boss_wall
+        - P.cassette_sprocket_bearing_wall
         - fit,
         P.drive_x
         + P.spr_bearing_d / 2
-        + P.cassette_lid_sprocket_boss_wall
+        + P.cassette_sprocket_bearing_wall
         + fit,
         P.frame_front_y + fit,
         P.spr_z
         + P.spr_bearing_d / 2
-        + P.cassette_lid_sprocket_boss_wall
+        + P.cassette_sprocket_bearing_wall
         + fit,
     )
     body -= _sprocket_shaft_cuts()
@@ -753,9 +757,9 @@ def drive_parts():
         "sprocket-spacer": F.sprocket_axis_in_unit(_sprocket_spacer_start())
         * sprocket_spacer(),
         "rear-sprocket-bearing": F.REAR_SPROCKET_BEARING_IN_UNIT
-        * sprocket_bearing_mr105(),
+        * sprocket_bearing_625zz(),
         "front-sprocket-bearing": F.FRONT_SPROCKET_BEARING_IN_UNIT
-        * sprocket_bearing_mr105(),
+        * sprocket_bearing_625zz(),
         "sprocket-shaft": F.SPROCKET_SHAFT_IN_UNIT * sprocket_shaft(),
         "motor": F.MOTOR_IN_UNIT * jgb37(),
         "pinion": gears["pinion"],

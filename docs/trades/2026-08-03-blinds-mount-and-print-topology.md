@@ -99,8 +99,8 @@ infill. Literal vase mode is not required.
   sleeve only hides them. Its
   two-piece cap solves chain installation without threading beads through a
   closed cover. The chain wheel and bevel are separate flat/heel-down prints,
-  cross-pinned to a bought 5 mm shaft; a flat-printed front keeper retains its
-  front MR105 bearing without bridging over the wheel cavity, so the sleeve can be
+  cross-pinned to a bought 5 mm shaft; the structural cassette lid retains its
+  front 625ZZ bearing without bridging over the wheel cavity, so the sleeve can be
   removed without releasing the drivetrain. Four close-running frame pads
   guide the sleeve while two underside screws retain it. The projecting
   features use positive volumetric roots: two rear spines carry the four drive
