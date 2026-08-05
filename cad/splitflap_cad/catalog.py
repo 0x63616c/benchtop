@@ -297,6 +297,26 @@ MODELS = {
         "FLATBED engraved five-size M3x3 heat-set-insert bore plate",
         "flatbed_cad.insert_test",
     ),
+    "flatbed-gearbox": Model(
+        "flatbed",
+        "FLATBED enclosed JGB37 90-degree gearbox with 2x speed output",
+        "flatbed_cad.speedbox_assembly",
+    ),
+    "flatbed-gearbox-panels": Model(
+        "flatbed",
+        "FLATBED six flatpack skins and reinforced motor bulkhead",
+        "flatbed_cad.speedbox_panels",
+    ),
+    "flatbed-gearbox-drive": Model(
+        "flatbed",
+        "FLATBED JGB37 motor, replaceable 24:12 bevels, bearing, and shaft",
+        "flatbed_cad.speedbox",
+    ),
+    "flatbed-gearbox-motor": Model(
+        "flatbed",
+        "FLATBED JGB37-520 24mm-L encoder motor reference envelope",
+        "flatbed_cad.motor_reference",
+    ),
 }
 
 # saved file stem -> model name, for ctl's save auto-focus.
@@ -388,6 +408,36 @@ PRINTABLE = {
     ),
     "flatbed-insert-test": Printable(
         "flatbed", "flatbed_cad.insert_test", "insert_test_plate"
+    ),
+    "flatbed-gearbox-bottom": Printable(
+        "flatbed", "flatbed_cad.speedbox_panels", "bottom_panel"
+    ),
+    "flatbed-gearbox-top": Printable(
+        "flatbed", "flatbed_cad.speedbox_panels", "top_panel"
+    ),
+    "flatbed-gearbox-left": Printable(
+        "flatbed", "flatbed_cad.speedbox_panels", "left_panel"
+    ),
+    "flatbed-gearbox-right": Printable(
+        "flatbed", "flatbed_cad.speedbox_panels", "right_panel"
+    ),
+    "flatbed-gearbox-front": Printable(
+        "flatbed", "flatbed_cad.speedbox_panels", "front_panel"
+    ),
+    "flatbed-gearbox-rear": Printable(
+        "flatbed", "flatbed_cad.speedbox_panels", "rear_panel"
+    ),
+    "flatbed-gearbox-bulkhead": Printable(
+        "flatbed", "flatbed_cad.speedbox_panels", "motor_bulkhead"
+    ),
+    "flatbed-gearbox-input-gear": Printable(
+        "flatbed", "flatbed_cad.speedbox", "input_gear"
+    ),
+    "flatbed-gearbox-output-gear": Printable(
+        "flatbed", "flatbed_cad.speedbox", "output_gear"
+    ),
+    "flatbed-gearbox-output-spacer": Printable(
+        "flatbed", "flatbed_cad.speedbox", "output_spacer"
     ),
 }
 

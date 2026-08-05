@@ -94,6 +94,16 @@ def test_printable_builders_exist():
         "nas-bay-frame",
         "flatbed-calibration-kit",
         "flatbed-insert-test",
+        "flatbed-gearbox-bottom",
+        "flatbed-gearbox-top",
+        "flatbed-gearbox-left",
+        "flatbed-gearbox-right",
+        "flatbed-gearbox-front",
+        "flatbed-gearbox-rear",
+        "flatbed-gearbox-bulkhead",
+        "flatbed-gearbox-input-gear",
+        "flatbed-gearbox-output-gear",
+        "flatbed-gearbox-output-spacer",
     }
 
 

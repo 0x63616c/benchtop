@@ -332,6 +332,72 @@ def _flatbed_insert_test():
     return insert_test_plate()
 
 
+def _flatbed_speedbox_motor():
+    from flatbed_cad.motor_reference import motor_reference
+
+    return motor_reference()
+
+
+def _flatbed_speedbox_bottom():
+    from flatbed_cad.speedbox_panels import bottom_panel
+
+    return bottom_panel()
+
+
+def _flatbed_speedbox_top():
+    from flatbed_cad.speedbox_panels import top_panel
+
+    return top_panel()
+
+
+def _flatbed_speedbox_left():
+    from flatbed_cad.speedbox_panels import left_panel
+
+    return left_panel()
+
+
+def _flatbed_speedbox_right():
+    from flatbed_cad.speedbox_panels import right_panel
+
+    return right_panel()
+
+
+def _flatbed_speedbox_front():
+    from flatbed_cad.speedbox_panels import front_panel
+
+    return front_panel()
+
+
+def _flatbed_speedbox_rear():
+    from flatbed_cad.speedbox_panels import rear_panel
+
+    return rear_panel()
+
+
+def _flatbed_speedbox_bulkhead():
+    from flatbed_cad.speedbox_panels import motor_bulkhead
+
+    return motor_bulkhead()
+
+
+def _flatbed_speedbox_input_gear():
+    from flatbed_cad.speedbox import input_gear
+
+    return input_gear()
+
+
+def _flatbed_speedbox_output_gear():
+    from flatbed_cad.speedbox import output_gear
+
+    return output_gear()
+
+
+def _flatbed_speedbox_output_spacer():
+    from flatbed_cad.speedbox import output_spacer
+
+    return output_spacer()
+
+
 # name -> builder. All in their own local frames.
 BREP_PARTS = {
     "flap": _flap,
@@ -386,6 +452,17 @@ BREP_PARTS = {
     "nas-bay-frame": _nas_bay_frame,
     "flatbed-calibration-kit": _flatbed_calibration_kit,
     "flatbed-insert-test": _flatbed_insert_test,
+    "flatbed-speedbox-motor": _flatbed_speedbox_motor,
+    "flatbed-speedbox-bottom": _flatbed_speedbox_bottom,
+    "flatbed-speedbox-top": _flatbed_speedbox_top,
+    "flatbed-speedbox-left": _flatbed_speedbox_left,
+    "flatbed-speedbox-right": _flatbed_speedbox_right,
+    "flatbed-speedbox-front": _flatbed_speedbox_front,
+    "flatbed-speedbox-rear": _flatbed_speedbox_rear,
+    "flatbed-speedbox-bulkhead": _flatbed_speedbox_bulkhead,
+    "flatbed-speedbox-input-gear": _flatbed_speedbox_input_gear,
+    "flatbed-speedbox-output-gear": _flatbed_speedbox_output_gear,
+    "flatbed-speedbox-output-spacer": _flatbed_speedbox_output_spacer,
 }
 
 FINGERPRINT_ONLY = {}
