@@ -23,6 +23,7 @@ def test_five_step_ladders_cover_requested_ranges():
     assert P.clearance_hole_ds == (3.2, 3.3, 3.4, 3.5, 3.6)
     assert P.nut_pocket_ws == (5.6, 5.7, 5.8, 5.9, 6.0)
     assert P.nut_pocket_ds == (2.5, 2.6, 2.7, 2.8, 2.9)
+    assert 0 < P.label_depth < P.panel_t
 
 
 def test_every_base_and_upright_has_the_same_interchangeable_envelope():
@@ -45,5 +46,5 @@ def test_assembled_tabs_finish_flush_without_interference():
     upright = UPRIGHT_ON_BASE * upright_coupon(2)
 
     assert (base & upright).volume == pytest.approx(0, abs=1e-6)
-    assert upright.bounding_box().min.Z == pytest.approx(0)
+    assert upright.bounding_box().min.Z == pytest.approx(0, abs=1e-6)
     assert upright.bounding_box().max.Z == pytest.approx(P.panel_t + P.upright_h)

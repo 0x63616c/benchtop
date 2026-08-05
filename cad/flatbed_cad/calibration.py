@@ -5,16 +5,50 @@ The upright coupons test the width and depth of a side-loading rectangular
 M3 hex-nut trap. Every base accepts every upright, so the ten printed pieces
 provide 25 combinations rather than coupling two independent tolerances.
 
-One through five witness holes identify each ascending variant. Everything in
-``calibration_kit`` is oriented flat on Z=0 and exports as one multi-body STL.
+Each coupon is engraved with its actual values; one through five witness holes
+remain as a backup identifier. Everything in ``calibration_kit`` is oriented
+flat on Z=0 and exports as one multi-body STL.
 """
 
-from build123d import Box, Compound, Cylinder, Pos
+from pathlib import Path
+
+from build123d import (
+    Align,
+    Box,
+    Compound,
+    Cylinder,
+    Plane,
+    Pos,
+    Text,
+    TextAlign,
+    extrude,
+)
 
 from splitflap_cad.viewer import Scene
 
 from .frames import UPRIGHT_ON_BASE
 from .params import P
+
+
+_FONT = Path(__file__).resolve().parent.parent / "fonts" / P.label_font
+
+
+def _engrave(body, labels: tuple[str, str], ys: tuple[float, float]):
+    """Engrave two centered lines into the upward print face."""
+    for label, y in zip(labels, ys, strict=True):
+        glyphs = Text(
+            label,
+            font_size=P.label_size,
+            font_path=str(_FONT),
+            align=(Align.CENTER, Align.CENTER),
+            text_align=(TextAlign.CENTER, TextAlign.CENTER),
+        )
+        cut = extrude(
+            Plane.XY.offset(P.panel_t - P.label_depth) * Pos(0, y) * glyphs,
+            amount=P.label_depth + 0.1,
+        )
+        body -= cut
+    return body
 
 
 def _markers(body, count: int, y: float):
@@ -43,7 +77,15 @@ def base_coupon(variant: int):
         P.clearance_hole_ds[variant] / 2,
         P.panel_t + 0.2,
     )
-    return _markers(body, variant + 1, -P.base_d / 2 + 3.0)
+    body = _markers(body, variant + 1, -P.base_d / 2 + 3.0)
+    return _engrave(
+        body,
+        (
+            f"S{P.panel_clearances[variant]:.2f}",
+            f"H{P.clearance_hole_ds[variant]:.1f}",
+        ),
+        P.base_label_ys,
+    )
 
 
 def upright_coupon(variant: int):
@@ -74,7 +116,15 @@ def upright_coupon(variant: int):
         pocket_bottom + 0.2,
         P.panel_t + 0.2,
     )
-    return _markers(body, variant + 1, P.upright_h - 3.0)
+    body = _markers(body, variant + 1, P.upright_h - 3.0)
+    return _engrave(
+        body,
+        (
+            f"W{P.nut_pocket_ws[variant]:.1f}",
+            f"D{P.nut_pocket_ds[variant]:.1f}",
+        ),
+        P.upright_label_ys,
+    )
 
 
 def calibration_kit():

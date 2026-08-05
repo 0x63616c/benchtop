@@ -36,6 +36,13 @@ class Params:
     marker_d: float = 1.2
     marker_pitch: float = 2.2
 
+    # Engraved two-line labels on the upward print face.
+    label_font: str = "GeistMono-Medium.ttf"
+    label_size: float = 2.5
+    label_depth: float = 0.4
+    base_label_ys: tuple[float, float] = (8.5, 5.0)
+    upright_label_ys: tuple[float, float] = (14.0, 10.5)
+
     # Ten bodies in two compact print rows.
     coupon_gap: float = 3.0
     row_gap: float = 3.0

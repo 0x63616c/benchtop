@@ -5,7 +5,9 @@ It contains five interchangeable base coupons and five upright coupons. Any
 base can be assembled with any upright, giving 25 possible combinations while
 keeping panel fit and nut fit independent.
 
-The one-to-five witness holes identify ascending variants:
+Every base is engraved `S<slot clearance>` and `H<hole diameter>`. Every
+upright is engraved `W<nut-pocket width>` and `D<nut-pocket depth>`. The
+one-to-five witness holes remain as backup identifiers:
 
 | Markers | 2 mm panel clearance | M3 hole | Nut pocket width | Nut pocket depth |
 |---:|---:|---:|---:|---:|
