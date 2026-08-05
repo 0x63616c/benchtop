@@ -87,8 +87,8 @@ class Params:
     fg_motor_screw_d: float = 3.0
     fg_motor_screw_depth: float = 5.0
 
-    # Minimal six-sided envelope. X=width/output axis, Y=motor axis from rear
-    # to front, Z=height. The 2 mm skin uses the physically selected three-dot
+    # Minimal six-sided envelope. X=width, Y=motor axis from rear to front,
+    # Z=height/output axis. The 2 mm skin uses the selected three-dot
     # T-slot settings; the internal motor bulkhead is locally reinforced.
     fg_box_w: float = 43.0
     fg_box_d: float = 91.0
@@ -100,7 +100,7 @@ class Params:
     fg_joint_nut_w: float = 5.8
     fg_joint_nut_d: float = 2.7
     fg_joint_nut_inset: float = 4.5
-    fg_joint_stem_w: float = 3.8
+    fg_joint_stem_w: float = 3.5
     fg_joint_tab_w: float = 5.0
     fg_joint_tab_pitch: float = 12.0
     fg_joint_tab_end_clear: float = 0.4
@@ -133,7 +133,7 @@ class Params:
     fg_gear_running_gap: float = 0.2
 
     # The one-sided 5 mm output rod begins clear of the motor shaft, passes
-    # through the output gear, and exits through one right-side 625ZZ bearing.
+    # through the output gear, and exits through one top-side 625ZZ bearing.
     fg_output_shaft_d: float = 5.0
     fg_output_bore_d: float = 5.2
     fg_output_exposed: float = 10.0

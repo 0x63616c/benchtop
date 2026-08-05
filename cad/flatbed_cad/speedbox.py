@@ -10,7 +10,7 @@ from functools import lru_cache
 from math import atan2, pi
 import warnings
 
-from build123d import Align, Box, Cylinder, Pos, Rot
+from build123d import Align, Box, Cylinder, Plane, Pos, Rot
 from py_gearworks import BevelGear, RIGHT
 
 from splitflap_cad.geo import self_supporting_heel
@@ -75,7 +75,7 @@ def pair_parts():
         input_part,
         P.fg_gear_print_radial_growth,
     )
-    input_part -= Pos(0, 0, -2) * _d_prism(
+    input_part -= Pos(0, 0, -2) * Rot(0, 0, 90) * _d_prism(
         P.fg_motor_shaft_d + 0.2,
         P.fg_motor_shaft_flat + 0.2,
         12,
@@ -96,7 +96,7 @@ def pair_parts():
 
 
 def pair_origin_y() -> float:
-    """Place the input heel 0.2 mm beyond the motor's 6 mm boss."""
+    """Place the input heel beyond the motor's 6 mm boss."""
     input_min = pair_parts()[0].bounding_box().min.Z
     return (
         P.fg_motor_face_y
@@ -107,8 +107,12 @@ def pair_origin_y() -> float:
 
 
 def pair_in_box():
-    """Local pair frame: input +Y, output +X."""
-    return Pos(P.fg_motor_axis_x, pair_origin_y(), P.fg_shaft_z) * Rot(-90, 0, 0)
+    """Local pair frame: input +Y, output +Z."""
+    return Plane(
+        origin=(P.fg_motor_axis_x, pair_origin_y(), P.fg_shaft_z),
+        x_dir=(0, 0, 1),
+        z_dir=(0, 1, 0),
+    ).location
 
 
 def output_axis_y() -> float:
@@ -133,11 +137,11 @@ def output_gear():
 
 
 def output_spacer():
-    """Printed sleeve from the output gear to the right bearing."""
+    """Printed sleeve from the output gear to the top bearing."""
     posed_output = pair_in_box() * pair_parts()[1]
-    gear_x1 = posed_output.bounding_box().max.X
-    bearing_inner_x = P.fg_box_w - P.fg_bearing_carrier_t
-    length = bearing_inner_x - P.fg_gear_running_gap - gear_x1
+    gear_z1 = posed_output.bounding_box().max.Z
+    bearing_inner_z = P.fg_box_h - P.fg_bearing_carrier_t
+    length = bearing_inner_z - P.fg_gear_running_gap - gear_z1
     return _cylinder(4.0, length) - Pos(0, 0, -0.1) * _cylinder(
         P.fg_output_bore_d / 2,
         length + 0.2,
@@ -154,34 +158,33 @@ def bearing_625zz():
 def output_rod():
     # The bevel axes intersect, but the physical shafts must not. The output
     # rod therefore begins just beyond the motor shaft's radial envelope and
-    # runs only toward the right-side output.
+    # runs only toward the top-side output.
     posed_input = pair_in_box() * pair_parts()[0]
-    x0 = posed_input.bounding_box().max.X + P.fg_gear_running_gap
-    length = P.fg_box_w + P.fg_output_exposed - x0
+    z0 = posed_input.bounding_box().max.Z + P.fg_gear_running_gap
+    length = P.fg_box_h + P.fg_output_exposed - z0
     return (
-        Pos(x0, output_axis_y(), P.fg_shaft_z)
-        * Rot(0, 90, 0)
+        Pos(P.fg_motor_axis_x, output_axis_y(), z0)
         * _cylinder(P.fg_output_shaft_d / 2, length)
     )
 
 
 def output_bearings():
-    right_x = P.fg_box_w - P.fg_bearing_shoulder - P.fg_bearing_w
-    return (
-        Pos(right_x, output_axis_y(), P.fg_shaft_z)
-        * Rot(0, 90, 0)
-        * bearing_625zz()
-    )
+    top_z = P.fg_box_h - P.fg_bearing_shoulder - P.fg_bearing_w
+    return Pos(
+        P.fg_motor_axis_x,
+        output_axis_y(),
+        top_z,
+    ) * bearing_625zz()
 
 
 def posed_output_spacer():
     posed_output = pair_in_box() * pair_parts()[1]
-    x0 = posed_output.bounding_box().max.X + P.fg_gear_running_gap
-    return (
-        Pos(x0, output_axis_y(), P.fg_shaft_z)
-        * Rot(0, 90, 0)
-        * output_spacer()
-    )
+    z0 = posed_output.bounding_box().max.Z + P.fg_gear_running_gap
+    return Pos(
+        P.fg_motor_axis_x,
+        output_axis_y(),
+        z0,
+    ) * output_spacer()
 
 
 def drivetrain_scene() -> Scene:

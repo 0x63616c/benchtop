@@ -8,7 +8,7 @@ clearance, Ø3.4 bolt holes, and 5.8 x 2.7 mm nut traps.
 Every builder returns its part in flat print orientation on Z=0. Assembly
 poses live in ``frames.py``. The left and right skins differ only because the
 right one's vertical features are mirrored before its inward-facing assembly
-pose. Both bearing bosses therefore print upward and land inside the box.
+pose. The top bearing boss prints upward and lands inside the box.
 """
 
 from math import cos, radians, sin
@@ -101,7 +101,7 @@ def _cut_bulkhead_slots(body, mirror_v: bool):
 
 
 def side_panel(right: bool = False):
-    """Structural side skin with all nut traps and a shouldered 625ZZ seat."""
+    """Structural side skin with all nut traps."""
     body = Pos(0, 0, P.fg_panel_t / 2) * Box(
         P.fg_inner_d,
         P.fg_inner_h,
@@ -120,21 +120,6 @@ def side_panel(right: bool = False):
     )
     body = _cut_bulkhead_slots(body, mirror_v=right)
 
-    if right:
-        bearing_u = output_axis_y() - P.fg_box_d / 2
-        bearing_v = v_map * (P.fg_shaft_z - P.fg_box_h / 2)
-        body += Pos(bearing_u, bearing_v, P.fg_panel_t) * _cylinder(
-            P.fg_bearing_carrier_d / 2,
-            P.fg_bearing_carrier_t - P.fg_panel_t,
-        )
-        body -= Pos(bearing_u, bearing_v, P.fg_bearing_shoulder) * _cylinder(
-            (P.fg_bearing_d + P.fg_bearing_clear) / 2,
-            P.fg_bearing_carrier_t - P.fg_bearing_shoulder + 0.2,
-        )
-        body -= Pos(bearing_u, bearing_v, -0.1) * _cylinder(
-            P.fg_output_bore_d / 2,
-            P.fg_bearing_carrier_t + 0.2,
-        )
     return body
 
 
@@ -187,6 +172,21 @@ def horizontal_panel(top: bool = False):
         )
         for u in positions:
             body = _cut_closure_station(body, x, u, tabs_along_y=True)
+    if top:
+        bearing_x = P.fg_motor_axis_x - P.fg_box_w / 2
+        bearing_y = P.fg_box_d / 2 - output_axis_y()
+        body += Pos(bearing_x, bearing_y, P.fg_panel_t) * _cylinder(
+            P.fg_bearing_carrier_d / 2,
+            P.fg_bearing_carrier_t - P.fg_panel_t,
+        )
+        body -= Pos(bearing_x, bearing_y, P.fg_bearing_shoulder) * _cylinder(
+            (P.fg_bearing_d + P.fg_bearing_clear) / 2,
+            P.fg_bearing_carrier_t - P.fg_bearing_shoulder + 0.2,
+        )
+        body -= Pos(bearing_x, bearing_y, -0.1) * _cylinder(
+            P.fg_output_bore_d / 2,
+            P.fg_bearing_carrier_t + 0.2,
+        )
     return body
 
 

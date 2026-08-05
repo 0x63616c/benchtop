@@ -39,6 +39,7 @@ def test_box_uses_physically_selected_flatbed_joint():
     assert P.fg_joint_clear == 0.20
     assert P.fg_joint_hole_d == 3.4
     assert (P.fg_joint_nut_w, P.fg_joint_nut_d) == (5.8, 2.7)
+    assert P.fg_joint_stem_w == 3.5
 
 
 def test_motor_is_fully_inside_six_side_envelope():
@@ -70,11 +71,11 @@ def test_gears_fit_inside_box_and_output_axis_clears_front():
     "builder,max_height",
     (
         (bottom_panel, P.fg_panel_t),
-        (top_panel, P.fg_panel_t),
+        (top_panel, P.fg_bearing_carrier_t),
         (front_panel, P.fg_panel_t),
         (rear_panel, P.fg_panel_t),
         (left_panel, P.fg_panel_t),
-        (right_panel, P.fg_bearing_carrier_t),
+        (right_panel, P.fg_panel_t),
         (
             motor_bulkhead,
             P.fg_bulkhead_t + P.fg_bulkhead_reinforce,
@@ -93,7 +94,7 @@ def test_every_printable_starts_flat_on_bed(builder, max_height):
 
 def test_output_spacer_has_positive_length():
     bounds = output_spacer().bounding_box()
-    assert bounds.max.Z > 0.6
+    assert bounds.max.Z == pytest.approx(6.7, abs=1e-3)
 
 
 def test_printable_gears_are_each_one_connected_solid():
@@ -116,7 +117,7 @@ def test_output_shaft_starts_beyond_input_gear_and_gears_do_not_overlap():
     input_part, output_part = pair_parts()
     input_in_box = pair_in_box() * input_part
     output_in_box = pair_in_box() * output_part
-    assert output_rod().bounding_box().min.X > input_in_box.bounding_box().max.X
+    assert output_rod().bounding_box().min.Z > input_in_box.bounding_box().max.Z
     assert (input_in_box & output_in_box).volume == pytest.approx(0, abs=1e-6)
 
 
