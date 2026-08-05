@@ -28,10 +28,10 @@ from flatbed_cad.speedbox_panels import (
 )
 
 
-def test_ratio_is_a_two_times_speed_increase():
+def test_ratio_is_a_one_point_three_three_times_speed_increase():
     assert P.fg_input_teeth == 24
-    assert P.fg_output_teeth == 12
-    assert P.fg_output_speed_ratio == pytest.approx(2.0)
+    assert P.fg_output_teeth == 18
+    assert P.fg_output_speed_ratio == pytest.approx(4 / 3)
 
 
 def test_box_uses_physically_selected_flatbed_joint():
@@ -94,7 +94,11 @@ def test_every_printable_starts_flat_on_bed(builder, max_height):
 
 def test_output_spacer_has_positive_length():
     bounds = output_spacer().bounding_box()
-    assert bounds.max.Z == pytest.approx(6.7, abs=1e-3)
+    assert bounds.max.Z == pytest.approx(1.7, abs=1e-3)
+
+
+def test_output_has_two_distinct_bearings():
+    assert len(output_bearings().solids()) == 2
 
 
 def test_printable_gears_are_each_one_connected_solid():
@@ -103,7 +107,7 @@ def test_printable_gears_are_each_one_connected_solid():
 
 
 def test_compact_envelope_and_large_encoder_exit_are_locked_in():
-    assert (P.fg_box_w, P.fg_box_d, P.fg_box_h) == (43.0, 91.0, 43.0)
+    assert (P.fg_box_w, P.fg_box_d, P.fg_box_h) == (43.0, 95.0, 43.0)
     assert (P.fg_wire_exit_w, P.fg_wire_exit_h) == (24.0, 14.0)
     assert P.fg_motor_face_y == pytest.approx(65.0)
 
@@ -119,6 +123,16 @@ def test_output_shaft_starts_beyond_input_gear_and_gears_do_not_overlap():
     output_in_box = pair_in_box() * output_part
     assert output_rod().bounding_box().min.Z > input_in_box.bounding_box().max.Z
     assert (input_in_box & output_in_box).volume == pytest.approx(0, abs=1e-6)
+
+
+def test_output_shaft_is_centered_and_gear_clears_front_skin():
+    rod_bounds = output_rod().bounding_box()
+    assert (rod_bounds.min.X + rod_bounds.max.X) / 2 == pytest.approx(
+        P.fg_box_w / 2
+    )
+    output_bounds = (pair_in_box() * pair_parts()[1]).bounding_box()
+    front_clearance = P.fg_box_d - P.fg_panel_t - output_bounds.max.Y
+    assert front_clearance >= 1.0
 
 
 def test_top_and_bottom_hardware_stays_behind_motor_bulkhead():
@@ -140,7 +154,7 @@ def test_assembly_scene_contains_closed_box_and_drivetrain():
         "front",
         "motor-bulkhead",
     ]
-    assert {"jgb37-520", "24T-input", "12T-output", "625ZZ-bearing"} <= set(
+    assert {"jgb37-520", "24T-input", "18T-output", "625ZZ-bearings"} <= set(
         names
     )
 

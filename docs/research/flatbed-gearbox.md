@@ -2,15 +2,16 @@
 
 ## Locked prototype geometry
 
-- Envelope: **43 x 91 x 43 mm**, including six 2 mm flat-print skins.
+- Envelope: **43 x 95 x 43 mm**, including six 2 mm flat-print skins.
 - Rear outside face to motor bulkhead: **65 mm**.
 - Motor: JGB37-520 encoder envelope using the repo's assumed **24 mm L**
   gearbox variant. The motor/encoder body is 62.2 mm long; the rear panel and
   0.8 mm internal cable gap make up the 65 mm compartment.
 - Output: **90 degrees upward (+Z)**, through the top panel.
-- Ratio: **24T input : 12T output**. One motor revolution produces two output
-  revolutions; ideal output torque is half the motor-shaft torque before loss.
-- One 625ZZ bearing (5 x 16 x 5 mm) supports the top-side 5 mm output rod.
+- Ratio: **24T input : 18T output**. One motor revolution produces 1.333 output
+  revolutions; ideal output torque is 75% of motor-shaft torque before loss.
+- Two 625ZZ bearings (5 x 16 x 5 mm), separated by 0.2 mm, support the centered
+  top-side 5 mm output rod in an 11 mm-deep roof carrier.
 - Rear encoder/cable opening: **24 x 14 mm**.
 
 The rectangular Z envelope is motor-limited. The Ø37 motor has 0.5 mm nominal
@@ -36,8 +37,8 @@ bolt circle and is locally 5 mm thick around the Ø37 motor face.
 
 The mathematical bevel axes intersect, but the bought shafts do not. The motor
 shaft terminates inside the 24T D-bore input gear. The separate 5 mm output rod
-starts 0.2 mm beyond the input gear, enters the outward-facing hub on the 12T
-gear, passes through a 6.7 mm spacer and the top bearing, then exits the box.
+starts 0.2 mm beyond the input gear, enters the outward-facing hub on the 18T
+gear, passes through a 1.7 mm spacer and both top bearings, then exits the box.
 There are no set-screw or transverse pin holes in either printed gear.
 
 The output gear currently relies on a calibrated close bore fit. If the first

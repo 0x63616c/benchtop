@@ -1,7 +1,7 @@
-"""Modular 2x-speed right-angle drivetrain for the enclosed JGB37 box.
+"""Modular 1.333x-speed right-angle drivetrain for the enclosed JGB37 box.
 
-A 24T motor bevel drives a 12T output bevel, so one motor-shaft revolution
-produces two output-shaft revolutions. The pair is a replaceable cartridge:
+A 24T motor bevel drives an 18T output bevel, so one motor-shaft revolution
+produces 1.333 output-shaft revolutions. The pair is a replaceable cartridge:
 to explore a different ratio, change only the tooth counts and derived box
 clearances rather than coupling gear construction to panel construction.
 """
@@ -126,7 +126,7 @@ def input_gear():
 
 
 def output_gear():
-    """12T 5 mm output gear, heel-down print orientation."""
+    """18T 5 mm output gear, heel-down print orientation."""
     orient = Rot(0, 90, 0) * Pos(
         -P.fg_input_pitch_r,
         0,
@@ -169,12 +169,19 @@ def output_rod():
 
 
 def output_bearings():
-    top_z = P.fg_box_h - P.fg_bearing_shoulder - P.fg_bearing_w
-    return Pos(
+    outer_z = P.fg_box_h - P.fg_bearing_shoulder - P.fg_bearing_w
+    inner_z = outer_z - P.fg_bearing_gap - P.fg_bearing_w
+    outer = Pos(
         P.fg_motor_axis_x,
         output_axis_y(),
-        top_z,
+        outer_z,
     ) * bearing_625zz()
+    inner = Pos(
+        P.fg_motor_axis_x,
+        output_axis_y(),
+        inner_z,
+    ) * bearing_625zz()
+    return inner + outer
 
 
 def posed_output_spacer():
@@ -193,9 +200,9 @@ def drivetrain_scene() -> Scene:
     return (
         Scene()
         .add(input_part, "24T-input", "orange", loc=frame)
-        .add(output_part, "12T-output", "gold", loc=frame)
+        .add(output_part, "18T-output", "gold", loc=frame)
         .add(posed_output_spacer(), "output-spacer", "goldenrod")
-        .add(output_bearings(), "625ZZ-bearing", "silver")
+        .add(output_bearings(), "625ZZ-bearings", "silver")
         .add(output_rod(), "5mm-output-shaft", "dimgray")
     )
 

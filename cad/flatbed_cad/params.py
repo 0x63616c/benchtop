@@ -91,7 +91,7 @@ class Params:
     # Z=height/output axis. The 2 mm skin uses the selected three-dot
     # T-slot settings; the internal motor bulkhead is locally reinforced.
     fg_box_w: float = 43.0
-    fg_box_d: float = 91.0
+    fg_box_d: float = 95.0
     fg_box_h: float = 43.0
     fg_panel_t: float = 2.0
     fg_rear_clear: float = 0.8
@@ -118,11 +118,11 @@ class Params:
     fg_motor_mount_clear_d: float = 3.4
     fg_motor_boss_clear_d: float = 12.4
 
-    # Replaceable 24:12 bevel cartridge. This is a 2x speed increase:
-    # output_rpm / motor_rpm = input_teeth / output_teeth = 2.
+    # Replaceable 24:18 bevel cartridge. This is a 1.333x speed increase:
+    # output_rpm / motor_rpm = input_teeth / output_teeth = 4/3.
     fg_gear_module: float = 1.0
     fg_input_teeth: int = 24
-    fg_output_teeth: int = 12
+    fg_output_teeth: int = 18
     fg_gear_face: float = 4.0
     fg_gear_backlash: float = 0.12
     fg_motor_gear_gap: float = 0.7
@@ -133,7 +133,7 @@ class Params:
     fg_gear_running_gap: float = 0.2
 
     # The one-sided 5 mm output rod begins clear of the motor shaft, passes
-    # through the output gear, and exits through one top-side 625ZZ bearing.
+    # through the output gear, and exits through two stacked top-side 625ZZs.
     fg_output_shaft_d: float = 5.0
     fg_output_bore_d: float = 5.2
     fg_output_exposed: float = 10.0
@@ -141,7 +141,8 @@ class Params:
     fg_bearing_w: float = 5.0
     fg_bearing_clear: float = 0.2
     fg_bearing_carrier_d: float = 18.5
-    fg_bearing_carrier_t: float = 6.0
+    fg_bearing_gap: float = 0.2
+    fg_bearing_carrier_t: float = 11.0
     fg_bearing_shoulder: float = 0.8
 
     # Rear cable exit; the box remains closed on all six sides around it.
@@ -162,7 +163,7 @@ class Params:
 
     @property
     def fg_motor_axis_x(self) -> float:
-        return self.fg_box_w / 2 - 0.5
+        return self.fg_box_w / 2
 
     @property
     def fg_shaft_z(self) -> float:

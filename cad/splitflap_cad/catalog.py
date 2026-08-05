@@ -299,7 +299,7 @@ MODELS = {
     ),
     "flatbed-gearbox": Model(
         "flatbed",
-        "FLATBED enclosed JGB37 90-degree gearbox with 2x speed output",
+        "FLATBED enclosed JGB37 90-degree gearbox with 1.33x speed output",
         "flatbed_cad.speedbox_assembly",
     ),
     "flatbed-gearbox-panels": Model(
@@ -309,7 +309,7 @@ MODELS = {
     ),
     "flatbed-gearbox-drive": Model(
         "flatbed",
-        "FLATBED JGB37 motor, replaceable 24:12 bevels, bearing, and shaft",
+        "FLATBED JGB37 motor, replaceable 24:18 bevels, bearings, and shaft",
         "flatbed_cad.speedbox",
     ),
     "flatbed-gearbox-motor": Model(

@@ -23,7 +23,7 @@ from .speedbox_panels import (
 
 
 def scene() -> Scene:
-    """Six skins, bulkhead, motor, 24:12 bevels, bearing, and output rod."""
+    """Six skins, bulkhead, motor, 24:18 bevels, bearings, and output rod."""
     input_part, output_part = pair_parts()
     gear_frame = pair_in_box()
     return (
@@ -43,8 +43,8 @@ def scene() -> Scene:
         )
         .add(motor_reference(), "jgb37-520", "silver", loc=F.FG_MOTOR_IN_BOX)
         .add(input_part, "24T-input", "orange", loc=gear_frame)
-        .add(output_part, "12T-output", "gold", loc=gear_frame)
+        .add(output_part, "18T-output", "gold", loc=gear_frame)
         .add(posed_output_spacer(), "output-spacer", "goldenrod")
-        .add(output_bearings(), "625ZZ-bearing", "silver")
+        .add(output_bearings(), "625ZZ-bearings", "silver")
         .add(output_rod(), "5mm-output-shaft", "dimgray")
     )
