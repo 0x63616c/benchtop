@@ -87,23 +87,36 @@ class Params:
     fg_motor_screw_d: float = 3.0
     fg_motor_screw_depth: float = 5.0
 
-    # Minimal six-sided envelope. X=width, Y=motor axis from rear to front,
-    # Z=height/output axis. The 2 mm skin uses the selected three-dot
-    # T-slot settings; the internal motor bulkhead is locally reinforced.
-    fg_box_w: float = 43.0
+    # Six-sided envelope. The top/bottom/front/rear skins remain 2 mm, while
+    # the two structural side rails are 10 mm thick. That gives a Ø6 M3 head
+    # a complete seat with 2 mm of material to either rail edge.
+    fg_box_w: float = 59.0
     fg_box_d: float = 95.0
     fg_box_h: float = 43.0
     fg_panel_t: float = 2.0
+    fg_side_t: float = 10.0
     fg_rear_clear: float = 0.8
     fg_joint_clear: float = 0.20
     fg_joint_hole_d: float = 3.4
+    fg_joint_head_d: float = 6.0
+    fg_joint_edge_ligament: float = 2.0
     fg_joint_nut_w: float = 5.8
     fg_joint_nut_d: float = 2.7
     fg_joint_nut_inset: float = 4.5
     fg_joint_stem_w: float = 3.5
     fg_joint_tab_w: float = 5.0
-    fg_joint_tab_pitch: float = 12.0
+    fg_joint_tab_pitch: float = 16.0
     fg_joint_tab_end_clear: float = 0.4
+    fg_joint_nut_access_depth: float = 6.0
+    fg_side_frame_x: float = 10.0
+    fg_side_frame_y: float = 8.0
+    fg_side_brace_w: float = 4.0
+    fg_skin_window_w: float = 38.0
+    fg_skin_window_y0: float = -23.0
+    fg_skin_window_y1: float = 37.5
+    fg_skin_brace_w: float = 5.0
+    fg_end_frame_y: float = 8.0
+    fg_end_brace_w: float = 4.0
     # Both top/bottom closure stations sit behind the motor bulkhead. Keeping
     # them out of the drive bay prevents their bolts and nuts touching it.
     fg_long_joint_positions: tuple[float, ...] = (-24.0, 0.0)
@@ -187,7 +200,7 @@ class Params:
 
     @property
     def fg_inner_w(self) -> float:
-        return self.fg_box_w - 2 * self.fg_panel_t
+        return self.fg_box_w - 2 * self.fg_side_t
 
     @property
     def fg_inner_d(self) -> float:

@@ -23,7 +23,7 @@ from .speedbox_panels import (
 
 
 def scene() -> Scene:
-    """Six skins, bulkhead, motor, 24:18 bevels, bearings, and output rod."""
+    """Four skins, two side rails, bulkhead, motor, and 24:18 drivetrain."""
     input_part, output_part = pair_parts()
     gear_frame = pair_in_box()
     return (

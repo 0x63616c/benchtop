@@ -1,9 +1,10 @@
 """Six flat-print skins and internal motor bulkhead for the JGB37 speedbox.
 
-The two side skins are structural. Their edge tabs locate the top, bottom,
-front, and rear skins; side-loading M3 nut traps clamp those skins with twelve
-bolts. The selected physical calibration is encoded directly: 0.20 mm panel
-clearance, Ø3.4 bolt holes, and 5.8 x 2.7 mm nut traps.
+The two 10 mm side rails are structural. Their edge tabs locate the 2 mm top,
+bottom, front, and rear skins; side-loading M3 nut traps clamp those skins with
+twelve bolts. The selected physical calibration is encoded directly: 0.20 mm
+panel clearance, Ø3.4 bolt holes, and 5.8 x 2.7 mm nut traps. Nut traps open
+only on the inside, preserving a solid 4 mm outside wall.
 
 Every builder returns its part in flat print orientation on Z=0. Assembly
 poses live in ``frames.py``. The left and right skins differ only because the
@@ -11,9 +12,9 @@ right one's vertical features are mirrored before its inward-facing assembly
 pose. The top bearing boss prints upward and lands inside the box.
 """
 
-from math import cos, radians, sin
+from math import atan2, cos, degrees, hypot, radians, sin
 
-from build123d import Align, Box, Cylinder, Pos
+from build123d import Align, Box, Cylinder, Pos, Rot
 
 from splitflap_cad.viewer import Scene
 
@@ -34,52 +35,84 @@ def _cylinder(radius: float, height: float):
     )
 
 
+def _window_with_x_braces(
+    body,
+    *,
+    center_x: float,
+    center_y: float,
+    width: float,
+    height: float,
+    thickness: float,
+    brace_w: float,
+):
+    """Remove a rectangular window while retaining two clipped diagonals."""
+    window = Pos(center_x, center_y, thickness / 2) * Box(
+        width,
+        height,
+        thickness + 0.2,
+    )
+    diagonal = hypot(width, height) + 1.0
+    angle = degrees(atan2(height, width))
+    braces = (
+        Pos(center_x, center_y, thickness / 2)
+        * Rot(0, 0, angle)
+        * Box(diagonal, brace_w, thickness)
+    ) + (
+        Pos(center_x, center_y, thickness / 2)
+        * Rot(0, 0, -angle)
+        * Box(diagonal, brace_w, thickness)
+    )
+    return (body - window) + (braces & window)
+
+
 def _cut_horizontal_joint(body, u: float, edge_sign: int):
-    """Tabs and T-nut trap on a local +/-Y edge of a side skin."""
+    """Tabs and T-nut trap on a local +/-Y edge of a side rail."""
     edge = edge_sign * P.fg_inner_h / 2
     for tab_offset in (-P.fg_joint_tab_pitch / 2, P.fg_joint_tab_pitch / 2):
         body += Pos(
             u + tab_offset,
             edge + edge_sign * P.fg_panel_t / 2,
-            P.fg_panel_t / 2,
-        ) * Box(P.fg_joint_tab_w, P.fg_panel_t, P.fg_panel_t)
+            P.fg_side_t / 2,
+        ) * Box(P.fg_joint_tab_w, P.fg_panel_t, P.fg_side_t)
 
     pocket_v = edge - edge_sign * P.fg_joint_nut_inset
-    body -= Pos(u, pocket_v, P.fg_panel_t / 2) * Box(
+    blind_z = P.fg_side_t - P.fg_joint_nut_access_depth / 2 + 0.05
+    body -= Pos(u, pocket_v, blind_z) * Box(
         P.fg_joint_nut_w,
         P.fg_joint_nut_d,
-        P.fg_panel_t + 0.2,
+        P.fg_joint_nut_access_depth + 0.1,
     )
     near_edge = pocket_v + edge_sign * P.fg_joint_nut_d / 2
-    body -= Pos(u, (edge + near_edge) / 2, P.fg_panel_t / 2) * Box(
+    body -= Pos(u, (edge + near_edge) / 2, blind_z) * Box(
         P.fg_joint_stem_w,
         abs(edge - near_edge) + 0.2,
-        P.fg_panel_t + 0.2,
+        P.fg_joint_nut_access_depth + 0.1,
     )
     return body
 
 
 def _cut_vertical_joint(body, v: float, edge_sign: int):
-    """Tabs and T-nut trap on a local +/-X edge of a side skin."""
+    """Tabs and T-nut trap on a local +/-X edge of a side rail."""
     edge = edge_sign * P.fg_inner_d / 2
     for tab_offset in (-P.fg_joint_tab_pitch / 2, P.fg_joint_tab_pitch / 2):
         body += Pos(
             edge + edge_sign * P.fg_panel_t / 2,
             v + tab_offset,
-            P.fg_panel_t / 2,
-        ) * Box(P.fg_panel_t, P.fg_joint_tab_w, P.fg_panel_t)
+            P.fg_side_t / 2,
+        ) * Box(P.fg_panel_t, P.fg_joint_tab_w, P.fg_side_t)
 
     pocket_u = edge - edge_sign * P.fg_joint_nut_inset
-    body -= Pos(pocket_u, v, P.fg_panel_t / 2) * Box(
+    blind_z = P.fg_side_t - P.fg_joint_nut_access_depth / 2 + 0.05
+    body -= Pos(pocket_u, v, blind_z) * Box(
         P.fg_joint_nut_d,
         P.fg_joint_nut_w,
-        P.fg_panel_t + 0.2,
+        P.fg_joint_nut_access_depth + 0.1,
     )
     near_edge = pocket_u + edge_sign * P.fg_joint_nut_d / 2
-    body -= Pos((edge + near_edge) / 2, v, P.fg_panel_t / 2) * Box(
+    body -= Pos((edge + near_edge) / 2, v, blind_z) * Box(
         abs(edge - near_edge) + 0.2,
         P.fg_joint_stem_w,
-        P.fg_panel_t + 0.2,
+        P.fg_joint_nut_access_depth + 0.1,
     )
     return body
 
@@ -91,21 +124,32 @@ def _cut_bulkhead_slots(body, mirror_v: bool):
         + P.fg_bulkhead_t / 2
     )
     v_sign = -1 if mirror_v else 1
+    slot_depth = P.fg_panel_t + P.fg_joint_clear
+    slot_z = P.fg_side_t - slot_depth / 2 + 0.05
     for desired_v in P.fg_bulkhead_tab_positions:
-        body -= Pos(u, v_sign * desired_v, P.fg_panel_t / 2) * Box(
+        body -= Pos(u, v_sign * desired_v, slot_z) * Box(
             P.fg_bulkhead_t + P.fg_joint_clear,
             P.fg_bulkhead_tab_w + P.fg_joint_tab_end_clear,
-            P.fg_panel_t + 0.2,
+            slot_depth + 0.1,
         )
     return body
 
 
 def side_panel(right: bool = False):
-    """Structural side skin with all nut traps."""
-    body = Pos(0, 0, P.fg_panel_t / 2) * Box(
+    """Windowed structural side rail with blind inside-facing nut traps."""
+    body = Pos(0, 0, P.fg_side_t / 2) * Box(
         P.fg_inner_d,
         P.fg_inner_h,
-        P.fg_panel_t,
+        P.fg_side_t,
+    )
+    body = _window_with_x_braces(
+        body,
+        center_x=0,
+        center_y=0,
+        width=P.fg_inner_d - 2 * P.fg_side_frame_x,
+        height=P.fg_inner_h - 2 * P.fg_side_frame_y,
+        thickness=P.fg_side_t,
+        brace_w=P.fg_side_brace_w,
     )
     v_map = -1 if right else 1
 
@@ -135,7 +179,7 @@ def _cut_closure_station(body, x: float, y: float, tabs_along_y: bool):
     for offset in (-P.fg_joint_tab_pitch / 2, P.fg_joint_tab_pitch / 2):
         dx, dy = (0, offset) if tabs_along_y else (offset, 0)
         slot_w = (
-            P.fg_panel_t + P.fg_joint_clear
+            P.fg_side_t + P.fg_joint_clear
             if tabs_along_y
             else P.fg_joint_tab_w + P.fg_joint_tab_end_clear
         )
@@ -163,8 +207,17 @@ def horizontal_panel(top: bool = False):
         P.fg_box_d,
         P.fg_panel_t,
     )
-    for x in (-P.fg_box_w / 2 + P.fg_panel_t / 2,
-              P.fg_box_w / 2 - P.fg_panel_t / 2):
+    body = _window_with_x_braces(
+        body,
+        center_x=0,
+        center_y=(P.fg_skin_window_y0 + P.fg_skin_window_y1) / 2,
+        width=P.fg_skin_window_w,
+        height=P.fg_skin_window_y1 - P.fg_skin_window_y0,
+        thickness=P.fg_panel_t,
+        brace_w=P.fg_skin_brace_w,
+    )
+    for x in (-P.fg_box_w / 2 + P.fg_side_t / 2,
+              P.fg_box_w / 2 - P.fg_side_t / 2):
         positions = (
             tuple(-u for u in P.fg_long_joint_positions)
             if top
@@ -205,9 +258,18 @@ def end_panel(front: bool = False):
         P.fg_inner_h,
         P.fg_panel_t,
     )
+    body = _window_with_x_braces(
+        body,
+        center_x=0,
+        center_y=0,
+        width=P.fg_skin_window_w,
+        height=P.fg_inner_h - 2 * P.fg_end_frame_y,
+        thickness=P.fg_panel_t,
+        brace_w=P.fg_end_brace_w,
+    )
     joint_v = P.fg_front_joint_z if front else 0.0
-    for x in (-P.fg_box_w / 2 + P.fg_panel_t / 2,
-              P.fg_box_w / 2 - P.fg_panel_t / 2):
+    for x in (-P.fg_box_w / 2 + P.fg_side_t / 2,
+              P.fg_box_w / 2 - P.fg_side_t / 2):
         body = _cut_closure_station(body, x, joint_v, tabs_along_y=True)
 
     if not front:
