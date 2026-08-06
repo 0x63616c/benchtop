@@ -2,8 +2,8 @@
 
 ## Locked prototype geometry
 
-- Envelope: **59 x 95 x 43 mm**. Top, bottom, front, and rear are 2 mm skins;
-  the left/right structural rails are 10 mm thick.
+- Envelope: **55 x 95 x 43 mm**. All main sheets remain 2 mm thick; captive
+  nuts live in local 8 mm bosses on the left/right sheets.
 - Rear outside face to motor bulkhead: **65 mm**.
 - Motor: JGB37-520 encoder envelope using the repo's assumed **24 mm L**
   gearbox variant. The motor/encoder body is 62.2 mm long; the rear panel and
@@ -29,24 +29,22 @@ The enclosure reuses the physically selected three-dot Flatbed calibration:
 - 5.8 x 2.7 mm captive M3 nut pockets
 - 3.5 mm-wide long bolt-entry channel in each T-slot
 
-Each Ø3.4 hole is centered across a 10 mm rail. A Ø6 mm M3 head therefore has
-a complete circular landing face with 2 mm of material to both rail edges.
-The paired locating slots use 16 mm pitch, leaving at least 2 mm between the
-head footprint and each slot. Nut traps are blind-cut 6 mm from the inside,
-leaving a continuous 4 mm outside wall.
+Each bolt axis is 5 mm inboard. A Ø6 mm M3 head therefore has a complete
+circular landing face with 2 mm to the outer edge. The paired locating slots
+use 16 mm pitch, leaving at least 2 mm between the head footprint and each
+slot. Each nut boss rises locally to 8 mm; its inside-loading cavity ends at
+the original 2 mm sheet, which acts as the nut stop and continuous outer wall.
 
 The top and bottom closure fasteners are behind the motor bulkhead, so neither
 their bolts nor nuts enter the drive bay. Front/rear fasteners are lowered for
 the compact 43 mm height. The motor bulkhead uses the JGB37 six-hole Ø31 mm
 bolt circle and is locally 5 mm thick around the Ø37 motor face.
 
-All four removable outer faces are fastened on both structural rails: top and
-bottom use two M3 bolts per rail; front and rear use one per rail. This is 12
-closure bolts total. Large panel fields are open windows rather than solid
-slabs. The 10 mm side rails retain 10 mm front/rear perimeter members, 8 mm
-top/bottom members, and 4 mm crossed diagonals. The 2 mm skins retain wide bolt
-rails and 4–5 mm crossed diagonals around their windows. The rear cable opening
-cuts only the center of its brace field.
+All four removable outer faces are fastened to both side sheets: top and bottom
+use two M3 bolts per side; front and rear use one per side. This is 12 closure
+bolts total. Large panel fields use rectangular ladder-frame windows, not
+diagonal braces: the long faces have straight center ribs, while the end faces
+keep broad perimeter frames. Bosses and narrow fastener lands remain solid.
 
 ## Shaft and gear retention
 

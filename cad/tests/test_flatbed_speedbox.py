@@ -37,7 +37,8 @@ def test_ratio_is_a_one_point_three_three_times_speed_increase():
 
 def test_box_uses_physically_selected_flatbed_joint():
     assert P.fg_panel_t == 2.0
-    assert P.fg_side_t == 10.0
+    assert P.fg_side_t == 2.0
+    assert P.fg_joint_boss_t == 8.0
     assert P.fg_joint_clear == 0.20
     assert P.fg_joint_hole_d == 3.4
     assert (P.fg_joint_nut_w, P.fg_joint_nut_d) == (5.8, 2.7)
@@ -78,8 +79,8 @@ def test_gears_fit_inside_box_and_output_axis_clears_front():
         (top_panel, P.fg_bearing_carrier_t),
         (front_panel, P.fg_panel_t),
         (rear_panel, P.fg_panel_t),
-        (left_panel, P.fg_side_t),
-        (right_panel, P.fg_side_t),
+        (left_panel, P.fg_joint_boss_t),
+        (right_panel, P.fg_joint_boss_t),
         (
             motor_bulkhead,
             P.fg_bulkhead_t + P.fg_bulkhead_reinforce,
@@ -111,7 +112,7 @@ def test_printable_gears_are_each_one_connected_solid():
 
 
 def test_compact_envelope_and_large_encoder_exit_are_locked_in():
-    assert (P.fg_box_w, P.fg_box_d, P.fg_box_h) == (59.0, 95.0, 43.0)
+    assert (P.fg_box_w, P.fg_box_d, P.fg_box_h) == (55.0, 95.0, 43.0)
     assert (P.fg_wire_exit_w, P.fg_wire_exit_h) == (24.0, 14.0)
     assert P.fg_motor_face_y == pytest.approx(65.0)
 
@@ -159,8 +160,8 @@ def test_top_and_bottom_hardware_stays_behind_motor_bulkhead():
 def test_every_face_has_full_m3_holes_and_complete_head_seats(builder, hole_ys):
     part = builder()
     hole_xs = (
-        -P.fg_box_w / 2 + P.fg_side_t / 2,
-        P.fg_box_w / 2 - P.fg_side_t / 2,
+        -P.fg_box_w / 2 + P.fg_joint_axis_inset,
+        P.fg_box_w / 2 - P.fg_joint_axis_inset,
     )
     for hole_x in hole_xs:
         for hole_y in hole_ys:
@@ -186,7 +187,7 @@ def test_every_face_has_full_m3_holes_and_complete_head_seats(builder, hole_ys):
 
 
 def test_m3_head_and_slot_ligaments_are_at_least_two_mm():
-    edge_ligament = P.fg_side_t / 2 - P.fg_joint_head_d / 2
+    edge_ligament = P.fg_joint_axis_inset - P.fg_joint_head_d / 2
     slot_ligament = (
         P.fg_joint_tab_pitch / 2
         - (P.fg_joint_tab_w + P.fg_joint_tab_end_clear) / 2
@@ -200,40 +201,53 @@ def test_side_nut_traps_open_inside_but_keep_solid_outside_wall():
     side = left_panel()
     u = P.fg_long_joint_positions[0]
     pocket_v = P.fg_inner_h / 2 - P.fg_joint_nut_inset
-    outer_wall = Pos(u, pocket_v, 2.0) * Box(3.0, 2.0, 3.0)
-    inner_cavity = Pos(u, pocket_v, 7.0) * Box(3.0, 2.0, 3.0)
+    outer_wall = Pos(u, pocket_v, 1.0) * Box(3.0, 2.0, 1.5)
+    inner_cavity = Pos(u, pocket_v, 6.0) * Box(3.0, 2.0, 3.0)
     assert (side & outer_wall).volume == pytest.approx(outer_wall.volume)
     assert (side & inner_cavity).volume == pytest.approx(0, abs=1e-6)
 
 
-def test_large_panels_are_windowed_but_x_braces_remain_connected():
+def test_side_nut_traps_align_a_bottomed_m3_nut_with_the_bolt_axis():
+    cavity_floor = P.fg_joint_boss_t - P.fg_joint_nut_access_depth
+    bottomed_nut_center = cavity_floor + P.fg_joint_nut_w / 2
+    assert cavity_floor == P.fg_side_t
+    assert bottomed_nut_center == pytest.approx(P.fg_joint_axis_inset, abs=0.15)
+
+
+def test_large_panels_use_connected_ladder_frames_without_x_braces():
     side = left_panel()
     bottom = bottom_panel()
     front = front_panel()
 
-    side_full = P.fg_inner_d * P.fg_inner_h * P.fg_side_t
+    old_thick_side = P.fg_inner_d * P.fg_inner_h * P.fg_joint_boss_t
     bottom_full = P.fg_box_w * P.fg_box_d * P.fg_panel_t
     front_full = P.fg_box_w * P.fg_inner_h * P.fg_panel_t
-    assert side.volume < side_full * 0.75
+    assert side.volume < old_thick_side * 0.35
     assert bottom.volume < bottom_full * 0.70
     assert front.volume < front_full * 0.75
 
     for part in (side, bottom, front):
         assert len(part.solids()) == 1
 
-    side_open = Pos(0, 8, P.fg_side_t / 2) * Box(2, 2, P.fg_side_t + 0.2)
-    side_brace = Pos(0, 0, P.fg_side_t / 2) * Box(2, 2, P.fg_side_t)
+    side_window_w = (
+        P.fg_inner_d - 2 * P.fg_side_frame_x - P.fg_side_rib_w
+    ) / 2
+    side_window_x = P.fg_side_rib_w / 2 + side_window_w / 2
+    side_open = Pos(side_window_x, 0, P.fg_side_t / 2) * Box(
+        2, 2, P.fg_side_t + 0.2
+    )
+    side_rib = Pos(0, 0, P.fg_side_t / 2) * Box(2, 2, P.fg_side_t)
     skin_center_y = (P.fg_skin_window_y0 + P.fg_skin_window_y1) / 2
     bottom_open = Pos(0, skin_center_y + 15, P.fg_panel_t / 2) * Box(
         2, 2, P.fg_panel_t + 0.2
     )
-    bottom_brace = Pos(0, skin_center_y, P.fg_panel_t / 2) * Box(
+    bottom_rib = Pos(0, skin_center_y, P.fg_panel_t / 2) * Box(
         2, 2, P.fg_panel_t
     )
     assert (side & side_open).volume == pytest.approx(0, abs=1e-6)
-    assert (side & side_brace).volume > 0
+    assert (side & side_rib).volume > 0
     assert (bottom & bottom_open).volume == pytest.approx(0, abs=1e-6)
-    assert (bottom & bottom_brace).volume > 0
+    assert (bottom & bottom_rib).volume > 0
 
 
 def test_assembly_scene_contains_closed_box_and_drivetrain():
