@@ -1,6 +1,7 @@
 """Geometry and interface checks for the enclosed Flatbed JGB37 speedbox."""
 
 import pytest
+from build123d import Align, Cylinder, Pos
 
 from flatbed_cad import frames as F
 from flatbed_cad.motor_reference import motor_reference
@@ -141,6 +142,25 @@ def test_top_and_bottom_hardware_stays_behind_motor_bulkhead():
         for station in P.fg_long_joint_positions
     )
     assert furthest_hardware_y < P.fg_motor_face_y
+
+
+@pytest.mark.parametrize(
+    "builder,hole_y",
+    (
+        (bottom_panel, P.fg_long_joint_positions[0]),
+        (top_panel, -P.fg_long_joint_positions[0]),
+        (rear_panel, 0.0),
+        (front_panel, P.fg_front_joint_z),
+    ),
+)
+def test_closure_m3_holes_cut_through_full_panel(builder, hole_y):
+    hole_x = -P.fg_box_w / 2 + P.fg_panel_t / 2
+    probe = Pos(hole_x, hole_y, -0.1) * Cylinder(
+        P.fg_joint_hole_d / 2 - 0.1,
+        P.fg_panel_t + 0.2,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
+    assert (builder() & probe).volume == pytest.approx(0, abs=1e-6)
 
 
 def test_assembly_scene_contains_closed_box_and_drivetrain():

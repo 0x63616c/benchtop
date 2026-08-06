@@ -149,7 +149,7 @@ def _cut_closure_station(body, x: float, y: float, tabs_along_y: bool):
             slot_d,
             P.fg_panel_t + 0.2,
         )
-    body -= Pos(x, y, P.fg_panel_t / 2) * _cylinder(
+    body -= Pos(x, y, -0.1) * _cylinder(
         P.fg_joint_hole_d / 2,
         P.fg_panel_t + 0.2,
     )
