@@ -72,6 +72,9 @@ top, and bottom sheets. Its six motor-screw seats use the same 1.7 mm recess,
 leaving 3.3 mm of printed plate and 2.7 mm of thread engagement with M3 x 6 mm
 bolts. The enlarged top and bottom windows stop at a straight 6 mm rail
 through the bulkhead slots, with only 8 mm perimeter frames left at the ends.
+The two top-edge bulkhead tabs are spread 5 mm farther apart than the other
+three pairs. Only the top panel has the matching wider slot pair, keying the
+bulkhead so it cannot be installed upside-down or rotated 180 degrees.
 
 ## Shaft and gear retention
 

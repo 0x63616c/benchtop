@@ -236,7 +236,12 @@ def _cut_horizontal_bulkhead_slots(body, top: bool):
         assembly_y - P.fg_box_d / 2
     )
     slot_depth = P.fg_panel_t + P.fg_joint_clear
-    for x in P.fg_bulkhead_tab_positions:
+    positions = (
+        P.fg_bulkhead_keyed_tab_positions
+        if top
+        else P.fg_bulkhead_tab_positions
+    )
+    for x in positions:
         body -= Pos(x, slot_y, P.fg_panel_t / 2) * Box(
             P.fg_bulkhead_tab_w + P.fg_joint_tab_end_clear,
             slot_depth,
@@ -463,7 +468,12 @@ def motor_bulkhead():
                 P.fg_bulkhead_t / 2,
             ) * Box(P.fg_panel_t, P.fg_bulkhead_tab_w, P.fg_bulkhead_t)
         edge_v = edge_sign * P.fg_inner_h / 2
-        for u in P.fg_bulkhead_tab_positions:
+        positions = (
+            P.fg_bulkhead_keyed_tab_positions
+            if edge_sign == 1
+            else P.fg_bulkhead_tab_positions
+        )
+        for u in positions:
             body += Pos(
                 u,
                 edge_v + edge_sign * P.fg_panel_t / 2,

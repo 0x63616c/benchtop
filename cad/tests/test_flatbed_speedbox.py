@@ -488,8 +488,8 @@ def test_large_panels_use_connected_ladder_frames_without_x_braces():
 def test_motor_bulkhead_has_two_tabs_on_all_four_edges():
     bulkhead = motor_bulkhead()
     probes = []
-    for position in P.fg_bulkhead_tab_positions:
-        for edge_sign in (-1, 1):
+    for edge_sign in (-1, 1):
+        for position in P.fg_bulkhead_tab_positions:
             probes.append(
                 Pos(
                     edge_sign * (P.fg_inner_w / 2 + P.fg_panel_t / 2),
@@ -498,6 +498,12 @@ def test_motor_bulkhead_has_two_tabs_on_all_four_edges():
                 )
                 * Box(1, 1, P.fg_bulkhead_t)
             )
+        vertical_positions = (
+            P.fg_bulkhead_keyed_tab_positions
+            if edge_sign == 1
+            else P.fg_bulkhead_tab_positions
+        )
+        for position in vertical_positions:
             probes.append(
                 Pos(
                     position,
@@ -511,6 +517,20 @@ def test_motor_bulkhead_has_two_tabs_on_all_four_edges():
         assert (bulkhead & probe).volume == pytest.approx(probe.volume)
 
 
+def test_bulkhead_top_tab_gap_is_keyed_five_mm_wider_than_bottom():
+    normal_gap = (
+        P.fg_bulkhead_tab_positions[1]
+        - P.fg_bulkhead_tab_positions[0]
+        - P.fg_bulkhead_tab_w
+    )
+    keyed_gap = (
+        P.fg_bulkhead_keyed_tab_positions[1]
+        - P.fg_bulkhead_keyed_tab_positions[0]
+        - P.fg_bulkhead_tab_w
+    )
+    assert keyed_gap - normal_gap == pytest.approx(5.0)
+
+
 @pytest.mark.parametrize("builder,top", ((bottom_panel, False), (top_panel, True)))
 def test_top_and_bottom_receive_both_bulkhead_tabs(builder, top):
     panel = builder()
@@ -518,13 +538,41 @@ def test_top_and_bottom_receive_both_bulkhead_tabs(builder, top):
     slot_y = P.fg_box_d / 2 - assembly_y if top else (
         assembly_y - P.fg_box_d / 2
     )
-    for x in P.fg_bulkhead_tab_positions:
+    positions = (
+        P.fg_bulkhead_keyed_tab_positions
+        if top
+        else P.fg_bulkhead_tab_positions
+    )
+    for x in positions:
         slot = Pos(x, slot_y, P.fg_panel_t / 2) * Box(
             P.fg_bulkhead_tab_w,
             P.fg_panel_t,
             P.fg_panel_t + 0.2,
         )
         assert (panel & slot).volume == pytest.approx(0, abs=1e-6)
+
+
+def test_keyed_bulkhead_cannot_fit_the_wrong_horizontal_panel():
+    top = top_panel()
+    bottom = bottom_panel()
+    assembly_y = P.fg_motor_face_y + P.fg_bulkhead_t / 2
+    top_slot_y = P.fg_box_d / 2 - assembly_y
+    bottom_slot_y = assembly_y - P.fg_box_d / 2
+
+    for x in P.fg_bulkhead_keyed_tab_positions:
+        wrong_bottom_tab = Pos(x, bottom_slot_y, P.fg_panel_t / 2) * Box(
+            P.fg_bulkhead_tab_w,
+            P.fg_panel_t,
+            P.fg_panel_t,
+        )
+        assert (bottom & wrong_bottom_tab).volume > 0
+    for x in P.fg_bulkhead_tab_positions:
+        wrong_top_tab = Pos(x, top_slot_y, P.fg_panel_t / 2) * Box(
+            P.fg_bulkhead_tab_w,
+            P.fg_panel_t,
+            P.fg_panel_t,
+        )
+        assert (top & wrong_top_tab).volume > 0
 
 
 def test_assembly_scene_contains_closed_box_and_drivetrain():

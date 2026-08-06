@@ -140,6 +140,9 @@ class Params:
     fg_bulkhead_reinforce: float = 3.0
     fg_bulkhead_tab_w: float = 5.0
     fg_bulkhead_tab_positions: tuple[float, ...] = (-12.0, 12.0)
+    # The top pair is spread 5 mm farther apart than every other pair. Its
+    # matching top-panel slots make the bulkhead impossible to fit upside-down.
+    fg_bulkhead_keyed_tab_positions: tuple[float, ...] = (-14.5, 14.5)
     fg_motor_head_recess: float = 1.7
     fg_motor_mount_clear_d: float = 3.4
     fg_motor_boss_clear_d: float = 12.4
