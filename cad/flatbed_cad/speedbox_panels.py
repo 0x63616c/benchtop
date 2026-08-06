@@ -35,6 +35,19 @@ def _cylinder(radius: float, height: float):
     )
 
 
+def _cut_recessed_m3_hole(body, x: float, y: float, thickness: float):
+    """Cut a through-hole plus the shallow exterior M3 head pocket."""
+    body -= Pos(x, y, -0.1) * _cylinder(
+        P.fg_joint_hole_d / 2,
+        thickness + 0.2,
+    )
+    body -= Pos(x, y, -0.1) * _cylinder(
+        P.fg_joint_head_d / 2,
+        P.fg_joint_head_recess + 0.1,
+    )
+    return body
+
+
 def _cut_split_windows(
     body,
     *,
@@ -288,11 +301,7 @@ def _cut_closure_station(
             slot_d,
             P.fg_panel_t + 0.2,
         )
-    body -= Pos(hole_x, y, -0.1) * _cylinder(
-        P.fg_joint_hole_d / 2,
-        P.fg_panel_t + 0.2,
-    )
-    return body
+    return _cut_recessed_m3_hole(body, hole_x, y, P.fg_panel_t)
 
 
 def horizontal_panel(top: bool = False):
@@ -400,9 +409,11 @@ def end_panel(front: bool = False):
             P.fg_box_h - P.fg_front_center_axis_z,
         ):
             center_v = axis_z - P.fg_box_h / 2
-            body -= Pos(0, center_v, -0.1) * _cylinder(
-                P.fg_joint_hole_d / 2,
-                P.fg_panel_t + 0.2,
+            body = _cut_recessed_m3_hole(
+                body,
+                0,
+                center_v,
+                P.fg_panel_t,
             )
 
     if not front:

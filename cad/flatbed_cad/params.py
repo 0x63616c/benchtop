@@ -98,7 +98,8 @@ class Params:
     fg_rear_clear: float = 0.8
     fg_joint_clear: float = 0.20
     fg_joint_hole_d: float = 3.4
-    fg_joint_head_d: float = 6.0
+    fg_joint_head_d: float = 5.8
+    fg_joint_head_recess: float = 1.7
     fg_m3_bolt_len: float = 6.0
     fg_joint_edge_ligament: float = 2.0
     fg_joint_axis_inset: float = 5.0
@@ -106,7 +107,7 @@ class Params:
     fg_joint_boss_w: float = 10.0
     fg_joint_boss_span: float = 8.0
     # The centered third front bolt anchors into the bottom skin. Its axis is
-    # 7 mm above the box floor, retaining 2 mm around a Ø6 head on the front
+    # 7 mm above the box floor, retaining 2 mm around a Ø5.8 head on the front
     # panel's opposite long edge. This local boss is taller so a bottomed nut
     # aligns with the axis while remaining top-loading.
     fg_front_center_axis_z: float = 7.0
@@ -138,7 +139,7 @@ class Params:
     fg_bulkhead_reinforce: float = 3.0
     fg_bulkhead_tab_w: float = 5.0
     fg_bulkhead_tab_positions: tuple[float, ...] = (-12.0, 12.0)
-    fg_motor_head_recess: float = 2.0
+    fg_motor_head_recess: float = 1.7
     fg_motor_mount_clear_d: float = 3.4
     fg_motor_boss_clear_d: float = 12.4
 

@@ -32,9 +32,10 @@ The enclosure reuses the physically selected three-dot Flatbed calibration:
 - 6.2 x 3.0 mm captive M3 nut pockets
 - 4.0 mm-wide long bolt-entry channel in each T-slot
 - one standard fastener length throughout: **M3 x 6 mm**
+- every exterior head pocket is **5.8 mm diameter x 1.7 mm deep**
 
-Each bolt axis is 5 mm inboard. A Ø6 mm M3 head therefore has a complete
-circular landing face with 2 mm to the outer edge. The paired locating slots
+Each bolt axis is 5 mm inboard. A Ø5.8 mm M3 head therefore has a complete
+circular landing face with at least 2 mm to the outer edge. The paired locating slots
 use 16 mm pitch, leaving at least 2 mm between the head footprint and each
 slot. The side-sheet nut bosses rise locally to 8 mm; their inside-loading
 cavities end at the original 2 mm sheet, which acts as the nut stop and
@@ -60,9 +61,9 @@ The output-bearing pocket and the nearest front M3 nut cavity retain at least
 depth creates this ligament without offsetting the centered front fastener.
 
 The motor bulkhead has eight locating tabs: two into each of the left, right,
-top, and bottom sheets. Its six motor-screw seats are recessed by 2 mm, leaving
-3 mm of printed plate and 3 mm of thread engagement when using the same M3 x 6
-mm bolts. The enlarged top and bottom windows stop at a straight 6 mm rail
+top, and bottom sheets. Its six motor-screw seats use the same 1.7 mm recess,
+leaving 3.3 mm of printed plate and 2.7 mm of thread engagement with M3 x 6 mm
+bolts. The enlarged top and bottom windows stop at a straight 6 mm rail
 through the bulkhead slots, with only 8 mm perimeter frames left at the ends.
 
 ## Shaft and gear retention

@@ -47,7 +47,8 @@ def test_box_uses_physically_selected_flatbed_joint():
     assert P.fg_joint_hole_d == 3.4
     assert (P.fg_joint_nut_w, P.fg_joint_nut_d) == (6.2, 3.0)
     assert P.fg_joint_stem_w == 4.0
-    assert P.fg_joint_head_d == 6.0
+    assert P.fg_joint_head_d == 5.8
+    assert P.fg_joint_head_recess == 1.7
     assert P.fg_m3_bolt_len == 6.0
     assert P.fg_joint_edge_ligament == 2.0
 
@@ -64,8 +65,14 @@ def test_m3x6_reaches_every_captive_nut_without_protruding():
         - P.fg_motor_head_recess
     )
     motor_thread_engagement = P.fg_m3_bolt_len - motor_plate_left
-    assert motor_thread_engagement == pytest.approx(3.0)
+    assert motor_thread_engagement == pytest.approx(2.7)
     assert motor_thread_engagement <= P.fg_motor_screw_depth
+
+    receiver_near_face = (
+        P.fg_panel_t + P.fg_joint_nut_inset - P.fg_joint_nut_d / 2
+    )
+    bolt_tip = P.fg_joint_head_recess + P.fg_m3_bolt_len
+    assert bolt_tip - receiver_near_face == pytest.approx(2.7)
 
 
 def test_motor_is_fully_inside_six_side_envelope():
@@ -267,7 +274,7 @@ def test_top_and_bottom_hardware_stays_behind_motor_bulkhead():
         (front_panel, (P.fg_front_joint_z,)),
     ),
 )
-def test_every_face_has_full_m3_holes_and_complete_head_seats(builder, hole_ys):
+def test_every_face_has_full_m3_holes_and_recessed_head_seats(builder, hole_ys):
     part = builder()
     hole_xs = (
         -P.fg_box_w / 2 + P.fg_joint_axis_inset,
@@ -282,17 +289,24 @@ def test_every_face_has_full_m3_holes_and_complete_head_seats(builder, hole_ys):
             )
             assert (part & through_probe).volume == pytest.approx(0, abs=1e-6)
 
-            head_disk = Pos(hole_x, hole_y, 0) * Cylinder(
-                P.fg_joint_head_d / 2,
-                P.fg_panel_t,
+            recess_probe = Pos(hole_x, hole_y, 0) * Cylinder(
+                P.fg_joint_head_d / 2 - 0.1,
+                P.fg_joint_head_recess - 0.1,
                 align=(Align.CENTER, Align.CENTER, Align.MIN),
             )
-            hole_disk = Pos(hole_x, hole_y, 0) * Cylinder(
-                P.fg_joint_hole_d / 2,
-                P.fg_panel_t,
+            assert (part & recess_probe).volume == pytest.approx(0, abs=1e-6)
+
+            outer_disk = Pos(hole_x, hole_y, P.fg_joint_head_recess + 0.05) * Cylinder(
+                P.fg_joint_head_d / 2 - 0.1,
+                P.fg_panel_t - P.fg_joint_head_recess - 0.1,
                 align=(Align.CENTER, Align.CENTER, Align.MIN),
             )
-            seat = head_disk - hole_disk
+            hole_disk = Pos(hole_x, hole_y, P.fg_joint_head_recess + 0.05) * Cylinder(
+                P.fg_joint_hole_d / 2 + 0.1,
+                P.fg_panel_t - P.fg_joint_head_recess - 0.1,
+                align=(Align.CENTER, Align.CENTER, Align.MIN),
+            )
+            seat = outer_disk - hole_disk
             assert (seat - (part & seat)).volume == pytest.approx(0, abs=1e-6)
 
 
@@ -314,17 +328,24 @@ def test_front_has_centered_m3_holes_on_both_long_edges():
         )
         assert (front & through_probe).volume == pytest.approx(0, abs=1e-6)
 
-        head_disk = Pos(0, center_v, 0) * Cylinder(
-            P.fg_joint_head_d / 2,
-            P.fg_panel_t,
+        recess_probe = Pos(0, center_v, 0) * Cylinder(
+            P.fg_joint_head_d / 2 - 0.1,
+            P.fg_joint_head_recess - 0.1,
             align=(Align.CENTER, Align.CENTER, Align.MIN),
         )
-        hole_disk = Pos(0, center_v, 0) * Cylinder(
-            P.fg_joint_hole_d / 2,
-            P.fg_panel_t,
+        assert (front & recess_probe).volume == pytest.approx(0, abs=1e-6)
+
+        outer_disk = Pos(0, center_v, P.fg_joint_head_recess + 0.05) * Cylinder(
+            P.fg_joint_head_d / 2 - 0.1,
+            P.fg_panel_t - P.fg_joint_head_recess - 0.1,
             align=(Align.CENTER, Align.CENTER, Align.MIN),
         )
-        seat = head_disk - hole_disk
+        hole_disk = Pos(0, center_v, P.fg_joint_head_recess + 0.05) * Cylinder(
+            P.fg_joint_hole_d / 2 + 0.1,
+            P.fg_panel_t - P.fg_joint_head_recess - 0.1,
+            align=(Align.CENTER, Align.CENTER, Align.MIN),
+        )
+        seat = outer_disk - hole_disk
         assert (seat - (front & seat)).volume == pytest.approx(0, abs=1e-6)
         edge_ligament = (
             P.fg_inner_h / 2
