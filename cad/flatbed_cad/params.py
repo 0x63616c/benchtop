@@ -100,6 +100,7 @@ class Params:
     fg_joint_hole_d: float = 3.4
     fg_joint_head_d: float = 5.8
     fg_joint_head_recess: float = 1.7
+    fg_joint_head_bevel: float = 0.3
     fg_m3_bolt_len: float = 6.0
     fg_joint_edge_ligament: float = 2.0
     fg_joint_axis_inset: float = 5.0

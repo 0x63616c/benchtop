@@ -14,7 +14,7 @@ pose. Each side's bearing carrier prints upward and lands inside the box.
 
 from math import cos, radians, sin
 
-from build123d import Align, Box, Cylinder, Pos
+from build123d import Align, Box, Cone, Cylinder, Pos
 
 from splitflap_cad.viewer import Scene
 
@@ -36,7 +36,7 @@ def _cylinder(radius: float, height: float):
 
 
 def _cut_recessed_m3_hole(body, x: float, y: float, thickness: float):
-    """Cut a through-hole plus the shallow exterior M3 head pocket."""
+    """Cut a through-hole, flat head seat, and printable 45-degree relief."""
     body -= Pos(x, y, -0.1) * _cylinder(
         P.fg_joint_hole_d / 2,
         thickness + 0.2,
@@ -44,6 +44,12 @@ def _cut_recessed_m3_hole(body, x: float, y: float, thickness: float):
     body -= Pos(x, y, -0.1) * _cylinder(
         P.fg_joint_head_d / 2,
         P.fg_joint_head_recess + 0.1,
+    )
+    body -= Pos(x, y, P.fg_joint_head_recess) * Cone(
+        P.fg_joint_hole_d / 2 + P.fg_joint_head_bevel,
+        P.fg_joint_hole_d / 2,
+        P.fg_joint_head_bevel,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
     )
     return body
 
@@ -163,7 +169,11 @@ def _add_front_center_nut_boss(body, edge_sign: int):
         P.fg_front_center_boss_t,
     )
 
-    pocket_y = edge - edge_sign * P.fg_joint_nut_inset
+    # Match the side receivers: the front skin consumes the first 2 mm, then
+    # the nut pocket begins 3 mm farther in. Every M3x6 now engages equally.
+    pocket_y = edge - edge_sign * (
+        P.fg_panel_t + P.fg_joint_nut_inset
+    )
     cavity_floor = P.fg_front_center_axis_z - P.fg_joint_nut_w / 2
     access_depth = P.fg_front_center_boss_t - cavity_floor
     cavity_z = cavity_floor + access_depth / 2 + 0.05
@@ -487,6 +497,19 @@ def motor_bulkhead():
         ) * _cylinder(
             P.fg_joint_head_d / 2,
             P.fg_motor_head_recess + 0.1,
+        )
+        body -= Pos(
+            x,
+            v,
+            P.fg_bulkhead_t
+            + P.fg_bulkhead_reinforce
+            - P.fg_motor_head_recess
+            - P.fg_joint_head_bevel,
+        ) * Cone(
+            P.fg_joint_hole_d / 2,
+            P.fg_joint_hole_d / 2 + P.fg_joint_head_bevel,
+            P.fg_joint_head_bevel,
+            align=(Align.CENTER, Align.CENTER, Align.MIN),
         )
     return body
 

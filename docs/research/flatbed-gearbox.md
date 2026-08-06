@@ -32,7 +32,8 @@ The enclosure reuses the physically selected three-dot Flatbed calibration:
 - 6.2 x 3.0 mm captive M3 nut pockets
 - 4.0 mm-wide long bolt-entry channel in each T-slot
 - one standard fastener length throughout: **M3 x 6 mm**
-- every exterior head pocket is **5.8 mm diameter x 1.7 mm deep**
+- every exterior head pocket is **5.8 mm diameter x 1.7 mm deep**, ending in
+  a 0.3 mm-high 45-degree shoulder relief before the 3.4 mm through-hole
 
 Each bolt axis is 5 mm inboard. A Ø5.8 mm M3 head therefore has a complete
 circular landing face with at least 2 mm to the outer edge. The paired locating slots
@@ -42,6 +43,12 @@ cavities end at the original 2 mm sheet, which acts as the nut stop and
 continuous outer wall. Centered front fasteners use matching 10 mm bosses on
 the top and bottom skins, placing their axes 7 mm from each long edge with the
 same 2 mm head ligament.
+
+The two centered front receivers place their nut cavities at the same 6.5 mm
+center distance from the outer face as the side receivers. With the 1.7 mm
+head recess, every M3 x 6 closure bolt crosses about 2.7 mm of its 3 mm-deep
+nut pocket. The front receiver towers are taller only because their nuts load
+vertically; that tower height is perpendicular to bolt length.
 
 The top and bottom closure fasteners are behind the motor bulkhead, so neither
 their bolts nor nuts enter the drive bay. The two front side fasteners are now
