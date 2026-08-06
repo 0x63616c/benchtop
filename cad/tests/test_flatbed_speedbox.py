@@ -75,7 +75,7 @@ def test_gears_fit_inside_box_and_output_axis_clears_front():
 @pytest.mark.parametrize(
     "builder,max_height",
     (
-        (bottom_panel, P.fg_panel_t),
+        (bottom_panel, P.fg_front_center_boss_t),
         (top_panel, P.fg_bearing_carrier_t),
         (front_panel, P.fg_panel_t),
         (rear_panel, P.fg_panel_t),
@@ -184,6 +184,49 @@ def test_every_face_has_full_m3_holes_and_complete_head_seats(builder, hole_ys):
             )
             seat = head_disk - hole_disk
             assert (seat - (part & seat)).volume == pytest.approx(0, abs=1e-6)
+
+
+def test_front_has_centered_third_m3_hole_on_opposite_long_edge():
+    front = front_panel()
+    center_v = P.fg_front_center_axis_z - P.fg_box_h / 2
+    through_probe = Pos(0, center_v, -0.1) * Cylinder(
+        P.fg_joint_hole_d / 2 - 0.1,
+        P.fg_panel_t + 0.2,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
+    assert (front & through_probe).volume == pytest.approx(0, abs=1e-6)
+
+    head_disk = Pos(0, center_v, 0) * Cylinder(
+        P.fg_joint_head_d / 2,
+        P.fg_panel_t,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
+    hole_disk = Pos(0, center_v, 0) * Cylinder(
+        P.fg_joint_hole_d / 2,
+        P.fg_panel_t,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
+    seat = head_disk - hole_disk
+    assert (seat - (front & seat)).volume == pytest.approx(0, abs=1e-6)
+    lower_edge_ligament = (
+        center_v + P.fg_inner_h / 2 - P.fg_joint_head_d / 2
+    )
+    assert lower_edge_ligament >= P.fg_joint_edge_ligament
+
+
+def test_third_front_bolt_has_aligned_top_loading_nut_boss_on_bottom():
+    bottom = bottom_panel()
+    pocket_y = P.fg_box_d / 2 - P.fg_joint_nut_inset
+    cavity_floor = P.fg_front_center_axis_z - P.fg_joint_nut_w / 2
+    bottomed_nut_center = cavity_floor + P.fg_joint_nut_w / 2
+    assert bottomed_nut_center == pytest.approx(P.fg_front_center_axis_z)
+
+    solid_floor = Pos(0, pocket_y, cavity_floor / 2) * Box(
+        3.0, 2.0, cavity_floor - 0.2
+    )
+    open_cavity = Pos(0, pocket_y, 7.0) * Box(3.0, 2.0, 5.0)
+    assert (bottom & solid_floor).volume == pytest.approx(solid_floor.volume)
+    assert (bottom & open_cavity).volume == pytest.approx(0, abs=1e-6)
 
 
 def test_m3_head_and_slot_ligaments_are_at_least_two_mm():

@@ -104,6 +104,12 @@ class Params:
     fg_joint_boss_t: float = 8.0
     fg_joint_boss_w: float = 10.0
     fg_joint_boss_span: float = 8.0
+    # The centered third front bolt anchors into the bottom skin. Its axis is
+    # 7 mm above the box floor, retaining 2 mm around a Ø6 head on the front
+    # panel's opposite long edge. This local boss is taller so a bottomed nut
+    # aligns with the axis while remaining top-loading.
+    fg_front_center_axis_z: float = 7.0
+    fg_front_center_boss_t: float = 10.0
     fg_joint_nut_w: float = 5.8
     fg_joint_nut_d: float = 2.7
     fg_joint_nut_inset: float = 4.5

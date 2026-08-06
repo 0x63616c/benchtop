@@ -3,7 +3,7 @@
 The two side sheets remain 2 mm thick. Each M3 nut trap sits in a local boss
 with a 10 x 8 mm footprint that rises to 8 mm from the print face; the nut
 slides in from the inside and stops against the original 2 mm wall. Edge tabs
-locate the top, bottom, front, and rear skins, and twelve bolts clamp the
+locate the top, bottom, front, and rear skins, and thirteen bolts clamp the
 assembly.
 
 Every builder returns its part in flat print orientation on Z=0. Assembly
@@ -134,6 +134,34 @@ def _cut_vertical_joint(body, v: float, edge_sign: int):
         abs(edge - near_edge) + 0.2,
         P.fg_joint_stem_w,
         P.fg_joint_nut_access_depth + 0.1,
+    )
+    return body
+
+
+def _add_front_center_nut_boss(body):
+    """Add the bottom skin's top-loading nut boss for the third front bolt."""
+    edge = P.fg_box_d / 2
+    boss_y = edge - P.fg_panel_t - P.fg_joint_boss_span / 2
+    body += Pos(0, boss_y, P.fg_front_center_boss_t / 2) * Box(
+        P.fg_joint_boss_w,
+        P.fg_joint_boss_span,
+        P.fg_front_center_boss_t,
+    )
+
+    pocket_y = edge - P.fg_joint_nut_inset
+    cavity_floor = P.fg_front_center_axis_z - P.fg_joint_nut_w / 2
+    access_depth = P.fg_front_center_boss_t - cavity_floor
+    cavity_z = cavity_floor + access_depth / 2 + 0.05
+    body -= Pos(0, pocket_y, cavity_z) * Box(
+        P.fg_joint_nut_w,
+        P.fg_joint_nut_d,
+        access_depth + 0.1,
+    )
+    near_edge = pocket_y + P.fg_joint_nut_d / 2
+    body -= Pos(0, (edge + near_edge) / 2, cavity_z) * Box(
+        P.fg_joint_stem_w,
+        abs(edge - near_edge) + 0.2,
+        access_depth + 0.1,
     )
     return body
 
@@ -269,6 +297,8 @@ def horizontal_panel(top: bool = False):
                 u,
                 tabs_along_y=True,
             )
+    if not top:
+        body = _add_front_center_nut_boss(body)
     if top:
         bearing_x = P.fg_motor_axis_x - P.fg_box_w / 2
         bearing_y = P.fg_box_d / 2 - output_axis_y()
@@ -326,6 +356,13 @@ def end_panel(front: bool = False):
             hole_x,
             joint_v,
             tabs_along_y=True,
+        )
+
+    if front:
+        center_v = P.fg_front_center_axis_z - P.fg_box_h / 2
+        body -= Pos(0, center_v, -0.1) * _cylinder(
+            P.fg_joint_hole_d / 2,
+            P.fg_panel_t + 0.2,
         )
 
     if not front:

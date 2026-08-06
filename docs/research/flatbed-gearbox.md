@@ -32,8 +32,11 @@ The enclosure reuses the physically selected three-dot Flatbed calibration:
 Each bolt axis is 5 mm inboard. A Ø6 mm M3 head therefore has a complete
 circular landing face with 2 mm to the outer edge. The paired locating slots
 use 16 mm pitch, leaving at least 2 mm between the head footprint and each
-slot. Each nut boss rises locally to 8 mm; its inside-loading cavity ends at
-the original 2 mm sheet, which acts as the nut stop and continuous outer wall.
+slot. The side-sheet nut bosses rise locally to 8 mm; their inside-loading
+cavities end at the original 2 mm sheet, which acts as the nut stop and
+continuous outer wall. The centered front fastener uses one 10 mm bottom boss
+to place its bolt axis 7 mm above the floor and retain the same 2 mm head
+ligament on the opposite long edge.
 
 The top and bottom closure fasteners are behind the motor bulkhead, so neither
 their bolts nor nuts enter the drive bay. Front/rear fasteners are lowered for
@@ -41,10 +44,12 @@ the compact 43 mm height. The motor bulkhead uses the JGB37 six-hole Ø31 mm
 bolt circle and is locally 5 mm thick around the Ø37 motor face.
 
 All four removable outer faces are fastened to both side sheets: top and bottom
-use two M3 bolts per side; front and rear use one per side. This is 12 closure
-bolts total. Large panel fields use rectangular ladder-frame windows, not
-diagonal braces: the long faces have straight center ribs, while the end faces
-keep broad perimeter frames. Bosses and narrow fastener lands remain solid.
+use two M3 bolts per side; front and rear use one per side. The front also has
+a centered third bolt on its opposite long edge, anchored by a top-loading nut
+boss on the bottom skin. This is 13 closure bolts total. Large panel fields use
+rectangular ladder-frame windows, not diagonal braces: the long faces have
+straight center ribs, while the end faces keep broad perimeter frames. Bosses
+and narrow fastener lands remain solid.
 
 ## Shaft and gear retention
 
