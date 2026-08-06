@@ -102,6 +102,7 @@ def test_printable_builders_exist():
         "flatbed-gearbox-rear",
         "flatbed-gearbox-bulkhead",
         "flatbed-gearbox-input-gear",
+        "flatbed-gearbox-input-spacer",
         "flatbed-gearbox-output-gear",
         "flatbed-gearbox-output-spacer",
     }

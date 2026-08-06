@@ -9,6 +9,7 @@ from .speedbox import (
     output_rod,
     pair_in_box,
     pair_parts,
+    posed_input_spacer,
     posed_output_spacer,
 )
 from .speedbox_panels import (
@@ -43,6 +44,7 @@ def scene() -> Scene:
         )
         .add(motor_reference(), "jgb37-520", "silver", loc=F.FG_MOTOR_IN_BOX)
         .add(input_part, "24T-input", "orange", loc=gear_frame)
+        .add(posed_input_spacer(), "input-spacer", "darkorange")
         .add(output_part, "18T-output", "gold", loc=gear_frame)
         .add(posed_output_spacer(), "output-spacer", "goldenrod")
         .add(output_bearings(), "625ZZ-bearings", "silver")

@@ -75,7 +75,7 @@ def pair_parts():
         input_part,
         P.fg_gear_print_radial_growth,
     )
-    input_part -= Pos(0, 0, -2) * Rot(0, 0, 90) * _d_prism(
+    input_part -= Pos(0, 0, -2) * _d_prism(
         P.fg_motor_shaft_d + 0.2,
         P.fg_motor_shaft_flat + 0.2,
         12,
@@ -115,21 +115,22 @@ def pair_parts():
 
 
 def pair_origin_y() -> float:
-    """Place the input heel beyond the motor's 6 mm boss."""
+    """Place the input heel beyond the motor boss and axial spacer."""
     input_min = pair_parts()[0].bounding_box().min.Z
     return (
         P.fg_motor_face_y
         + P.fg_motor_boss_h
         + P.fg_motor_gear_gap
+        + P.fg_input_spacer_len
         - input_min
     )
 
 
 def pair_in_box():
-    """Local pair frame: input +Y, output +Z."""
+    """Local pair frame: input +Y, output +X through the side walls."""
     return Plane(
         origin=(P.fg_motor_axis_x, pair_origin_y(), P.fg_shaft_z),
-        x_dir=(0, 0, 1),
+        x_dir=(1, 0, 0),
         z_dir=(0, 1, 0),
     ).location
 
@@ -144,6 +145,16 @@ def input_gear():
     return Pos(0, 0, -part.bounding_box().min.Z) * part
 
 
+def input_spacer():
+    """Printed sleeve that locates the shifted input gear on the motor shaft."""
+    return _cylinder(P.fg_gear_hub_d / 2, P.fg_input_spacer_len) - Pos(
+        0, 0, -0.1
+    ) * _cylinder(
+        (P.fg_motor_shaft_d + 0.2) / 2,
+        P.fg_input_spacer_len + 0.2,
+    )
+
+
 def output_gear():
     """18T D-bore output gear, self-supporting wide-heel-down orientation."""
     orient = Rot(0, 90, 0) * Pos(
@@ -156,15 +167,22 @@ def output_gear():
 
 
 def output_spacer():
-    """Printed sleeve from the output gear to the top bearing."""
+    """Short right-side thrust sleeve between output gear and bearing."""
     posed_output = pair_in_box() * pair_parts()[1]
-    gear_z1 = posed_output.bounding_box().max.Z
-    bearing_inner_z = P.fg_box_h - P.fg_bearing_carrier_t
-    length = bearing_inner_z - P.fg_gear_running_gap - gear_z1
-    return _cylinder(4.0, length) - Pos(0, 0, -0.1) * _cylinder(
-        P.fg_output_bore_d / 2,
-        length + 0.2,
+    right_length = (
+        P.fg_box_w
+        - P.fg_bearing_carrier_t
+        - P.fg_gear_running_gap
+        - posed_output.bounding_box().max.X
     )
+
+    def sleeve(length: float):
+        return _cylinder(4.0, length) - Pos(0, 0, -0.1) * _cylinder(
+            P.fg_output_spacer_bore_d / 2,
+            length + 0.2,
+        )
+
+    return sleeve(right_length)
 
 
 def bearing_625zz():
@@ -176,55 +194,75 @@ def bearing_625zz():
 
 def output_rod():
     # Only the short section captured by the gear is filed to a D. Everything
-    # above it remains round for the spacer and both 625ZZ bearing journals.
+    # on either side remains round for the spacers and 625ZZ bearing journals.
     posed_output = pair_in_box() * pair_parts()[1]
-    z0 = posed_output.bounding_box().min.Z
-    gear_z1 = posed_output.bounding_box().max.Z
-    d_length = gear_z1 - z0 + P.fg_gear_running_gap
+    gear_x0 = posed_output.bounding_box().min.X
+    gear_x1 = posed_output.bounding_box().max.X
+    d_x0 = gear_x0 - P.fg_gear_running_gap
+    d_x1 = gear_x1 + P.fg_gear_running_gap
+    d_length = d_x1 - d_x0
     d_section = (
-        Pos(P.fg_motor_axis_x, output_axis_y(), z0)
-        * Rot(0, 0, -90)
+        Pos(d_x0, output_axis_y(), P.fg_shaft_z)
+        * Rot(-90, 0, 0)
+        * Rot(0, 90, 0)
         * _d_prism(
             P.fg_output_shaft_d,
             P.fg_output_shaft_flat,
             d_length,
         )
     )
-    round_section = Pos(
-        P.fg_motor_axis_x,
-        output_axis_y(),
-        gear_z1,
+    left_round = Pos(0, output_axis_y(), P.fg_shaft_z) * Rot(
+        0, 90, 0
     ) * _cylinder(
         P.fg_output_shaft_d / 2,
-        P.fg_box_h + P.fg_output_exposed - gear_z1,
+        d_x0 + 0.1,
     )
-    return d_section + round_section
+    right_round = Pos(d_x1 - 0.1, output_axis_y(), P.fg_shaft_z) * Rot(
+        0, 90, 0
+    ) * _cylinder(
+        P.fg_output_shaft_d / 2,
+        P.fg_box_w + P.fg_output_exposed - d_x1 + 0.1,
+    )
+    return left_round + d_section + right_round
 
 
 def output_bearings():
-    outer_z = P.fg_box_h - P.fg_bearing_shoulder - P.fg_bearing_w
-    inner_z = outer_z - P.fg_bearing_gap - P.fg_bearing_w
-    outer = Pos(
-        P.fg_motor_axis_x,
-        output_axis_y(),
-        outer_z,
+    left_x = P.fg_bearing_shoulder
+    right_x = P.fg_box_w - P.fg_bearing_shoulder - P.fg_bearing_w
+    left = Pos(left_x, output_axis_y(), P.fg_shaft_z) * Rot(
+        0, 90, 0
     ) * bearing_625zz()
-    inner = Pos(
-        P.fg_motor_axis_x,
-        output_axis_y(),
-        inner_z,
+    right = Pos(right_x, output_axis_y(), P.fg_shaft_z) * Rot(
+        0, 90, 0
     ) * bearing_625zz()
-    return inner + outer
+    return left + right
 
 
 def posed_output_spacer():
     posed_output = pair_in_box() * pair_parts()[1]
-    z0 = posed_output.bounding_box().max.Z + P.fg_gear_running_gap
+    right_x0 = posed_output.bounding_box().max.X + P.fg_gear_running_gap
+    right_length = P.fg_box_w - P.fg_bearing_carrier_t - right_x0
+
+    def sleeve_at(x0: float, length: float):
+        return Pos(x0, output_axis_y(), P.fg_shaft_z) * Rot(
+            0, 90, 0
+        ) * (
+            _cylinder(4.0, length)
+            - Pos(0, 0, -0.1)
+            * _cylinder(P.fg_output_spacer_bore_d / 2, length + 0.2)
+        )
+
+    return sleeve_at(right_x0, right_length)
+
+
+def posed_input_spacer():
+    posed_input = pair_in_box() * pair_parts()[0]
+    y1 = posed_input.bounding_box().min.Y
     return Pos(
         P.fg_motor_axis_x,
-        output_axis_y(),
-        z0,
-    ) * output_spacer()
+        y1 - P.fg_input_spacer_len,
+        P.fg_shaft_z,
+    ) * Rot(-90, 0, 0) * input_spacer()
 
 
 def drivetrain_scene() -> Scene:
@@ -233,6 +271,7 @@ def drivetrain_scene() -> Scene:
     return (
         Scene()
         .add(input_part, "24T-input", "orange", loc=frame)
+        .add(posed_input_spacer(), "input-spacer", "darkorange")
         .add(output_part, "18T-output", "gold", loc=frame)
         .add(posed_output_spacer(), "output-spacer", "goldenrod")
         .add(output_bearings(), "625ZZ-bearings", "silver")

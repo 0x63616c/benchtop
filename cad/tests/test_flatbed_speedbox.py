@@ -10,6 +10,7 @@ from flatbed_cad.motor_reference import motor_reference
 from flatbed_cad.params import P
 from flatbed_cad.speedbox import (
     input_gear,
+    input_spacer,
     output_axis_y,
     output_bearings,
     output_gear,
@@ -17,6 +18,7 @@ from flatbed_cad.speedbox import (
     output_spacer,
     pair_in_box,
     pair_parts,
+    posed_input_spacer,
     posed_output_spacer,
 )
 from flatbed_cad.speedbox_assembly import scene as assembly_scene
@@ -43,8 +45,8 @@ def test_box_uses_physically_selected_flatbed_joint():
     assert P.fg_joint_boss_t == 8.0
     assert P.fg_joint_clear == 0.20
     assert P.fg_joint_hole_d == 3.4
-    assert (P.fg_joint_nut_w, P.fg_joint_nut_d) == (5.8, 2.7)
-    assert P.fg_joint_stem_w == 3.5
+    assert (P.fg_joint_nut_w, P.fg_joint_nut_d) == (6.2, 3.0)
+    assert P.fg_joint_stem_w == 4.0
     assert P.fg_joint_head_d == 6.0
     assert P.fg_joint_edge_ligament == 2.0
 
@@ -78,7 +80,7 @@ def test_gears_fit_inside_box_and_output_axis_clears_front():
     "builder,max_height",
     (
         (bottom_panel, P.fg_front_center_boss_t),
-        (top_panel, P.fg_bearing_carrier_t),
+        (top_panel, P.fg_front_center_boss_t),
         (front_panel, P.fg_panel_t),
         (rear_panel, P.fg_panel_t),
         (left_panel, P.fg_joint_boss_t),
@@ -88,6 +90,7 @@ def test_gears_fit_inside_box_and_output_axis_clears_front():
             P.fg_bulkhead_t + P.fg_bulkhead_reinforce,
         ),
         (input_gear, None),
+        (input_spacer, P.fg_input_spacer_len),
         (output_gear, None),
         (output_spacer, None),
     ),
@@ -100,12 +103,46 @@ def test_every_printable_starts_flat_on_bed(builder, max_height):
 
 
 def test_output_spacer_has_positive_length():
-    bounds = output_spacer().bounding_box()
-    assert bounds.max.Z > 3.5
+    spacer = output_spacer()
+    assert len(spacer.solids()) == 1
+    assert spacer.bounding_box().size.Z > 3.5
 
 
-def test_output_has_two_distinct_bearings():
-    assert len(output_bearings().solids()) == 2
+def test_output_has_one_bearing_in_each_side_with_a_wide_span():
+    bearings = output_bearings()
+    assert len(bearings.solids()) == 2
+    centers = sorted(solid.center().X for solid in bearings.solids())
+    assert centers[1] - centers[0] > 40.0
+
+
+@pytest.mark.parametrize("builder,right", ((left_panel, False), (right_panel, True)))
+def test_each_side_sheet_has_a_supported_625zz_pocket(builder, right):
+    side = builder()
+    u = output_axis_y() - P.fg_box_d / 2
+    v_map = -1 if right else 1
+    v = v_map * (P.fg_shaft_z - P.fg_box_h / 2)
+    shaft_probe = Pos(u, v, -0.1) * Cylinder(
+        P.fg_output_bore_d / 2 - 0.1,
+        P.fg_bearing_carrier_t + 0.2,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
+    bearing_probe = Pos(u, v, P.fg_bearing_shoulder + 0.1) * Cylinder(
+        P.fg_bearing_d / 2,
+        P.fg_bearing_w - 0.2,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
+    assert (side & shaft_probe).volume == pytest.approx(0, abs=1e-6)
+    assert (side & bearing_probe).volume == pytest.approx(0, abs=1e-6)
+    assert len(side.solids()) == 1
+
+
+def test_input_spacer_bridges_motor_boss_gap_to_shifted_input_gear():
+    spacer = posed_input_spacer()
+    input_in_box = pair_in_box() * pair_parts()[0]
+    assert spacer.bounding_box().max.Y == pytest.approx(
+        input_in_box.bounding_box().min.Y
+    )
+    assert spacer.bounding_box().size.Y == pytest.approx(P.fg_input_spacer_len)
 
 
 def test_printable_gears_are_each_one_connected_solid():
@@ -144,14 +181,14 @@ def test_output_gear_has_support_free_wide_heel_down_geometry():
 def test_output_gear_d_bore_matches_a_short_flat_filed_into_five_mm_rod():
     gear = output_gear()
     probe_z = gear.bounding_box().max.Z - 1.0
-    flat_probe = Pos(0, -2.25, probe_z - 0.25) * Cylinder(
-        0.12,
-        0.5,
+    flat_probe = Pos(0, -2.25, probe_z - 0.2) * Cylinder(
+        0.1,
+        0.4,
         align=(Align.CENTER, Align.CENTER, Align.MIN),
     )
-    open_probe = Pos(0, 2.25, probe_z - 0.25) * Cylinder(
-        0.12,
-        0.5,
+    open_probe = Pos(0, 2.25, probe_z - 0.2) * Cylinder(
+        0.1,
+        0.4,
         align=(Align.CENTER, Align.CENTER, Align.MIN),
     )
     assert (gear & flat_probe).volume == pytest.approx(flat_probe.volume)
@@ -160,12 +197,12 @@ def test_output_gear_d_bore_matches_a_short_flat_filed_into_five_mm_rod():
 
 
 def test_compact_envelope_and_large_encoder_exit_are_locked_in():
-    assert (P.fg_box_w, P.fg_box_d, P.fg_box_h) == (55.0, 95.0, 43.0)
+    assert (P.fg_box_w, P.fg_box_d, P.fg_box_h) == (55.0, 107.0, 43.0)
     assert (P.fg_wire_exit_w, P.fg_wire_exit_h) == (24.0, 14.0)
     assert P.fg_motor_face_y == pytest.approx(65.0)
 
 
-def test_one_sided_output_shaft_does_not_touch_motor():
+def test_through_output_shaft_does_not_touch_motor():
     motor = F.FG_MOTOR_IN_BOX * motor_reference()
     assert (motor & output_rod()).volume == pytest.approx(0, abs=1e-6)
 
@@ -175,9 +212,8 @@ def test_output_shaft_engages_d_bore_without_touching_input_gear():
     input_in_box = pair_in_box() * input_part
     output_in_box = pair_in_box() * output_part
     rod = output_rod()
-    assert rod.bounding_box().min.Z == pytest.approx(
-        output_in_box.bounding_box().min.Z
-    )
+    assert rod.bounding_box().min.X <= output_in_box.bounding_box().min.X
+    assert rod.bounding_box().max.X >= output_in_box.bounding_box().max.X
     assert (rod & input_in_box).volume == pytest.approx(0, abs=1e-6)
     assert (rod & output_in_box).volume == pytest.approx(0, abs=1e-6)
     assert (input_in_box & output_in_box).volume == pytest.approx(0, abs=1e-6)
@@ -185,8 +221,13 @@ def test_output_shaft_engages_d_bore_without_touching_input_gear():
 
 def test_output_shaft_is_centered_and_gear_clears_front_skin():
     rod_bounds = output_rod().bounding_box()
-    assert (rod_bounds.min.X + rod_bounds.max.X) / 2 == pytest.approx(
-        P.fg_box_w / 2
+    assert rod_bounds.min.X == pytest.approx(0)
+    assert rod_bounds.max.X == pytest.approx(P.fg_box_w + P.fg_output_exposed)
+    assert (rod_bounds.min.Y + rod_bounds.max.Y) / 2 == pytest.approx(
+        output_axis_y()
+    )
+    assert (rod_bounds.min.Z + rod_bounds.max.Z) / 2 == pytest.approx(
+        P.fg_shaft_z
     )
     output_bounds = (pair_in_box() * pair_parts()[1]).bounding_box()
     front_clearance = P.fg_box_d - P.fg_panel_t - output_bounds.max.Y
@@ -239,37 +280,53 @@ def test_every_face_has_full_m3_holes_and_complete_head_seats(builder, hole_ys):
             assert (seat - (part & seat)).volume == pytest.approx(0, abs=1e-6)
 
 
-def test_front_has_centered_third_m3_hole_on_opposite_long_edge():
+def test_front_side_fasteners_are_centered_not_offset():
+    assert P.fg_front_joint_z == 0.0
+
+
+def test_front_has_centered_m3_holes_on_both_long_edges():
     front = front_panel()
-    center_v = P.fg_front_center_axis_z - P.fg_box_h / 2
-    through_probe = Pos(0, center_v, -0.1) * Cylinder(
-        P.fg_joint_hole_d / 2 - 0.1,
-        P.fg_panel_t + 0.2,
-        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    centers = (
+        P.fg_front_center_axis_z - P.fg_box_h / 2,
+        P.fg_box_h / 2 - P.fg_front_center_axis_z,
     )
-    assert (front & through_probe).volume == pytest.approx(0, abs=1e-6)
+    for center_v in centers:
+        through_probe = Pos(0, center_v, -0.1) * Cylinder(
+            P.fg_joint_hole_d / 2 - 0.1,
+            P.fg_panel_t + 0.2,
+            align=(Align.CENTER, Align.CENTER, Align.MIN),
+        )
+        assert (front & through_probe).volume == pytest.approx(0, abs=1e-6)
 
-    head_disk = Pos(0, center_v, 0) * Cylinder(
-        P.fg_joint_head_d / 2,
-        P.fg_panel_t,
-        align=(Align.CENTER, Align.CENTER, Align.MIN),
-    )
-    hole_disk = Pos(0, center_v, 0) * Cylinder(
-        P.fg_joint_hole_d / 2,
-        P.fg_panel_t,
-        align=(Align.CENTER, Align.CENTER, Align.MIN),
-    )
-    seat = head_disk - hole_disk
-    assert (seat - (front & seat)).volume == pytest.approx(0, abs=1e-6)
-    lower_edge_ligament = (
-        center_v + P.fg_inner_h / 2 - P.fg_joint_head_d / 2
-    )
-    assert lower_edge_ligament >= P.fg_joint_edge_ligament
+        head_disk = Pos(0, center_v, 0) * Cylinder(
+            P.fg_joint_head_d / 2,
+            P.fg_panel_t,
+            align=(Align.CENTER, Align.CENTER, Align.MIN),
+        )
+        hole_disk = Pos(0, center_v, 0) * Cylinder(
+            P.fg_joint_hole_d / 2,
+            P.fg_panel_t,
+            align=(Align.CENTER, Align.CENTER, Align.MIN),
+        )
+        seat = head_disk - hole_disk
+        assert (seat - (front & seat)).volume == pytest.approx(0, abs=1e-6)
+        edge_ligament = (
+            P.fg_inner_h / 2
+            - abs(center_v)
+            - P.fg_joint_head_d / 2
+        )
+        assert edge_ligament >= P.fg_joint_edge_ligament
 
 
-def test_third_front_bolt_has_aligned_top_loading_nut_boss_on_bottom():
-    bottom = bottom_panel()
-    pocket_y = P.fg_box_d / 2 - P.fg_joint_nut_inset
+@pytest.mark.parametrize(
+    "builder,edge_sign",
+    ((bottom_panel, 1), (top_panel, -1)),
+)
+def test_center_front_bolts_have_aligned_top_loading_nut_bosses(
+    builder, edge_sign
+):
+    skin = builder()
+    pocket_y = edge_sign * (P.fg_box_d / 2 - P.fg_joint_nut_inset)
     cavity_floor = P.fg_front_center_axis_z - P.fg_joint_nut_w / 2
     bottomed_nut_center = cavity_floor + P.fg_joint_nut_w / 2
     assert bottomed_nut_center == pytest.approx(P.fg_front_center_axis_z)
@@ -278,8 +335,8 @@ def test_third_front_bolt_has_aligned_top_loading_nut_boss_on_bottom():
         3.0, 2.0, cavity_floor - 0.2
     )
     open_cavity = Pos(0, pocket_y, 7.0) * Box(3.0, 2.0, 5.0)
-    assert (bottom & solid_floor).volume == pytest.approx(solid_floor.volume)
-    assert (bottom & open_cavity).volume == pytest.approx(0, abs=1e-6)
+    assert (skin & solid_floor).volume == pytest.approx(solid_floor.volume)
+    assert (skin & open_cavity).volume == pytest.approx(0, abs=1e-6)
 
 
 def test_m3_head_and_slot_ligaments_are_at_least_two_mm():
@@ -357,9 +414,13 @@ def test_assembly_scene_contains_closed_box_and_drivetrain():
         "front",
         "motor-bulkhead",
     ]
-    assert {"jgb37-520", "24T-input", "18T-output", "625ZZ-bearings"} <= set(
-        names
-    )
+    assert {
+        "jgb37-520",
+        "24T-input",
+        "input-spacer",
+        "18T-output",
+        "625ZZ-bearings",
+    } <= set(names)
 
 
 @pytest.mark.slow
@@ -400,6 +461,7 @@ def test_complete_assembly_has_no_solid_collisions():
         F.FG_BULKHEAD_IN_BOX * motor_bulkhead(),
         F.FG_MOTOR_IN_BOX * motor_reference(),
         gear_frame * input_part,
+        posed_input_spacer(),
         gear_frame * output_part,
         output_bearings(),
         posed_output_spacer(),

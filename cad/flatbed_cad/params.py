@@ -91,7 +91,7 @@ class Params:
     # locations rise into local bosses. Bolt axes sit 5 mm inboard so a Ø6 M3
     # head has a complete seat with 2 mm to the outer edge.
     fg_box_w: float = 55.0
-    fg_box_d: float = 95.0
+    fg_box_d: float = 107.0
     fg_box_h: float = 43.0
     fg_panel_t: float = 2.0
     fg_side_t: float = 2.0
@@ -110,10 +110,10 @@ class Params:
     # aligns with the axis while remaining top-loading.
     fg_front_center_axis_z: float = 7.0
     fg_front_center_boss_t: float = 10.0
-    fg_joint_nut_w: float = 5.8
-    fg_joint_nut_d: float = 2.7
+    fg_joint_nut_w: float = 6.2
+    fg_joint_nut_d: float = 3.0
     fg_joint_nut_inset: float = 4.5
-    fg_joint_stem_w: float = 3.5
+    fg_joint_stem_w: float = 4.0
     fg_joint_tab_w: float = 5.0
     fg_joint_tab_pitch: float = 16.0
     fg_joint_tab_end_clear: float = 0.4
@@ -129,7 +129,7 @@ class Params:
     # Both top/bottom closure stations sit behind the motor bulkhead. Keeping
     # them out of the drive bay prevents their bolts and nuts touching it.
     fg_long_joint_positions: tuple[float, ...] = (-24.0, 0.0)
-    fg_front_joint_z: float = 8.0
+    fg_front_joint_z: float = 0.0
 
     # Internal motor mounting bulkhead: 2 mm sheet plus a 3 mm circular
     # reinforcement on the gear side. Four edge tabs locate it in the skins.
@@ -148,16 +148,18 @@ class Params:
     fg_gear_face: float = 4.0
     fg_gear_backlash: float = 0.12
     fg_motor_gear_gap: float = 0.7
+    fg_input_spacer_len: float = 8.0
     fg_gear_hub_d: float = 10.0
     fg_gear_hub_len: float = 4.0
     fg_output_hub_len: float = 2.5
     fg_gear_print_radial_growth: float = 0.7
     fg_gear_running_gap: float = 0.2
 
-    # The one-sided 5 mm output rod begins clear of the motor shaft, passes
-    # through the output gear, and exits through two stacked top-side 625ZZs.
+    # The 5 mm output rod crosses the box left-to-right. One 625ZZ in each side
+    # sheet gives a wide bearing span while keeping the bevel axes at 90°.
     fg_output_shaft_d: float = 5.0
-    fg_output_bore_d: float = 5.2
+    fg_output_bore_d: float = 5.1
+    fg_output_spacer_bore_d: float = 5.3
     fg_output_shaft_flat: float = 4.4
     fg_output_exposed: float = 10.0
     fg_bearing_d: float = 16.0
@@ -165,7 +167,7 @@ class Params:
     fg_bearing_clear: float = 0.2
     fg_bearing_carrier_d: float = 18.5
     fg_bearing_gap: float = 0.2
-    fg_bearing_carrier_t: float = 11.0
+    fg_bearing_carrier_t: float = 5.8
     fg_bearing_shoulder: float = 0.8
 
     # Rear cable exit; the box remains closed on all six sides around it.

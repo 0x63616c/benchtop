@@ -386,6 +386,12 @@ def _flatbed_speedbox_input_gear():
     return input_gear()
 
 
+def _flatbed_speedbox_input_spacer():
+    from flatbed_cad.speedbox import input_spacer
+
+    return input_spacer()
+
+
 def _flatbed_speedbox_output_gear():
     from flatbed_cad.speedbox import output_gear
 
@@ -461,6 +467,7 @@ BREP_PARTS = {
     "flatbed-speedbox-rear": _flatbed_speedbox_rear,
     "flatbed-speedbox-bulkhead": _flatbed_speedbox_bulkhead,
     "flatbed-speedbox-input-gear": _flatbed_speedbox_input_gear,
+    "flatbed-speedbox-input-spacer": _flatbed_speedbox_input_spacer,
     "flatbed-speedbox-output-gear": _flatbed_speedbox_output_gear,
     "flatbed-speedbox-output-spacer": _flatbed_speedbox_output_spacer,
 }

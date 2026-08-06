@@ -3,13 +3,13 @@
 The two side sheets remain 2 mm thick. Each M3 nut trap sits in a local boss
 with a 10 x 8 mm footprint that rises to 8 mm from the print face; the nut
 slides in from the inside and stops against the original 2 mm wall. Edge tabs
-locate the top, bottom, front, and rear skins, and thirteen bolts clamp the
+locate the top, bottom, front, and rear skins, and fourteen bolts clamp the
 assembly.
 
 Every builder returns its part in flat print orientation on Z=0. Assembly
 poses live in ``frames.py``. The left and right skins differ only because the
 right one's vertical features are mirrored before its inward-facing assembly
-pose. The top bearing boss prints upward and lands inside the box.
+pose. Each side's bearing carrier prints upward and lands inside the box.
 """
 
 from math import cos, radians, sin
@@ -138,17 +138,19 @@ def _cut_vertical_joint(body, v: float, edge_sign: int):
     return body
 
 
-def _add_front_center_nut_boss(body):
-    """Add the bottom skin's top-loading nut boss for the third front bolt."""
-    edge = P.fg_box_d / 2
-    boss_y = edge - P.fg_panel_t - P.fg_joint_boss_span / 2
+def _add_front_center_nut_boss(body, edge_sign: int):
+    """Add a horizontal skin's nut boss for a centered front bolt."""
+    edge = edge_sign * P.fg_box_d / 2
+    boss_y = edge - edge_sign * (
+        P.fg_panel_t + P.fg_joint_boss_span / 2
+    )
     body += Pos(0, boss_y, P.fg_front_center_boss_t / 2) * Box(
         P.fg_joint_boss_w,
         P.fg_joint_boss_span,
         P.fg_front_center_boss_t,
     )
 
-    pocket_y = edge - P.fg_joint_nut_inset
+    pocket_y = edge - edge_sign * P.fg_joint_nut_inset
     cavity_floor = P.fg_front_center_axis_z - P.fg_joint_nut_w / 2
     access_depth = P.fg_front_center_boss_t - cavity_floor
     cavity_z = cavity_floor + access_depth / 2 + 0.05
@@ -157,11 +159,31 @@ def _add_front_center_nut_boss(body):
         P.fg_joint_nut_d,
         access_depth + 0.1,
     )
-    near_edge = pocket_y + P.fg_joint_nut_d / 2
+    near_edge = pocket_y + edge_sign * P.fg_joint_nut_d / 2
     body -= Pos(0, (edge + near_edge) / 2, cavity_z) * Box(
         P.fg_joint_stem_w,
         abs(edge - near_edge) + 0.2,
         access_depth + 0.1,
+    )
+    return body
+
+
+def _add_side_bearing_carrier(body, right: bool):
+    """Add one inward-facing 625ZZ pocket around the through-shaft."""
+    u = output_axis_y() - P.fg_box_d / 2
+    v_map = -1 if right else 1
+    v = v_map * (P.fg_shaft_z - P.fg_box_h / 2)
+    body += Pos(u, v, 0) * _cylinder(
+        P.fg_bearing_carrier_d / 2,
+        P.fg_bearing_carrier_t,
+    )
+    body -= Pos(u, v, P.fg_bearing_shoulder) * _cylinder(
+        (P.fg_bearing_d + P.fg_bearing_clear) / 2,
+        P.fg_bearing_carrier_t - P.fg_bearing_shoulder + 0.2,
+    )
+    body -= Pos(u, v, -0.1) * _cylinder(
+        P.fg_output_bore_d / 2,
+        P.fg_bearing_carrier_t + 0.2,
     )
     return body
 
@@ -213,6 +235,7 @@ def side_panel(right: bool = False):
         edge_sign=1,
     )
     body = _cut_bulkhead_slots(body, mirror_v=right)
+    body = _add_side_bearing_carrier(body, right=right)
 
     return body
 
@@ -297,23 +320,7 @@ def horizontal_panel(top: bool = False):
                 u,
                 tabs_along_y=True,
             )
-    if not top:
-        body = _add_front_center_nut_boss(body)
-    if top:
-        bearing_x = P.fg_motor_axis_x - P.fg_box_w / 2
-        bearing_y = P.fg_box_d / 2 - output_axis_y()
-        body += Pos(bearing_x, bearing_y, P.fg_panel_t) * _cylinder(
-            P.fg_bearing_carrier_d / 2,
-            P.fg_bearing_carrier_t - P.fg_panel_t,
-        )
-        body -= Pos(bearing_x, bearing_y, P.fg_bearing_shoulder) * _cylinder(
-            (P.fg_bearing_d + P.fg_bearing_clear) / 2,
-            P.fg_bearing_carrier_t - P.fg_bearing_shoulder + 0.2,
-        )
-        body -= Pos(bearing_x, bearing_y, -0.1) * _cylinder(
-            P.fg_output_bore_d / 2,
-            P.fg_bearing_carrier_t + 0.2,
-        )
+    body = _add_front_center_nut_boss(body, edge_sign=-1 if top else 1)
     return body
 
 
@@ -359,11 +366,15 @@ def end_panel(front: bool = False):
         )
 
     if front:
-        center_v = P.fg_front_center_axis_z - P.fg_box_h / 2
-        body -= Pos(0, center_v, -0.1) * _cylinder(
-            P.fg_joint_hole_d / 2,
-            P.fg_panel_t + 0.2,
-        )
+        for axis_z in (
+            P.fg_front_center_axis_z,
+            P.fg_box_h - P.fg_front_center_axis_z,
+        ):
+            center_v = axis_z - P.fg_box_h / 2
+            body -= Pos(0, center_v, -0.1) * _cylinder(
+                P.fg_joint_hole_d / 2,
+                P.fg_panel_t + 0.2,
+            )
 
     if not front:
         body -= Pos(

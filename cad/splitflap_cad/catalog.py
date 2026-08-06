@@ -433,6 +433,9 @@ PRINTABLE = {
     "flatbed-gearbox-input-gear": Printable(
         "flatbed", "flatbed_cad.speedbox", "input_gear"
     ),
+    "flatbed-gearbox-input-spacer": Printable(
+        "flatbed", "flatbed_cad.speedbox", "input_spacer"
+    ),
     "flatbed-gearbox-output-gear": Printable(
         "flatbed", "flatbed_cad.speedbox", "output_gear"
     ),
