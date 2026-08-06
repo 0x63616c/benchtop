@@ -158,6 +158,7 @@ class Params:
     # through the output gear, and exits through two stacked top-side 625ZZs.
     fg_output_shaft_d: float = 5.0
     fg_output_bore_d: float = 5.2
+    fg_output_shaft_flat: float = 4.4
     fg_output_exposed: float = 10.0
     fg_bearing_d: float = 16.0
     fg_bearing_w: float = 5.0

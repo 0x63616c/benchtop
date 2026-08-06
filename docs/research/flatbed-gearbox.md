@@ -55,13 +55,18 @@ and narrow fastener lands remain solid.
 
 The mathematical bevel axes intersect, but the bought shafts do not. The motor
 shaft terminates inside the 24T D-bore input gear. The separate 5 mm output rod
-starts 0.2 mm beyond the input gear, enters the outward-facing hub on the 18T
-gear, passes through a 1.7 mm spacer and both top bearings, then exits the box.
-There are no set-screw or transverse pin holes in either printed gear.
+starts 0.2 mm beyond the input gear, enters the apex-side hub on the 18T gear,
+passes through a 3.71 mm spacer and both top bearings, then exits the box. The
+output gear has a 5.2 x 4.6 mm D-bore for a 5 mm rod with a 4.4 mm flat. File
+that flat only 0.6 mm deep and only across the gear-engagement section; keep
+both bearing journals round. There are no set-screw or transverse pin holes in
+either printed gear.
 
-The output gear currently relies on a calibrated close bore fit. If the first
+The D-flat transmits torque but does not retain the gear axially. If the first
 physical drive test shows axial creep, add an external 5 mm shaft collar rather
-than putting a weak transverse hole through the 12T gear hub.
+than putting a weak transverse hole through the 18T gear hub. The output hub is
+on the narrowing apex side, and the wide heel is trimmed to a 55-degree
+bed-facing envelope so the gear prints without supports.
 
 ## Printable parts
 

@@ -1,5 +1,7 @@
 """Geometry and interface checks for the enclosed Flatbed JGB37 speedbox."""
 
+from math import sqrt
+
 import pytest
 from build123d import Align, Box, Cylinder, Pos
 
@@ -99,7 +101,7 @@ def test_every_printable_starts_flat_on_bed(builder, max_height):
 
 def test_output_spacer_has_positive_length():
     bounds = output_spacer().bounding_box()
-    assert bounds.max.Z == pytest.approx(1.7, abs=1e-3)
+    assert bounds.max.Z > 3.5
 
 
 def test_output_has_two_distinct_bearings():
@@ -109,6 +111,52 @@ def test_output_has_two_distinct_bearings():
 def test_printable_gears_are_each_one_connected_solid():
     assert len(input_gear().solids()) == 1
     assert len(output_gear().solids()) == 1
+
+
+def test_output_gear_has_support_free_wide_heel_down_geometry():
+    gear = output_gear()
+    bed_faces = [
+        face
+        for face in gear.faces()
+        if face.bounding_box().min.Z == pytest.approx(0, abs=1e-6)
+        and face.bounding_box().max.Z == pytest.approx(0, abs=1e-6)
+        and face.normal_at().Z < -0.99
+    ]
+    assert bed_faces
+    assert max(face.bounding_box().size.X for face in bed_faces) > P.fg_gear_hub_d
+
+    vertices, triangles = gear.tessellate(0.1, 0.1)
+    unsupported = []
+    for a, b, c in triangles:
+        p0, p1, p2 = vertices[a], vertices[b], vertices[c]
+        ux, uy, uz = p1.X - p0.X, p1.Y - p0.Y, p1.Z - p0.Z
+        vx, vy, vz = p2.X - p0.X, p2.Y - p0.Y, p2.Z - p0.Z
+        nx = uy * vz - uz * vy
+        ny = uz * vx - ux * vz
+        nz = ux * vy - uy * vx
+        magnitude = sqrt(nx * nx + ny * ny + nz * nz)
+        normal_z = nz / magnitude if magnitude else 0
+        if normal_z < -0.71 and min(p0.Z, p1.Z, p2.Z) > 1e-4:
+            unsupported.extend((p0, p1, p2))
+    assert unsupported == []
+
+
+def test_output_gear_d_bore_matches_a_short_flat_filed_into_five_mm_rod():
+    gear = output_gear()
+    probe_z = gear.bounding_box().max.Z - 1.0
+    flat_probe = Pos(0, -2.25, probe_z - 0.25) * Cylinder(
+        0.12,
+        0.5,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
+    open_probe = Pos(0, 2.25, probe_z - 0.25) * Cylinder(
+        0.12,
+        0.5,
+        align=(Align.CENTER, Align.CENTER, Align.MIN),
+    )
+    assert (gear & flat_probe).volume == pytest.approx(flat_probe.volume)
+    assert (gear & open_probe).volume == pytest.approx(0, abs=1e-6)
+    assert P.fg_output_shaft_d - P.fg_output_shaft_flat == pytest.approx(0.6)
 
 
 def test_compact_envelope_and_large_encoder_exit_are_locked_in():
@@ -122,11 +170,16 @@ def test_one_sided_output_shaft_does_not_touch_motor():
     assert (motor & output_rod()).volume == pytest.approx(0, abs=1e-6)
 
 
-def test_output_shaft_starts_beyond_input_gear_and_gears_do_not_overlap():
+def test_output_shaft_engages_d_bore_without_touching_input_gear():
     input_part, output_part = pair_parts()
     input_in_box = pair_in_box() * input_part
     output_in_box = pair_in_box() * output_part
-    assert output_rod().bounding_box().min.Z > input_in_box.bounding_box().max.Z
+    rod = output_rod()
+    assert rod.bounding_box().min.Z == pytest.approx(
+        output_in_box.bounding_box().min.Z
+    )
+    assert (rod & input_in_box).volume == pytest.approx(0, abs=1e-6)
+    assert (rod & output_in_box).volume == pytest.approx(0, abs=1e-6)
     assert (input_in_box & output_in_box).volume == pytest.approx(0, abs=1e-6)
 
 

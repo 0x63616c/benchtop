@@ -81,16 +81,35 @@ def pair_parts():
         12,
     )
 
-    output_hub_x0 = P.fg_input_pitch_r + 0.6
+    # Put the output hub on the narrowing apex side. In print orientation the
+    # wide heel then sits on the bed and the hub grows upward, rather than the
+    # old heel-side hub supporting an umbrella of teeth.
+    output_hub_x0 = P.fg_input_pitch_r - 0.6
     output_part += (
         Pos(output_hub_x0, 0, P.fg_output_pitch_r)
-        * Rot(0, 90, 0)
+        * Rot(0, -90, 0)
         * _cylinder(hub_r, P.fg_output_hub_len)
     )
+
+    output_to_print = Rot(0, 90, 0) * Pos(
+        -P.fg_input_pitch_r,
+        0,
+        -P.fg_output_pitch_r,
+    )
+    printable_output = output_to_print * output_part
+    printable_output = self_supporting_heel(
+        printable_output,
+        P.fg_gear_print_radial_growth,
+    )
+    output_part = output_to_print.inverse() * printable_output
     output_part -= (
         Pos(P.fg_input_pitch_r - 10, 0, P.fg_output_pitch_r)
         * Rot(0, 90, 0)
-        * _cylinder(P.fg_output_bore_d / 2, 25)
+        * _d_prism(
+            P.fg_output_bore_d,
+            P.fg_output_shaft_flat + 0.2,
+            25,
+        )
     )
     return input_part, output_part
 
@@ -126,7 +145,7 @@ def input_gear():
 
 
 def output_gear():
-    """18T 5 mm output gear, heel-down print orientation."""
+    """18T D-bore output gear, self-supporting wide-heel-down orientation."""
     orient = Rot(0, 90, 0) * Pos(
         -P.fg_input_pitch_r,
         0,
@@ -156,16 +175,30 @@ def bearing_625zz():
 
 
 def output_rod():
-    # The bevel axes intersect, but the physical shafts must not. The output
-    # rod therefore begins just beyond the motor shaft's radial envelope and
-    # runs only toward the top-side output.
-    posed_input = pair_in_box() * pair_parts()[0]
-    z0 = posed_input.bounding_box().max.Z + P.fg_gear_running_gap
-    length = P.fg_box_h + P.fg_output_exposed - z0
-    return (
+    # Only the short section captured by the gear is filed to a D. Everything
+    # above it remains round for the spacer and both 625ZZ bearing journals.
+    posed_output = pair_in_box() * pair_parts()[1]
+    z0 = posed_output.bounding_box().min.Z
+    gear_z1 = posed_output.bounding_box().max.Z
+    d_length = gear_z1 - z0 + P.fg_gear_running_gap
+    d_section = (
         Pos(P.fg_motor_axis_x, output_axis_y(), z0)
-        * _cylinder(P.fg_output_shaft_d / 2, length)
+        * Rot(0, 0, -90)
+        * _d_prism(
+            P.fg_output_shaft_d,
+            P.fg_output_shaft_flat,
+            d_length,
+        )
     )
+    round_section = Pos(
+        P.fg_motor_axis_x,
+        output_axis_y(),
+        gear_z1,
+    ) * _cylinder(
+        P.fg_output_shaft_d / 2,
+        P.fg_box_h + P.fg_output_exposed - gear_z1,
+    )
+    return d_section + round_section
 
 
 def output_bearings():
