@@ -5,7 +5,7 @@ The output-bearing topology decision is recorded in
 
 ## Locked prototype geometry
 
-- Envelope: **55 x 107 x 43 mm**. All main sheets remain 2 mm thick; captive
+- Envelope: **55 x 108 x 43 mm**. All main sheets remain 2 mm thick; captive
   nuts live in local 8 mm bosses on the left/right sheets.
 - Rear outside face to motor bulkhead: **65 mm**.
 - Motor: JGB37-520 encoder envelope using the repo's assumed **24 mm L**
@@ -31,6 +31,7 @@ The enclosure reuses the physically selected three-dot Flatbed calibration:
 - Ø3.4 mm M3 clearance holes
 - 6.2 x 3.0 mm captive M3 nut pockets
 - 4.0 mm-wide long bolt-entry channel in each T-slot
+- one standard fastener length throughout: **M3 x 6 mm**
 
 Each bolt axis is 5 mm inboard. A Ø6 mm M3 head therefore has a complete
 circular landing face with 2 mm to the outer edge. The paired locating slots
@@ -54,6 +55,16 @@ windows, not diagonal braces: the long faces have straight center ribs, while
 the end faces keep broad perimeter frames. Bosses and narrow fastener lands
 remain solid.
 
+The output-bearing pocket and the nearest front M3 nut cavity retain at least
+2 mm of material between their cut boundaries. The extra millimetre of box
+depth creates this ligament without offsetting the centered front fastener.
+
+The motor bulkhead has eight locating tabs: two into each of the left, right,
+top, and bottom sheets. Its six motor-screw seats are recessed by 2 mm, leaving
+3 mm of printed plate and 3 mm of thread engagement when using the same M3 x 6
+mm bolts. The enlarged top and bottom windows stop at a straight 6 mm rail
+through the bulkhead slots, with only 8 mm perimeter frames left at the ends.
+
 ## Shaft and gear retention
 
 The mathematical bevel axes intersect, but the bought shafts do not. An 8 mm
@@ -61,17 +72,17 @@ printed input sleeve moves the 24T gear forward while the motor shaft remains
 inside its corrected D-bore. The 5 mm output rod crosses the full 55 mm box
 width, runs through one bearing in each side sheet, and projects 10 mm from the
 right side. A short 8.41 mm sleeve carries thrust between the 18T gear and the
-right bearing. The output gear has a snug 5.1 x 4.5 mm D-bore for a 5 mm rod
-with a 4.4 mm flat. File that flat only 0.6 mm deep and only across the
-gear-engagement section; keep both widely separated bearing journals round.
-There are no set-screw or transverse pin holes in either printed gear.
+right bearing. The output gear now has a fully round 5.1 mm bore and the 5 mm
+rod remains round along its whole length. There are no set-screw, D-flat, or
+transverse pin features in the output gear.
 
-The snug D-flat transmits torque and the right sleeve establishes the gear's
-thrust position. If bidirectional physical testing shows axial creep, add an
-external 5 mm shaft collar rather than putting a weak transverse hole through
-the 18T gear hub. The output hub is on the narrowing apex side, and the wide
-heel is trimmed to a 55-degree bed-facing envelope so the gear prints without
-supports.
+The right sleeve establishes the gear's thrust position. A round bore is not a
+positive torque coupling: this revision therefore relies on the printed fit or
+a suitable retaining compound. If physical testing shows slip or axial creep,
+use a split-clamp hub and/or an external 5 mm shaft collar rather than putting a
+weak transverse hole through the 18T gear hub. The output hub is on the
+narrowing apex side, and the wide heel is trimmed to a 55-degree bed-facing
+envelope so the gear prints without supports.
 
 ## Printable parts
 
@@ -83,5 +94,5 @@ and `-output-spacer`. All are deliberately posed flat on the print bed.
 
 The JGB37 product family varies with internal ratio and supplier. Before a
 final production enclosure, measure the actual motor's L dimension, encoder
-PCB/connector protrusion, shaft length, and D-flat. The current motor reference
+PCB/connector protrusion and shaft length. The current motor reference
 is an explicit collision envelope, not vendor CAD.

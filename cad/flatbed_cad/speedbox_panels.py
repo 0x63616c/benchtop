@@ -206,6 +206,22 @@ def _cut_bulkhead_slots(body, mirror_v: bool):
     return body
 
 
+def _cut_horizontal_bulkhead_slots(body, top: bool):
+    """Cut the two top/bottom slots for the bulkhead's added edge tabs."""
+    assembly_y = P.fg_motor_face_y + P.fg_bulkhead_t / 2
+    slot_y = (P.fg_box_d / 2 - assembly_y) if top else (
+        assembly_y - P.fg_box_d / 2
+    )
+    slot_depth = P.fg_panel_t + P.fg_joint_clear
+    for x in P.fg_bulkhead_tab_positions:
+        body -= Pos(x, slot_y, P.fg_panel_t / 2) * Box(
+            P.fg_bulkhead_tab_w + P.fg_joint_tab_end_clear,
+            slot_depth,
+            P.fg_panel_t + 0.2,
+        )
+    return body
+
+
 def side_panel(right: bool = False):
     """Windowed 2 mm side sheet with blind inside-facing nut bosses."""
     body = Pos(0, 0, P.fg_side_t / 2) * Box(
@@ -286,16 +302,28 @@ def horizontal_panel(top: bool = False):
         P.fg_box_d,
         P.fg_panel_t,
     )
-    body = _cut_split_windows(
-        body,
-        center_x=0,
-        center_y=(P.fg_skin_window_y0 + P.fg_skin_window_y1) / 2,
-        width=P.fg_skin_window_w,
-        height=P.fg_skin_window_y1 - P.fg_skin_window_y0,
-        thickness=P.fg_panel_t,
-        rib_w=P.fg_skin_rib_w,
-        split_along_x=False,
+    window_y0 = -P.fg_box_d / 2 + P.fg_skin_end_frame_y
+    window_y1 = P.fg_box_d / 2 - P.fg_skin_end_frame_y
+    assembly_bulkhead_y = P.fg_motor_face_y + P.fg_bulkhead_t / 2
+    bulkhead_y = (
+        P.fg_box_d / 2 - assembly_bulkhead_y
+        if top
+        else assembly_bulkhead_y - P.fg_box_d / 2
     )
+    rib_half = P.fg_skin_bulkhead_rib_w / 2
+    for cut_y0, cut_y1 in (
+        (window_y0, bulkhead_y - rib_half),
+        (bulkhead_y + rib_half, window_y1),
+    ):
+        body -= Pos(
+            0,
+            (cut_y0 + cut_y1) / 2,
+            P.fg_panel_t / 2,
+        ) * Box(
+            P.fg_skin_window_w,
+            cut_y1 - cut_y0,
+            P.fg_panel_t + 0.2,
+        )
     side_stations = (
         (
             -P.fg_box_w / 2 + P.fg_side_t / 2,
@@ -320,6 +348,7 @@ def horizontal_panel(top: bool = False):
                 u,
                 tabs_along_y=True,
             )
+    body = _cut_horizontal_bulkhead_slots(body, top=top)
     body = _add_front_center_nut_boss(body, edge_sign=-1 if top else 1)
     return body
 
@@ -412,6 +441,13 @@ def motor_bulkhead():
                 v,
                 P.fg_bulkhead_t / 2,
             ) * Box(P.fg_panel_t, P.fg_bulkhead_tab_w, P.fg_bulkhead_t)
+        edge_v = edge_sign * P.fg_inner_h / 2
+        for u in P.fg_bulkhead_tab_positions:
+            body += Pos(
+                u,
+                edge_v + edge_sign * P.fg_panel_t / 2,
+                P.fg_bulkhead_t / 2,
+            ) * Box(P.fg_bulkhead_tab_w, P.fg_panel_t, P.fg_bulkhead_t)
 
     motor_centre_u = P.fg_box_w / 2 - P.fg_motor_axis_x
     motor_centre_v = P.fg_motor_center_z - P.fg_box_h / 2
@@ -432,6 +468,14 @@ def motor_bulkhead():
         body -= Pos(x, v, -0.1) * _cylinder(
             P.fg_motor_mount_clear_d / 2,
             P.fg_bulkhead_t + P.fg_bulkhead_reinforce + 0.2,
+        )
+        body -= Pos(
+            x,
+            v,
+            P.fg_bulkhead_t + P.fg_bulkhead_reinforce - P.fg_motor_head_recess,
+        ) * _cylinder(
+            P.fg_joint_head_d / 2,
+            P.fg_motor_head_recess + 0.1,
         )
     return body
 

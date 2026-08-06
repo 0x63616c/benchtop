@@ -48,7 +48,24 @@ def test_box_uses_physically_selected_flatbed_joint():
     assert (P.fg_joint_nut_w, P.fg_joint_nut_d) == (6.2, 3.0)
     assert P.fg_joint_stem_w == 4.0
     assert P.fg_joint_head_d == 6.0
+    assert P.fg_m3_bolt_len == 6.0
     assert P.fg_joint_edge_ligament == 2.0
+
+
+def test_m3x6_reaches_every_captive_nut_without_protruding():
+    nut_near_face = P.fg_joint_nut_inset - P.fg_joint_nut_d / 2
+    nut_far_face = P.fg_joint_nut_inset + P.fg_joint_nut_d / 2
+    assert nut_near_face == pytest.approx(3.0)
+    assert P.fg_m3_bolt_len == pytest.approx(nut_far_face)
+
+    motor_plate_left = (
+        P.fg_bulkhead_t
+        + P.fg_bulkhead_reinforce
+        - P.fg_motor_head_recess
+    )
+    motor_thread_engagement = P.fg_m3_bolt_len - motor_plate_left
+    assert motor_thread_engagement == pytest.approx(3.0)
+    assert motor_thread_engagement <= P.fg_motor_screw_depth
 
 
 def test_motor_is_fully_inside_six_side_envelope():
@@ -178,26 +195,25 @@ def test_output_gear_has_support_free_wide_heel_down_geometry():
     assert unsupported == []
 
 
-def test_output_gear_d_bore_matches_a_short_flat_filed_into_five_mm_rod():
+def test_output_gear_has_a_fully_round_five_mm_shaft_bore():
     gear = output_gear()
     probe_z = gear.bounding_box().max.Z - 1.0
-    flat_probe = Pos(0, -2.25, probe_z - 0.2) * Cylinder(
+    inside_probe = Pos(0, -2.25, probe_z - 0.2) * Cylinder(
         0.1,
         0.4,
         align=(Align.CENTER, Align.CENTER, Align.MIN),
     )
-    open_probe = Pos(0, 2.25, probe_z - 0.2) * Cylinder(
+    opposite_probe = Pos(0, 2.25, probe_z - 0.2) * Cylinder(
         0.1,
         0.4,
         align=(Align.CENTER, Align.CENTER, Align.MIN),
     )
-    assert (gear & flat_probe).volume == pytest.approx(flat_probe.volume)
-    assert (gear & open_probe).volume == pytest.approx(0, abs=1e-6)
-    assert P.fg_output_shaft_d - P.fg_output_shaft_flat == pytest.approx(0.6)
+    assert (gear & inside_probe).volume == pytest.approx(0, abs=1e-6)
+    assert (gear & opposite_probe).volume == pytest.approx(0, abs=1e-6)
 
 
 def test_compact_envelope_and_large_encoder_exit_are_locked_in():
-    assert (P.fg_box_w, P.fg_box_d, P.fg_box_h) == (55.0, 107.0, 43.0)
+    assert (P.fg_box_w, P.fg_box_d, P.fg_box_h) == (55.0, 108.0, 43.0)
     assert (P.fg_wire_exit_w, P.fg_wire_exit_h) == (24.0, 14.0)
     assert P.fg_motor_face_y == pytest.approx(65.0)
 
@@ -318,6 +334,19 @@ def test_front_has_centered_m3_holes_on_both_long_edges():
         assert edge_ligament >= P.fg_joint_edge_ligament
 
 
+def test_front_side_nut_pockets_clear_bearing_pockets_by_two_mm():
+    bearing_u = output_axis_y() - P.fg_box_d / 2
+    bearing_v = P.fg_shaft_z - P.fg_box_h / 2
+    front_edge = P.fg_inner_d / 2
+    pocket_u = front_edge - P.fg_joint_nut_inset
+    nearest_u = pocket_u - P.fg_joint_nut_d / 2
+    nearest_v = -P.fg_joint_nut_w / 2
+    cut_gap = sqrt(
+        (nearest_u - bearing_u) ** 2 + (nearest_v - bearing_v) ** 2
+    ) - (P.fg_bearing_d + P.fg_bearing_clear) / 2
+    assert cut_gap >= 2.0
+
+
 @pytest.mark.parametrize(
     "builder,edge_sign",
     ((bottom_panel, 1), (top_panel, -1)),
@@ -390,17 +419,61 @@ def test_large_panels_use_connected_ladder_frames_without_x_braces():
         2, 2, P.fg_side_t + 0.2
     )
     side_rib = Pos(0, 0, P.fg_side_t / 2) * Box(2, 2, P.fg_side_t)
-    skin_center_y = (P.fg_skin_window_y0 + P.fg_skin_window_y1) / 2
-    bottom_open = Pos(0, skin_center_y + 15, P.fg_panel_t / 2) * Box(
+    bottom_open = Pos(0, -P.fg_box_d / 2 + 10, P.fg_panel_t / 2) * Box(
         2, 2, P.fg_panel_t + 0.2
     )
-    bottom_rib = Pos(0, skin_center_y, P.fg_panel_t / 2) * Box(
+    bulkhead_y = (
+        P.fg_motor_face_y + P.fg_bulkhead_t / 2 - P.fg_box_d / 2
+    )
+    bottom_rib = Pos(0, bulkhead_y, P.fg_panel_t / 2) * Box(
         2, 2, P.fg_panel_t
     )
     assert (side & side_open).volume == pytest.approx(0, abs=1e-6)
     assert (side & side_rib).volume > 0
     assert (bottom & bottom_open).volume == pytest.approx(0, abs=1e-6)
     assert (bottom & bottom_rib).volume > 0
+
+
+def test_motor_bulkhead_has_two_tabs_on_all_four_edges():
+    bulkhead = motor_bulkhead()
+    probes = []
+    for position in P.fg_bulkhead_tab_positions:
+        for edge_sign in (-1, 1):
+            probes.append(
+                Pos(
+                    edge_sign * (P.fg_inner_w / 2 + P.fg_panel_t / 2),
+                    position,
+                    P.fg_bulkhead_t / 2,
+                )
+                * Box(1, 1, P.fg_bulkhead_t)
+            )
+            probes.append(
+                Pos(
+                    position,
+                    edge_sign * (P.fg_inner_h / 2 + P.fg_panel_t / 2),
+                    P.fg_bulkhead_t / 2,
+                )
+                * Box(1, 1, P.fg_bulkhead_t)
+            )
+    assert len(probes) == 8
+    for probe in probes:
+        assert (bulkhead & probe).volume == pytest.approx(probe.volume)
+
+
+@pytest.mark.parametrize("builder,top", ((bottom_panel, False), (top_panel, True)))
+def test_top_and_bottom_receive_both_bulkhead_tabs(builder, top):
+    panel = builder()
+    assembly_y = P.fg_motor_face_y + P.fg_bulkhead_t / 2
+    slot_y = P.fg_box_d / 2 - assembly_y if top else (
+        assembly_y - P.fg_box_d / 2
+    )
+    for x in P.fg_bulkhead_tab_positions:
+        slot = Pos(x, slot_y, P.fg_panel_t / 2) * Box(
+            P.fg_bulkhead_tab_w,
+            P.fg_panel_t,
+            P.fg_panel_t + 0.2,
+        )
+        assert (panel & slot).volume == pytest.approx(0, abs=1e-6)
 
 
 def test_assembly_scene_contains_closed_box_and_drivetrain():

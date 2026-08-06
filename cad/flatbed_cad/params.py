@@ -91,7 +91,7 @@ class Params:
     # locations rise into local bosses. Bolt axes sit 5 mm inboard so a Ø6 M3
     # head has a complete seat with 2 mm to the outer edge.
     fg_box_w: float = 55.0
-    fg_box_d: float = 107.0
+    fg_box_d: float = 108.0
     fg_box_h: float = 43.0
     fg_panel_t: float = 2.0
     fg_side_t: float = 2.0
@@ -99,6 +99,7 @@ class Params:
     fg_joint_clear: float = 0.20
     fg_joint_hole_d: float = 3.4
     fg_joint_head_d: float = 6.0
+    fg_m3_bolt_len: float = 6.0
     fg_joint_edge_ligament: float = 2.0
     fg_joint_axis_inset: float = 5.0
     fg_joint_boss_t: float = 8.0
@@ -122,8 +123,8 @@ class Params:
     fg_side_frame_y: float = 8.0
     fg_side_rib_w: float = 6.0
     fg_skin_window_w: float = 37.0
-    fg_skin_window_y0: float = -23.0
-    fg_skin_window_y1: float = 37.5
+    fg_skin_end_frame_y: float = 8.0
+    fg_skin_bulkhead_rib_w: float = 6.0
     fg_skin_rib_w: float = 6.0
     fg_end_frame_y: float = 8.0
     # Both top/bottom closure stations sit behind the motor bulkhead. Keeping
@@ -137,6 +138,7 @@ class Params:
     fg_bulkhead_reinforce: float = 3.0
     fg_bulkhead_tab_w: float = 5.0
     fg_bulkhead_tab_positions: tuple[float, ...] = (-12.0, 12.0)
+    fg_motor_head_recess: float = 2.0
     fg_motor_mount_clear_d: float = 3.4
     fg_motor_boss_clear_d: float = 12.4
 
@@ -160,7 +162,6 @@ class Params:
     fg_output_shaft_d: float = 5.0
     fg_output_bore_d: float = 5.1
     fg_output_spacer_bore_d: float = 5.3
-    fg_output_shaft_flat: float = 4.4
     fg_output_exposed: float = 10.0
     fg_bearing_d: float = 16.0
     fg_bearing_w: float = 5.0

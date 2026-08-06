@@ -105,11 +105,7 @@ def pair_parts():
     output_part -= (
         Pos(P.fg_input_pitch_r - 10, 0, P.fg_output_pitch_r)
         * Rot(0, 90, 0)
-        * _d_prism(
-            P.fg_output_bore_d,
-            P.fg_output_shaft_flat + 0.2,
-            25,
-        )
+        * _cylinder(P.fg_output_bore_d / 2, 25)
     )
     return input_part, output_part
 
@@ -156,7 +152,7 @@ def input_spacer():
 
 
 def output_gear():
-    """18T D-bore output gear, self-supporting wide-heel-down orientation."""
+    """18T round-bore output gear, self-supporting heel-down orientation."""
     orient = Rot(0, 90, 0) * Pos(
         -P.fg_input_pitch_r,
         0,
@@ -193,37 +189,13 @@ def bearing_625zz():
 
 
 def output_rod():
-    # Only the short section captured by the gear is filed to a D. Everything
-    # on either side remains round for the spacers and 625ZZ bearing journals.
-    posed_output = pair_in_box() * pair_parts()[1]
-    gear_x0 = posed_output.bounding_box().min.X
-    gear_x1 = posed_output.bounding_box().max.X
-    d_x0 = gear_x0 - P.fg_gear_running_gap
-    d_x1 = gear_x1 + P.fg_gear_running_gap
-    d_length = d_x1 - d_x0
-    d_section = (
-        Pos(d_x0, output_axis_y(), P.fg_shaft_z)
-        * Rot(-90, 0, 0)
-        * Rot(0, 90, 0)
-        * _d_prism(
-            P.fg_output_shaft_d,
-            P.fg_output_shaft_flat,
-            d_length,
-        )
-    )
-    left_round = Pos(0, output_axis_y(), P.fg_shaft_z) * Rot(
+    """Unmodified round 5 mm rod through both side bearings."""
+    return Pos(0, output_axis_y(), P.fg_shaft_z) * Rot(
         0, 90, 0
     ) * _cylinder(
         P.fg_output_shaft_d / 2,
-        d_x0 + 0.1,
+        P.fg_box_w + P.fg_output_exposed,
     )
-    right_round = Pos(d_x1 - 0.1, output_axis_y(), P.fg_shaft_z) * Rot(
-        0, 90, 0
-    ) * _cylinder(
-        P.fg_output_shaft_d / 2,
-        P.fg_box_w + P.fg_output_exposed - d_x1 + 0.1,
-    )
-    return left_round + d_section + right_round
 
 
 def output_bearings():
