@@ -50,7 +50,8 @@ def test_box_uses_physically_selected_flatbed_joint():
     assert P.fg_joint_head_d == 5.8
     assert P.fg_m3_bolt_len == 6.0
     assert P.fg_joint_nut_inset == 2.8
-    assert (P.fg_mount_hole_d, P.fg_mount_hole_edge_inset) == (3.4, 7.0)
+    assert (P.fg_mount_hole_d, P.fg_mount_hole_edge_inset) == (3.4, 10.0)
+    assert P.fg_mount_land_d == 10.0
     assert P.fg_joint_edge_ligament == 2.0
 
 
@@ -438,17 +439,28 @@ def test_large_panels_use_connected_ladder_frames_without_x_braces():
     assert (bottom & bottom_rib).volume > 0
 
 
-def test_bottom_has_four_plain_future_mounting_holes_on_solid_corners():
-    bottom = bottom_panel()
+@pytest.mark.parametrize(
+    "builder,width,height",
+    (
+        (bottom_panel, P.fg_box_w, P.fg_box_d),
+        (top_panel, P.fg_box_w, P.fg_box_d),
+        (front_panel, P.fg_box_w, P.fg_inner_h),
+        (rear_panel, P.fg_box_w, P.fg_inner_h),
+    ),
+)
+def test_four_outer_skins_have_plain_future_mounts_on_connected_lands(
+    builder, width, height
+):
+    panel = builder()
     centers = [
         (x, y)
         for x in (
-            -P.fg_box_w / 2 + P.fg_mount_hole_edge_inset,
-            P.fg_box_w / 2 - P.fg_mount_hole_edge_inset,
+            -width / 2 + P.fg_mount_hole_edge_inset,
+            width / 2 - P.fg_mount_hole_edge_inset,
         )
         for y in (
-            -P.fg_box_d / 2 + P.fg_mount_hole_edge_inset,
-            P.fg_box_d / 2 - P.fg_mount_hole_edge_inset,
+            -height / 2 + P.fg_mount_hole_edge_inset,
+            height / 2 - P.fg_mount_hole_edge_inset,
         )
     ]
     assert len(centers) == 4
@@ -458,16 +470,21 @@ def test_bottom_has_four_plain_future_mounting_holes_on_solid_corners():
             P.fg_panel_t + 0.2,
             align=(Align.CENTER, Align.CENTER, Align.MIN),
         )
-        land = Pos(x, y, 0) * Cylinder(
-            P.fg_mount_hole_d / 2 + 1.0,
+        land_ring = Pos(x, y, 0) * Cylinder(
+            P.fg_mount_land_d / 2 - 0.2,
+            P.fg_panel_t,
+            align=(Align.CENTER, Align.CENTER, Align.MIN),
+        ) - Pos(x, y, 0) * Cylinder(
+            P.fg_mount_hole_d / 2 + 0.1,
             P.fg_panel_t,
             align=(Align.CENTER, Align.CENTER, Align.MIN),
         )
-        assert (bottom & hole).volume == pytest.approx(0, abs=1e-6)
-        assert (bottom & land).volume > 0
+        assert (panel & hole).volume == pytest.approx(0, abs=1e-6)
+        assert (panel & land_ring).volume == pytest.approx(land_ring.volume)
+        assert len(panel.solids()) == 1
 
     edge_ligament = P.fg_mount_hole_edge_inset - P.fg_mount_hole_d / 2
-    assert edge_ligament >= 5.0
+    assert edge_ligament >= 8.0
 
 
 def test_motor_bulkhead_has_two_tabs_on_all_four_edges():

@@ -44,6 +44,24 @@ def _cut_m3_hole(body, x: float, y: float, thickness: float):
     return body
 
 
+def _add_future_mount_holes(body, width: float, height: float):
+    """Add four plain M3 holes on connected flat lands near panel corners."""
+    for x in (
+        -width / 2 + P.fg_mount_hole_edge_inset,
+        width / 2 - P.fg_mount_hole_edge_inset,
+    ):
+        for y in (
+            -height / 2 + P.fg_mount_hole_edge_inset,
+            height / 2 - P.fg_mount_hole_edge_inset,
+        ):
+            body += Pos(x, y, 0) * _cylinder(
+                P.fg_mount_land_d / 2,
+                P.fg_panel_t,
+            )
+            body = _cut_m3_hole(body, x, y, P.fg_panel_t)
+    return body
+
+
 def _cut_split_windows(
     body,
     *,
@@ -364,17 +382,7 @@ def horizontal_panel(top: bool = False):
             )
     body = _cut_horizontal_bulkhead_slots(body, top=top)
     body = _add_front_center_nut_boss(body, edge_sign=-1 if top else 1)
-    if not top:
-        for x in (
-            -P.fg_box_w / 2 + P.fg_mount_hole_edge_inset,
-            P.fg_box_w / 2 - P.fg_mount_hole_edge_inset,
-        ):
-            for y in (
-                -P.fg_box_d / 2 + P.fg_mount_hole_edge_inset,
-                P.fg_box_d / 2 - P.fg_mount_hole_edge_inset,
-            ):
-                body = _cut_m3_hole(body, x, y, P.fg_panel_t)
-    return body
+    return _add_future_mount_holes(body, P.fg_box_w, P.fg_box_d)
 
 
 def bottom_panel():
@@ -441,7 +449,7 @@ def end_panel(front: bool = False):
             P.fg_wire_exit_h,
             P.fg_panel_t + 0.2,
         )
-    return body
+    return _add_future_mount_holes(body, P.fg_box_w, P.fg_inner_h)
 
 
 def front_panel():

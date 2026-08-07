@@ -74,9 +74,12 @@ The two top-edge bulkhead tabs are spread 5 mm farther apart than the other
 three pairs. Only the top panel has the matching wider slot pair, keying the
 bulkhead so it cannot be installed upside-down or rotated 180 degrees.
 
-The bottom panel also carries four independent Ø3.4 mm future-mounting holes,
-one at each corner with 7 mm edge insets. They do not participate in the
-enclosure joints and are reserved for attaching the gearbox to a later part.
+The top, bottom, front, and rear panels each carry four independent Ø3.4 mm
+future-mounting holes. Their axes sit 10 mm inward from each panel edge on
+connected Ø10 mm flat lands, so the pattern remains usable where it enters a
+material-saving window. They do not participate in the enclosure joints and
+are reserved for attaching the gearbox to later parts. The bearing-heavy
+left/right sheets deliberately omit this auxiliary pattern.
 
 ## Shaft and gear retention
 

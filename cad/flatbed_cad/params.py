@@ -128,7 +128,8 @@ class Params:
     fg_skin_end_frame_y: float = 8.0
     fg_skin_bulkhead_rib_w: float = 6.0
     fg_mount_hole_d: float = 3.4
-    fg_mount_hole_edge_inset: float = 7.0
+    fg_mount_hole_edge_inset: float = 10.0
+    fg_mount_land_d: float = 10.0
     fg_skin_rib_w: float = 6.0
     fg_end_frame_y: float = 8.0
     # Both top/bottom closure stations sit behind the motor bulkhead. Keeping
