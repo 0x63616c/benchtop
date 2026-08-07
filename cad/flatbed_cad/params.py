@@ -99,8 +99,6 @@ class Params:
     fg_joint_clear: float = 0.20
     fg_joint_hole_d: float = 3.4
     fg_joint_head_d: float = 5.8
-    fg_joint_head_recess: float = 1.7
-    fg_joint_head_bevel: float = 0.3
     fg_m3_bolt_len: float = 6.0
     fg_joint_edge_ligament: float = 2.0
     fg_joint_axis_inset: float = 5.0
@@ -115,7 +113,9 @@ class Params:
     fg_front_center_boss_t: float = 10.0
     fg_joint_nut_w: float = 6.2
     fg_joint_nut_d: float = 3.0
-    fg_joint_nut_inset: float = 4.5
+    # With unrecessed M3x6 heads, this puts 2.7 mm of the shank through each
+    # 3 mm nut pocket after crossing the adjoining 2 mm panel.
+    fg_joint_nut_inset: float = 2.8
     fg_joint_stem_w: float = 4.0
     fg_joint_tab_w: float = 5.0
     fg_joint_tab_pitch: float = 16.0
@@ -127,6 +127,8 @@ class Params:
     fg_skin_window_w: float = 37.0
     fg_skin_end_frame_y: float = 8.0
     fg_skin_bulkhead_rib_w: float = 6.0
+    fg_mount_hole_d: float = 3.4
+    fg_mount_hole_edge_inset: float = 7.0
     fg_skin_rib_w: float = 6.0
     fg_end_frame_y: float = 8.0
     # Both top/bottom closure stations sit behind the motor bulkhead. Keeping
@@ -137,13 +139,12 @@ class Params:
     # Internal motor mounting bulkhead: 2 mm sheet plus a 3 mm circular
     # reinforcement on the gear side. Four edge tabs locate it in the skins.
     fg_bulkhead_t: float = 2.0
-    fg_bulkhead_reinforce: float = 3.0
+    fg_bulkhead_reinforce: float = 1.0
     fg_bulkhead_tab_w: float = 5.0
     fg_bulkhead_tab_positions: tuple[float, ...] = (-12.0, 12.0)
     # The top pair is spread 5 mm farther apart than every other pair. Its
     # matching top-panel slots make the bulkhead impossible to fit upside-down.
     fg_bulkhead_keyed_tab_positions: tuple[float, ...] = (-14.5, 14.5)
-    fg_motor_head_recess: float = 1.7
     fg_motor_mount_clear_d: float = 3.4
     fg_motor_boss_clear_d: float = 12.4
 

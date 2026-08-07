@@ -48,31 +48,24 @@ def test_box_uses_physically_selected_flatbed_joint():
     assert (P.fg_joint_nut_w, P.fg_joint_nut_d) == (6.2, 3.0)
     assert P.fg_joint_stem_w == 4.0
     assert P.fg_joint_head_d == 5.8
-    assert P.fg_joint_head_recess == 1.7
-    assert P.fg_joint_head_bevel == 0.3
     assert P.fg_m3_bolt_len == 6.0
+    assert P.fg_joint_nut_inset == 2.8
+    assert (P.fg_mount_hole_d, P.fg_mount_hole_edge_inset) == (3.4, 7.0)
     assert P.fg_joint_edge_ligament == 2.0
 
 
 def test_m3x6_reaches_every_captive_nut_without_protruding():
-    nut_near_face = P.fg_joint_nut_inset - P.fg_joint_nut_d / 2
-    nut_far_face = P.fg_joint_nut_inset + P.fg_joint_nut_d / 2
-    assert nut_near_face == pytest.approx(3.0)
-    assert P.fg_m3_bolt_len == pytest.approx(nut_far_face)
-
     motor_plate_left = (
-        P.fg_bulkhead_t
-        + P.fg_bulkhead_reinforce
-        - P.fg_motor_head_recess
+        P.fg_bulkhead_t + P.fg_bulkhead_reinforce
     )
     motor_thread_engagement = P.fg_m3_bolt_len - motor_plate_left
-    assert motor_thread_engagement == pytest.approx(2.7)
+    assert motor_thread_engagement == pytest.approx(3.0)
     assert motor_thread_engagement <= P.fg_motor_screw_depth
 
     receiver_near_face = (
         P.fg_panel_t + P.fg_joint_nut_inset - P.fg_joint_nut_d / 2
     )
-    bolt_tip = P.fg_joint_head_recess + P.fg_m3_bolt_len
+    bolt_tip = P.fg_m3_bolt_len
     assert bolt_tip - receiver_near_face == pytest.approx(2.7)
 
 
@@ -275,7 +268,7 @@ def test_top_and_bottom_hardware_stays_behind_motor_bulkhead():
         (front_panel, (P.fg_front_joint_z,)),
     ),
 )
-def test_every_face_has_full_m3_holes_and_recessed_head_seats(builder, hole_ys):
+def test_every_face_has_plain_m3_holes_and_complete_head_seats(builder, hole_ys):
     part = builder()
     hole_xs = (
         -P.fg_box_w / 2 + P.fg_joint_axis_inset,
@@ -290,24 +283,17 @@ def test_every_face_has_full_m3_holes_and_recessed_head_seats(builder, hole_ys):
             )
             assert (part & through_probe).volume == pytest.approx(0, abs=1e-6)
 
-            recess_probe = Pos(hole_x, hole_y, 0) * Cylinder(
-                P.fg_joint_head_d / 2 - 0.1,
-                P.fg_joint_head_recess - 0.1,
+            head_disk = Pos(hole_x, hole_y, 0) * Cylinder(
+                P.fg_joint_head_d / 2,
+                P.fg_panel_t,
                 align=(Align.CENTER, Align.CENTER, Align.MIN),
             )
-            assert (part & recess_probe).volume == pytest.approx(0, abs=1e-6)
-
-            outer_disk = Pos(hole_x, hole_y, P.fg_joint_head_recess + 0.05) * Cylinder(
-                P.fg_joint_head_d / 2 - 0.1,
-                P.fg_panel_t - P.fg_joint_head_recess - 0.1,
+            hole_disk = Pos(hole_x, hole_y, 0) * Cylinder(
+                P.fg_joint_hole_d / 2,
+                P.fg_panel_t,
                 align=(Align.CENTER, Align.CENTER, Align.MIN),
             )
-            hole_disk = Pos(hole_x, hole_y, P.fg_joint_head_recess + 0.05) * Cylinder(
-                P.fg_joint_hole_d / 2 + P.fg_joint_head_bevel + 0.05,
-                P.fg_panel_t - P.fg_joint_head_recess - 0.1,
-                align=(Align.CENTER, Align.CENTER, Align.MIN),
-            )
-            seat = outer_disk - hole_disk
+            seat = head_disk - hole_disk
             assert (seat - (part & seat)).volume == pytest.approx(0, abs=1e-6)
 
 
@@ -329,24 +315,17 @@ def test_front_has_centered_m3_holes_on_both_long_edges():
         )
         assert (front & through_probe).volume == pytest.approx(0, abs=1e-6)
 
-        recess_probe = Pos(0, center_v, 0) * Cylinder(
-            P.fg_joint_head_d / 2 - 0.1,
-            P.fg_joint_head_recess - 0.1,
+        head_disk = Pos(0, center_v, 0) * Cylinder(
+            P.fg_joint_head_d / 2,
+            P.fg_panel_t,
             align=(Align.CENTER, Align.CENTER, Align.MIN),
         )
-        assert (front & recess_probe).volume == pytest.approx(0, abs=1e-6)
-
-        outer_disk = Pos(0, center_v, P.fg_joint_head_recess + 0.05) * Cylinder(
-            P.fg_joint_head_d / 2 - 0.1,
-            P.fg_panel_t - P.fg_joint_head_recess - 0.1,
+        hole_disk = Pos(0, center_v, 0) * Cylinder(
+            P.fg_joint_hole_d / 2,
+            P.fg_panel_t,
             align=(Align.CENTER, Align.CENTER, Align.MIN),
         )
-        hole_disk = Pos(0, center_v, P.fg_joint_head_recess + 0.05) * Cylinder(
-            P.fg_joint_hole_d / 2 + P.fg_joint_head_bevel + 0.05,
-            P.fg_panel_t - P.fg_joint_head_recess - 0.1,
-            align=(Align.CENTER, Align.CENTER, Align.MIN),
-        )
-        seat = outer_disk - hole_disk
+        seat = head_disk - hole_disk
         assert (seat - (front & seat)).volume == pytest.approx(0, abs=1e-6)
         edge_ligament = (
             P.fg_inner_h / 2
@@ -354,32 +333,6 @@ def test_front_has_centered_m3_holes_on_both_long_edges():
             - P.fg_joint_head_d / 2
         )
         assert edge_ligament >= P.fg_joint_edge_ligament
-
-
-def test_head_recess_has_a_real_45_degree_shoulder_relief():
-    front = front_panel()
-    hole_x = P.fg_box_w / 2 - P.fg_joint_axis_inset
-    radial_probe = P.fg_joint_hole_d / 2 + 0.2
-    low = Pos(
-        hole_x + radial_probe,
-        P.fg_front_joint_z,
-        P.fg_joint_head_recess + 0.03,
-    ) * Cylinder(
-        0.03,
-        0.04,
-        align=(Align.CENTER, Align.CENTER, Align.MIN),
-    )
-    high = Pos(
-        hole_x + radial_probe,
-        P.fg_front_joint_z,
-        P.fg_joint_head_recess + P.fg_joint_head_bevel - 0.07,
-    ) * Cylinder(
-        0.03,
-        0.04,
-        align=(Align.CENTER, Align.CENTER, Align.MIN),
-    )
-    assert (front & low).volume == pytest.approx(0, abs=1e-6)
-    assert (front & high).volume == pytest.approx(high.volume)
 
 
 def test_front_side_nut_pockets_clear_bearing_pockets_by_two_mm():
@@ -406,7 +359,7 @@ def test_center_front_bolts_have_aligned_top_loading_nut_bosses(
     pocket_y = edge_sign * (
         P.fg_box_d / 2 - P.fg_panel_t - P.fg_joint_nut_inset
     )
-    assert P.fg_box_d / 2 - abs(pocket_y) == pytest.approx(6.5)
+    assert P.fg_box_d / 2 - abs(pocket_y) == pytest.approx(4.8)
     cavity_floor = P.fg_front_center_axis_z - P.fg_joint_nut_w / 2
     bottomed_nut_center = cavity_floor + P.fg_joint_nut_w / 2
     assert bottomed_nut_center == pytest.approx(P.fg_front_center_axis_z)
@@ -483,6 +436,38 @@ def test_large_panels_use_connected_ladder_frames_without_x_braces():
     assert (side & side_rib).volume > 0
     assert (bottom & bottom_open).volume == pytest.approx(0, abs=1e-6)
     assert (bottom & bottom_rib).volume > 0
+
+
+def test_bottom_has_four_plain_future_mounting_holes_on_solid_corners():
+    bottom = bottom_panel()
+    centers = [
+        (x, y)
+        for x in (
+            -P.fg_box_w / 2 + P.fg_mount_hole_edge_inset,
+            P.fg_box_w / 2 - P.fg_mount_hole_edge_inset,
+        )
+        for y in (
+            -P.fg_box_d / 2 + P.fg_mount_hole_edge_inset,
+            P.fg_box_d / 2 - P.fg_mount_hole_edge_inset,
+        )
+    ]
+    assert len(centers) == 4
+    for x, y in centers:
+        hole = Pos(x, y, -0.1) * Cylinder(
+            P.fg_mount_hole_d / 2 - 0.1,
+            P.fg_panel_t + 0.2,
+            align=(Align.CENTER, Align.CENTER, Align.MIN),
+        )
+        land = Pos(x, y, 0) * Cylinder(
+            P.fg_mount_hole_d / 2 + 1.0,
+            P.fg_panel_t,
+            align=(Align.CENTER, Align.CENTER, Align.MIN),
+        )
+        assert (bottom & hole).volume == pytest.approx(0, abs=1e-6)
+        assert (bottom & land).volume > 0
+
+    edge_ligament = P.fg_mount_hole_edge_inset - P.fg_mount_hole_d / 2
+    assert edge_ligament >= 5.0
 
 
 def test_motor_bulkhead_has_two_tabs_on_all_four_edges():

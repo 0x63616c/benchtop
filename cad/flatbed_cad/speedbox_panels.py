@@ -14,7 +14,7 @@ pose. Each side's bearing carrier prints upward and lands inside the box.
 
 from math import cos, radians, sin
 
-from build123d import Align, Box, Cone, Cylinder, Pos
+from build123d import Align, Box, Cylinder, Pos
 
 from splitflap_cad.viewer import Scene
 
@@ -35,21 +35,11 @@ def _cylinder(radius: float, height: float):
     )
 
 
-def _cut_recessed_m3_hole(body, x: float, y: float, thickness: float):
-    """Cut a through-hole, flat head seat, and printable 45-degree relief."""
+def _cut_m3_hole(body, x: float, y: float, thickness: float):
+    """Cut one plain M3 clearance hole with no head recess."""
     body -= Pos(x, y, -0.1) * _cylinder(
         P.fg_joint_hole_d / 2,
         thickness + 0.2,
-    )
-    body -= Pos(x, y, -0.1) * _cylinder(
-        P.fg_joint_head_d / 2,
-        P.fg_joint_head_recess + 0.1,
-    )
-    body -= Pos(x, y, P.fg_joint_head_recess) * Cone(
-        P.fg_joint_hole_d / 2 + P.fg_joint_head_bevel,
-        P.fg_joint_hole_d / 2,
-        P.fg_joint_head_bevel,
-        align=(Align.CENTER, Align.CENTER, Align.MIN),
     )
     return body
 
@@ -316,7 +306,7 @@ def _cut_closure_station(
             slot_d,
             P.fg_panel_t + 0.2,
         )
-    return _cut_recessed_m3_hole(body, hole_x, y, P.fg_panel_t)
+    return _cut_m3_hole(body, hole_x, y, P.fg_panel_t)
 
 
 def horizontal_panel(top: bool = False):
@@ -374,6 +364,16 @@ def horizontal_panel(top: bool = False):
             )
     body = _cut_horizontal_bulkhead_slots(body, top=top)
     body = _add_front_center_nut_boss(body, edge_sign=-1 if top else 1)
+    if not top:
+        for x in (
+            -P.fg_box_w / 2 + P.fg_mount_hole_edge_inset,
+            P.fg_box_w / 2 - P.fg_mount_hole_edge_inset,
+        ):
+            for y in (
+                -P.fg_box_d / 2 + P.fg_mount_hole_edge_inset,
+                P.fg_box_d / 2 - P.fg_mount_hole_edge_inset,
+            ):
+                body = _cut_m3_hole(body, x, y, P.fg_panel_t)
     return body
 
 
@@ -424,7 +424,7 @@ def end_panel(front: bool = False):
             P.fg_box_h - P.fg_front_center_axis_z,
         ):
             center_v = axis_z - P.fg_box_h / 2
-            body = _cut_recessed_m3_hole(
+            body = _cut_m3_hole(
                 body,
                 0,
                 center_v,
@@ -499,27 +499,6 @@ def motor_bulkhead():
         body -= Pos(x, v, -0.1) * _cylinder(
             P.fg_motor_mount_clear_d / 2,
             P.fg_bulkhead_t + P.fg_bulkhead_reinforce + 0.2,
-        )
-        body -= Pos(
-            x,
-            v,
-            P.fg_bulkhead_t + P.fg_bulkhead_reinforce - P.fg_motor_head_recess,
-        ) * _cylinder(
-            P.fg_joint_head_d / 2,
-            P.fg_motor_head_recess + 0.1,
-        )
-        body -= Pos(
-            x,
-            v,
-            P.fg_bulkhead_t
-            + P.fg_bulkhead_reinforce
-            - P.fg_motor_head_recess
-            - P.fg_joint_head_bevel,
-        ) * Cone(
-            P.fg_joint_hole_d / 2,
-            P.fg_joint_hole_d / 2 + P.fg_joint_head_bevel,
-            P.fg_joint_head_bevel,
-            align=(Align.CENTER, Align.CENTER, Align.MIN),
         )
     return body
 

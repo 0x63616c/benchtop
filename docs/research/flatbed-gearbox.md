@@ -32,8 +32,7 @@ The enclosure reuses the physically selected three-dot Flatbed calibration:
 - 6.2 x 3.0 mm captive M3 nut pockets
 - 4.0 mm-wide long bolt-entry channel in each T-slot
 - one standard fastener length throughout: **M3 x 6 mm**
-- every exterior head pocket is **5.8 mm diameter x 1.7 mm deep**, ending in
-  a 0.3 mm-high 45-degree shoulder relief before the 3.4 mm through-hole
+- plain through-holes only; bolt heads sit on the outer panel faces
 
 Each bolt axis is 5 mm inboard. A Ø5.8 mm M3 head therefore has a complete
 circular landing face with at least 2 mm to the outer edge. The paired locating slots
@@ -44,16 +43,17 @@ continuous outer wall. Centered front fasteners use matching 10 mm bosses on
 the top and bottom skins, placing their axes 7 mm from each long edge with the
 same 2 mm head ligament.
 
-The two centered front receivers place their nut cavities at the same 6.5 mm
-center distance from the outer face as the side receivers. With the 1.7 mm
-head recess, every M3 x 6 closure bolt crosses about 2.7 mm of its 3 mm-deep
-nut pocket. The front receiver towers are taller only because their nuts load
-vertically; that tower height is perpendicular to bolt length.
+The two centered front receivers place their nut cavities at the same 4.8 mm
+center distance from the outer face as the side receivers. Every unrecessed
+M3 x 6 closure bolt crosses about 2.7 mm of its 3 mm-deep nut pocket. The front
+receiver towers are taller only because their nuts load vertically; that tower
+height is perpendicular to bolt length.
 
 The top and bottom closure fasteners are behind the motor bulkhead, so neither
 their bolts nor nuts enter the drive bay. The two front side fasteners are now
 centered vertically. The motor bulkhead uses the JGB37 six-hole Ø31 mm bolt
-circle and is locally 5 mm thick around the Ø37 motor face.
+circle and is locally 3 mm thick around the Ø37 motor face, giving an M3 x 6
+motor screw 3 mm of thread engagement without recessing its head.
 
 All four removable outer faces are fastened to both side sheets: top and bottom
 use two M3 bolts per side; front and rear use one per side. The front also has
@@ -68,13 +68,15 @@ The output-bearing pocket and the nearest front M3 nut cavity retain at least
 depth creates this ligament without offsetting the centered front fastener.
 
 The motor bulkhead has eight locating tabs: two into each of the left, right,
-top, and bottom sheets. Its six motor-screw seats use the same 1.7 mm recess,
-leaving 3.3 mm of printed plate and 2.7 mm of thread engagement with M3 x 6 mm
-bolts. The enlarged top and bottom windows stop at a straight 6 mm rail
+top, and bottom sheets. The enlarged top and bottom windows stop at a straight 6 mm rail
 through the bulkhead slots, with only 8 mm perimeter frames left at the ends.
 The two top-edge bulkhead tabs are spread 5 mm farther apart than the other
 three pairs. Only the top panel has the matching wider slot pair, keying the
 bulkhead so it cannot be installed upside-down or rotated 180 degrees.
+
+The bottom panel also carries four independent Ø3.4 mm future-mounting holes,
+one at each corner with 7 mm edge insets. They do not participate in the
+enclosure joints and are reserved for attaching the gearbox to a later part.
 
 ## Shaft and gear retention
 
